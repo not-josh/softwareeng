@@ -4,6 +4,7 @@ import pygame
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
+pygame.display.set_caption("ligHTning Bolt TOWN!!!")
 clock = pygame.time.Clock()
 running = True
 dt = 0
@@ -22,7 +23,8 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    #screen.fill("darkslategrey")
+    screen.fill("midnightblue")
 
     pygame.draw.circle(screen, "red", player_pos, 40)
 
@@ -39,7 +41,7 @@ while running:
     if (timer == 60):   #if one second has passed/one second remains
          lightning_pos = player_pos.copy()  #copy the players pos
     if (timer <= 60) and (timer > 30):      #constantly draw a grey circle "target" at the spot where lightning will strike
-        pygame.draw.circle(screen, "grey", lightning_pos, 40)
+        pygame.draw.circle(screen, "grey27", lightning_pos, 40)
     if (timer <= 30) and (timer > 0):       #for the final half second
         pygame.draw.circle(screen, "yellow", lightning_pos, 40) #draw a yellow circle (the lightning bolt)
     if (timer == 0):
