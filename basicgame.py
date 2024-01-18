@@ -36,14 +36,14 @@ while running:
     if keys[pygame.K_d]:
         player_pos.x += 300 * dt
 
-    if (timer == 60):
-         lightning_pos = player_pos.copy()
-    if (timer <= 60) and (timer > 30):
+    if (timer == 60):   #if one second has passed/one second remains
+         lightning_pos = player_pos.copy()  #copy the players pos
+    if (timer <= 60) and (timer > 30):      #constantly draw a grey circle "target" at the spot where lightning will strike
         pygame.draw.circle(screen, "grey", lightning_pos, 40)
-    if (timer <= 30) and (timer > 0):
-        pygame.draw.circle(screen, "yellow", lightning_pos, 40)
+    if (timer <= 30) and (timer > 0):       #for the final half second
+        pygame.draw.circle(screen, "yellow", lightning_pos, 40) #draw a yellow circle (the lightning bolt)
     if (timer == 0):
-        timer = 120
+        timer = 120 #sets timer to 2 seconds
     timer -= 1
 
     # flip() the display to put your work on screen
