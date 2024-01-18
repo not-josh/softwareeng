@@ -7,8 +7,12 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 dt = 0
+timer = 120
 
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+#Makes a COPY of the player's current position vector to use for lightning pos.
+#If i used an = to copy it, then i would just be using the address, which would continue to update (not what i want)
+lightning_pos = player_pos.copy()
 
 while running:
     # poll for events
@@ -31,6 +35,16 @@ while running:
         player_pos.x -= 300 * dt
     if keys[pygame.K_d]:
         player_pos.x += 300 * dt
+
+    if (timer == 60):
+         lightning_pos = player_pos.copy()
+    if (timer <= 60) and (timer > 30):
+        pygame.draw.circle(screen, "grey", lightning_pos, 40)
+    if (timer <= 30) and (timer > 0):
+        pygame.draw.circle(screen, "yellow", lightning_pos, 40)
+    if (timer == 0):
+        timer = 120
+    timer -= 1
 
     # flip() the display to put your work on screen
     pygame.display.flip()
