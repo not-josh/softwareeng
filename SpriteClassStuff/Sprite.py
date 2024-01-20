@@ -1,14 +1,20 @@
 import pygame
 
+# Contains
+	# sprite - parent class of all sprites
+		# fixedSprite - for sprites without animations
+		# animatedSprite - parent class of animation sprites
+			# douxSprite - class specifically for doux.png sprites
+	# animation - for sprite animations
+
+
+# General sprite class
 class sprite():
 	def __init__(self, file: str, RES: tuple[int, int], FRAME_COUNT: int, scale = 1):
 		self.RES = RES
 		self.FRAME_COUNT = FRAME_COUNT
 		self.spriteFrames: list = []
-		self.animations: list = []
-		self.currentAni: int = -1
-
-		self.size: tuple[int, int] = (RES[0] * scale, RES[1] * scale)
+		self.pos = [0,0]
 
 		spritesheet = pygame.image.load(file)
 		# Generates all frames of the sprite
@@ -21,18 +27,40 @@ class sprite():
 			self.spriteFrames.append(sprite)
 		
 		self.rescale(scale)
-
-	# Scales based on the current size (e.g. addscale(3), addscale(2) -> addscale(6))
-	def addscale(self, scale: int): 
-		self.size: tuple[int, int] = (self.size[0] * scale, self.size[1] * scale)
-		for i in range(0, len(self.spriteFrames)): 
-			self.spriteFrames[i] = pygame.transform.scale(self.spriteFrames[i], self.size)
-
+		
 	# Scales from the original resoltion (e.g. rescale(3), rescale(2) -> rescale(2))
 	def rescale(self, scale: int): 
 		self.size: tuple[int, int] = (self.RES[0] * scale, self.RES[1] * scale)
 		for i in range(0, len(self.spriteFrames)): 
 			self.spriteFrames[i] = pygame.transform.scale(self.spriteFrames[i], self.size)
+	
+	def isClicked(self, clickPos):
+		return (self.pos[0] <= clickPos[0] <= self.pos[0] + self.size[0]) \
+			and (self.pos[1] <= clickPos[1] <= self.pos[1] + self.size[1])
+		pass
+	
+	def getFrame(self, frameNumber: int): return self.spriteFrames[frameNumber]
+
+
+# For sprites without animations
+class fixedSprite(sprite):
+	def __init__(self, file: str, RES: tuple[int, int], FRAME_COUNT: int, scale=1):
+		super().__init__(file, RES, FRAME_COUNT, scale)
+		self.currentFrame = 0
+	
+	def setFrame(self, newFrame: int): 
+		if newFrame < 0: self.currentFrame = 0
+		if newFrame >= self.FRAME_COUNT: self.currentFrame = self.FRAME_COUNT - 1
+
+	def getFrame(self): return self.spriteFrames[self.currentFrame]
+
+
+# For sprites with animations
+class animatedSprite(sprite):
+	def __init__(self, file: str, RES: tuple[int, int], FRAME_COUNT: int, scale=1):
+		super().__init__(file, RES, FRAME_COUNT, scale)
+		self.animations: list = []
+		self.currentAni: int = -1
 
 	def addAnimation(self, RANGE: tuple[int, int], FRAME_RATIO):
 		if (RANGE[0] > RANGE[1] or RANGE[0] < 0 or RANGE[1] > self.FRAME_COUNT): 
@@ -47,16 +75,41 @@ class sprite():
 		if 0 <= index < len(self.animations):
 			self.currentAni = index
 	
-	def getFrame(self, frameNum: int = 0):
-		return self.spriteFrames[frameNum]
-	
 	def getFrame(self):
 		if not (0 <= self.currentAni < len(self.animations)):
 			return self.spriteFrames[0]
 		currentAnimation = self.animations[self.currentAni]
 		currentAnimation.frame()
 		return self.spriteFrames[currentAnimation.fullFrame]
+	
+	def getAniCount(self): return len(self.animations)
 
+
+# Example using doux specifcally. Child classes will likely be less specific, e.g. "entitySprite"
+# Specializing sprite types allows for functions like .idleAnimation(), .faceLeft(), etc., making
+	# basic animation easier
+class douxSprite(animatedSprite): 
+	def __init__(self, file: str, scale=1):
+		self.RES = (24, 24)
+		self.FRAME_COUNT = 24
+		super().__init__(file, self.RES, self.FRAME_COUNT, scale)
+
+		self.addAnimation((1, 3), 16)
+		self.addAnimation((4, 9), 8)
+		self.addAnimation((11, 12), 8)
+		self.addAnimation((14, 16), 12)
+		self.addAnimation((18, 23), 6)
+
+	def idleAni(self): self.currentAni = 0
+	def walkAni(self): self.currentAni = 1
+	def angryAni(self): self.currentAni = 2
+	def hurtAni(self): self.currentAni = 3
+	def sprintAni(self): self.currentAni = 4
+
+	def getAniCount(): return 5
+
+
+# Handles what frames are a part of what animations
 class animation():
 	def __init__(self, RANGE: tuple[int, int], FRAME_RATIO = 1):
 		self.RANGE = RANGE
