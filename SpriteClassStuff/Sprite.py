@@ -34,9 +34,9 @@ class sprite():
 		for i in range(0, len(self.spriteFrames)): 
 			self.spriteFrames[i] = pygame.transform.scale(self.spriteFrames[i], self.size)
 	
-	def isClicked(self, clickPos):
-		return (self.pos[0] <= clickPos[0] <= self.pos[0] + self.size[0]) \
-			and (self.pos[1] <= clickPos[1] <= self.pos[1] + self.size[1])
+	def isHit(self, hitPos) -> bool:
+		return (self.pos[0] <= hitPos[0] <= self.pos[0] + self.size[0]) \
+			and (self.pos[1] <= hitPos[1] <= self.pos[1] + self.size[1])
 		pass
 	
 	def getFrame(self, frameNumber: int): return self.spriteFrames[frameNumber]
@@ -116,6 +116,7 @@ class animation():
 		self.FRAME_RATIO = FRAME_RATIO
 		self.fullFrame = RANGE[0]
 		self.subFrame = 0
+		# Set frame ratio to 0 if there is only 1 frame or if ratio is negative
 		if (RANGE[0] == RANGE[1]): self.FRAME_RATIO = 0
 		if (FRAME_RATIO < 0): self.FRAME_RATIO = 0
 	

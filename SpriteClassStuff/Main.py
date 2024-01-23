@@ -2,8 +2,6 @@
 	# Spritesheets - https://www.youtube.com/watch?v=M6e3_8LHc7A
 	# Transparency - https://www.youtube.com/watch?v=8_HVdxBqJmE
 
-# too tired to comment idk
-
 import pygame
 from Sprite import *
 
@@ -14,9 +12,8 @@ SPRITE_RES = (24, 24)
 SPRITE_SCALE = 6 		# How much the sprite will be scaled up (i.e. by a factor of 3)
 SPRITE_FRAME_COUNT = 24	# Number of frames for the sprite
 SPRITE_FRAME_RATIO = 8 	# How many frames need to be rendered before the sprite changes frame
+
 SPRITE_COUNT = 5
-
-
 WALK_SPEED = 8
 
 WIDTH = 1280
@@ -32,19 +29,19 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 sprite_list = []
 
+# Fill list with SPRITE_COUNT sprites
 for i in range(0, SPRITE_COUNT):
 	sprite_list.append(douxSprite("Assets\\doux.png", SPRITE_SCALE))
 
-currentSprite = 0
-aniCount = douxSprite.getAniCount()
+currentSprite = 0 # Sprite currently being controlled with WASD & LShift
+aniCount = douxSprite.getAniCount() # Number of animations the sprite has
 
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() # Game clock
 ft = 0 # Time since last frame (ms)
 
-keys = pygame.key.get_pressed()
+keys = pygame.key.get_pressed() # List of bools; keys[KeyID] = keyIsPressed(KeyID)
 
 running = True
-mouseClicks = (0, 0, 0)
 	### End of setup ###
 
 # WASD
@@ -66,7 +63,7 @@ while running:
 			running = False # Quit game
 		
 		if event.type == pygame.KEYDOWN:
-			keys = pygame.key.get_pressed()
+			keys = pygame.key.get_pressed() # Update keypresses
 			# Change current sprite
 			for i in range(pygame.K_0, pygame.K_0 + SPRITE_COUNT + 1):
 				if keys[i]:
@@ -77,12 +74,13 @@ while running:
 				sprite_list[currentSprite].setAnimation((sprite_list[currentSprite].currentAni + 1) % aniCount)
 		
 		if event.type == pygame.KEYUP:
-			keys = pygame.key.get_pressed()
+			keys = pygame.key.get_pressed() # Update keypresses
 		
-		if event.type == pygame.MOUSEBUTTONDOWN:	
+		if event.type == pygame.MOUSEBUTTONDOWN:
 			for i in range(0, SPRITE_COUNT): 
-				if sprite_list[i].isClicked(pygame.mouse.get_pos()):
+				if sprite_list[i].isHit(pygame.mouse.get_pos()):
 					print("Sprite %d clicked" % (i))
+					sprite_list[i].hurtAni()
 	
 	moveSprites()
 
