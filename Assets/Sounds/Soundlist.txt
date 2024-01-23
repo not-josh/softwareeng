@@ -1,0 +1,16 @@
+Name		| Licensing	|	Link
+8-bit Comp	| Atr 4.0	| https://freesound.org/people/nebulousflynn/sounds/220305/
+Damage		| Atr 4.0	| https://freesound.org/people/ProjectsU012/sounds/341023/
+Lose		| Atr 4.0	| https://freesound.org/people/jalastram/sounds/317750/ 
+Weird Zap	| CC 0		| https://freesound.org/people/kutejnikov/sounds/522209/
+Explosion	| Atr 4.0	| https://freesound.org/people/ProjectsU012/sounds/334266/
+Item Pickup	| Atr 3.0	| https://freesound.org/people/timgormly/sounds/170170/
+Powerup		| Atr 3.0	| https://freesound.org/people/Eschwabe3/sounds/460132/
+Static Zap	| CC 0		| https://freesound.org/people/OwlStorm/sounds/404742/
+
+
+
+Licensing links
+Atr 4.0		https://creativecommons.org/licenses/by/4.0/
+Atr 3.0		https://creativecommons.org/publicdomain/zero/1.0/
+CC 0		https://creativecommons.org/licenses/by/3.0/
