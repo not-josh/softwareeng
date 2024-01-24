@@ -25,3 +25,16 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_DOWN]:
             self.rect.y += self.speed
 
+    # Gets future position if the player is allowed to move
+    def get_pos(self):
+        updated_pos = [0,0]
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            updated_pos[0] -= self.speed
+        if keys[pygame.K_RIGHT]:
+            updated_pos[0] += self.speed
+        if keys[pygame.K_UP]:
+            updated_pos[1] -= self.speed
+        if keys[pygame.K_DOWN]:
+            updated_pos[1] += self.speed
+        return updated_pos

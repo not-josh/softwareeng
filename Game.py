@@ -6,7 +6,7 @@ import sys
 # Initial variables
 screen_width, screen_height = 800, 800
 camera_width, camera_height = 800, 800
-room_width, room_height = 1600, 1600
+room_width, room_height = 800, 800
 frame_rate = 60
 
 # Colors
@@ -19,12 +19,22 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Lightning Bolt Town")
 
 # Setting the background to an image jpg
-background_image = pygame.image.load("Assets\Background\mudkip.jpg")  # Replace with your image file path
+background_image = pygame.image.load("Assets/temptown2.png")  # Replace with your image file path
 background_image = pygame.transform.scale(background_image, (room_width, room_height))  # Adjust the size according to your map size
 background_rect = background_image.get_rect()
 
+collision = pygame.image.load("Assets/temptown2_collisionmap.png")
+collision = pygame.transform.scale(collision, (room_width, room_height))
+collision_rect = collision.get_rect()
+collision_mask = pygame.mask.from_surface(collision)
+collision_mask_image = collision_mask.to_surface()
+
+
 # Making an instance of the Player and placing them in the center of the screen
 player = Player(camera_width // 2, camera_height // 2)
+player_mask = pygame.mask.from_surface(player.image)
+
+newpos = [0,0]
 
 # Making a camera that is the size of the room
 camera = Camera(room_width, room_height, screen_width, screen_height)
@@ -38,22 +48,33 @@ clock = pygame.time.Clock()
 running = True
 
 while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+
+    #get future movement
+    newpos = player.get_pos()
+    print(newpos)
     
     # Update calls for objects (aka: ticking)
-    player.update()
+    if (collision_mask.overlap(player_mask, (player.rect.x + newpos[0],player.rect.y + newpos[1]))):
+        print("collision!")
+    else:
+        player.update()
+    #player.update()
     camera.update(player)
 
     # Draw calls for objects (aka: rendering)
 
     # Drawing the background
     screen.blit(background_image, camera.apply(background_rect))
+    screen.blit(collision, camera.apply(background_rect))
+    #screen.blit(player_mask_image, camera.apply(background_rect))
 
     # Drawing all objects that we added to all_sprites
     for sprite in all_sprites:
         screen.blit(sprite.image, camera.apply(sprite))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
     # Refresh (or else the old stuff stays)
     pygame.display.flip()
