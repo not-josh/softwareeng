@@ -25,7 +25,6 @@ class Camera:
         y = -target.rect.y + self.screen_height // 2
 
         # Limit to map bounds
-
         x = min(0, max(-(self.width - self.screen_width), x))
         y = min(0, max(-(self.height - self.screen_height), y))
 
