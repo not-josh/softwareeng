@@ -19,7 +19,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Lightning Bolt Town")
 
 # Setting the background to an image jpg
-background_image = pygame.image.load("mudkip.jpg")  # Replace with your image file path
+background_image = pygame.image.load("Assets\Background\mudkip.jpg")  # Replace with your image file path
 background_image = pygame.transform.scale(background_image, (room_width, room_height))  # Adjust the size according to your map size
 background_rect = background_image.get_rect()
 
