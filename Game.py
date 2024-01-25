@@ -23,6 +23,7 @@ background_image = pygame.image.load("Assets/temptown2.png")  # Replace with you
 background_image = pygame.transform.scale(background_image, (room_width, room_height))  # Adjust the size according to your map size
 background_rect = background_image.get_rect()
 
+#Get collision mask stuff from collision map of background
 collision = pygame.image.load("Assets/temptown2_collisionmap.png")
 collision = pygame.transform.scale(collision, (room_width, room_height))
 #collision_rect = collision.get_rect() this was in the tutorial i used but i dont think it's ever actually used
@@ -47,25 +48,30 @@ running = True
 
 while running:
 
-    #get future movement
+
+    # Update calls for objects (aka: ticking)
+
+    #get x and y coord changes movement
     move = player.get_pos_change()
     print(move)
-    
-    # Update calls for objects (aka: ticking)
+
+    #if the x change would cause an overlap, set it to 0
     if (collision_mask.overlap(player_mask, (player.rect.x + move[0],player.rect.y + 0))):
         move[0] = 0
+    #if the y change would cause an overlap, set it to 0
     if (collision_mask.overlap(player_mask, (player.rect.x + 0, player.rect.y + move[1]))):
         move[1] = 0
+    #send the cleaned movement coords to player.update
     player.update(move)
-    #player.update()
     camera.update(player)
 
     # Draw calls for objects (aka: rendering)
 
     # Drawing the background
     screen.blit(background_image, camera.apply(background_rect))
+
+    #comment this line out to make collision map invisible
     screen.blit(collision, camera.apply(background_rect))
-    #screen.blit(player_mask_image, camera.apply(background_rect))
 
     # Drawing all objects that we added to all_sprites
     for sprite in all_sprites:
