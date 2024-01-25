@@ -10,6 +10,8 @@ AXE_VALUE = 15
 KEY_VALUE = 5
 BUY_MULTIPLIER = 2
 
+PLAYER_SPEED = 5
+
 class Inventory():
 	def __init__(self):
 		self.axe_count = 0
@@ -37,20 +39,21 @@ class Inventory():
 
 class Player(pygame.sprite.Sprite):
 	# SPRITE_RES = Resolution of a *single* frame of the sprite
-	def __init__(self, spritesheet: str, SPRITE_RES: tuple[int, int], SPRITE_FRAME_COUNT, x, y, SCALE = 1):
+	def __init__(self, sprite_file: str, SPRITE_RES: tuple[int, int], SPRITE_FRAME_COUNT, x, y, SCALE = 1):
 		super().__init__()
-		self.SPRITE_RES = max(0,SPRITE_RES)
-		self.SPRITE_FRAME_COUNT = min(1, SPRITE_FRAME_COUNT)
-		self.pos = [x, y]
-
+		self.SPRITE_RES = SPRITE_RES
+		self.SPRITE_FRAME_COUNT = max(1, SPRITE_FRAME_COUNT)
 		self.SPRITE_FRAMES = []
 
+		# Generate all frames of the sprite
+		spritesheet = pygame.image.load(sprite_file)
 		for i in range(0, self.SPRITE_FRAME_COUNT):
 			frame = pygame.Surface(SPRITE_RES, pygame.SRCALPHA)
 			# draw (sprite) on (origin of surface)  (X Start, Y Start, X length, Y length)
 			frame.blit(spritesheet, (0, 0),	(self.SPRITE_RES[0] * i, 0, self.SPRITE_RES[0], self.SPRITE_RES[1]))
 			if SCALE != 1: 
-				frame = pygame.transform.scale(spritesheet, (self.SPRITE_RES[0] * SCALE, self.SPRITE_RES[1] * SCALE))
+				frame = pygame.transform.scale(frame, (self.SPRITE_RES[0] * SCALE, self.SPRITE_RES[1] * SCALE))
+			self.SPRITE_FRAMES.append(frame)
 
 		# Create animation list
 		self.ANIMATIONS: list = []
@@ -60,16 +63,19 @@ class Player(pygame.sprite.Sprite):
 		self.ANIMATIONS.append(Animation((14, 16), 12))
 		self.ANIMATIONS.append(Animation((18, 23), 6))
 		self.ANI_COUNT = len(self.ANIMATIONS)
-
 		self.current_animation = self.ANIMATIONS[0]
-		self.frame = self.SPRITE_FRAMES[self.ANIMATIONS[0].current_frame]
+
+		# Set the current image and rect (position)
+		self.image = self.SPRITE_FRAMES[self.ANIMATIONS[0].current_frame]
+		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 
 	# Updates the current animation & frame
 	# Run every frame	
 	def update(self):
 		self.move()
-		self.current_animation.update()
-		self.frame = self.SPRITE_FRAMES[self.current_animation.current_frame]
+		if (self.current_animation.update()):
+			self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
 		pass
 
 	# Sets the current animation
@@ -81,13 +87,13 @@ class Player(pygame.sprite.Sprite):
 	def move(self):
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT]:
-			self.rect.x -= self.speed
+			self.rect.x -= PLAYER_SPEED
 		if keys[pygame.K_RIGHT]:
-			self.rect.x += self.speed
+			self.rect.x += PLAYER_SPEED
 		if keys[pygame.K_UP]:
-			self.rect.y -= self.speed
+			self.rect.y -= PLAYER_SPEED
 		if keys[pygame.K_DOWN]:
-			self.rect.y += self.speed
+			self.rect.y += PLAYER_SPEED
 
 
 # Class for handling animations
@@ -99,11 +105,10 @@ class Animation():
 		
 		# If the "animation" is a single frame, much of the work can be skipped
 		self.IS_ANIMATED = FRAME_RANGE[0] != FRAME_RANGE[1]
-		if self.IS_ANIMATED: return
+		if not self.IS_ANIMATED: return
 		
-		self.FRAME_RANGE = (0,0)
-		self.FRAME_RANGE[0] = min(FRAME_RANGE[0], FRAME_RANGE[1])
-		self.FRAME_RANGE[1] = max(FRAME_RANGE[0], FRAME_RANGE[1])
+		self.FRAME_RANGE = (min(FRAME_RANGE[0], FRAME_RANGE[1]), 
+					  		max(FRAME_RANGE[0], FRAME_RANGE[1]))
 		
 		self.FRAME_RATIO = max(1, FRAME_RATIO)
 		
@@ -115,7 +120,7 @@ class Animation():
 		if (self.IS_ANIMATED): # Skip if animation is a single frame (not animated)
 			if (self.sub_frame == 0):
 				self.current_frame += 1
-				if self.current_frame > self.FRAME_RANGE: self.current_frame = self.FRAME_RANGE[0]
-				return True
+				if self.current_frame > self.FRAME_RANGE[1]: self.current_frame = self.FRAME_RANGE[0]
 			self.sub_frame = (self.sub_frame + 1) % self.FRAME_RATIO
+			return True
 		return False
