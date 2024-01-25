@@ -25,7 +25,7 @@ background_rect = background_image.get_rect()
 
 collision = pygame.image.load("Assets/temptown2_collisionmap.png")
 collision = pygame.transform.scale(collision, (room_width, room_height))
-collision_rect = collision.get_rect()
+#collision_rect = collision.get_rect() this was in the tutorial i used but i dont think it's ever actually used
 collision_mask = pygame.mask.from_surface(collision)
 collision_mask_image = collision_mask.to_surface()
 
@@ -33,8 +33,6 @@ collision_mask_image = collision_mask.to_surface()
 # Making an instance of the Player and placing them in the center of the screen
 player = Player(camera_width // 2, camera_height // 2)
 player_mask = pygame.mask.from_surface(player.image)
-
-newpos = [0,0]
 
 # Making a camera that is the size of the room
 camera = Camera(room_width, room_height, screen_width, screen_height)
@@ -50,14 +48,15 @@ running = True
 while running:
 
     #get future movement
-    newpos = player.get_pos()
-    print(newpos)
+    move = player.get_pos_change()
+    print(move)
     
     # Update calls for objects (aka: ticking)
-    if (collision_mask.overlap(player_mask, (player.rect.x + newpos[0],player.rect.y + newpos[1]))):
-        print("collision!")
-    else:
-        player.update()
+    if (collision_mask.overlap(player_mask, (player.rect.x + move[0],player.rect.y + 0))):
+        move[0] = 0
+    if (collision_mask.overlap(player_mask, (player.rect.x + 0, player.rect.y + move[1]))):
+        move[1] = 0
+    player.update(move)
     #player.update()
     camera.update(player)
 
