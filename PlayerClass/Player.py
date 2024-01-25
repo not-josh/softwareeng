@@ -70,6 +70,8 @@ class Player(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 
+		self.inventory = Inventory()
+
 	# Updates the current animation & frame
 	# Run every frame	
 	def update(self):
@@ -86,14 +88,18 @@ class Player(pygame.sprite.Sprite):
 	# Updating based on inputs
 	def move(self):
 		keys = pygame.key.get_pressed()
-		if keys[pygame.K_LEFT]:
-			self.rect.x -= PLAYER_SPEED
-		if keys[pygame.K_RIGHT]:
-			self.rect.x += PLAYER_SPEED
 		if keys[pygame.K_UP]:
 			self.rect.y -= PLAYER_SPEED
+			self.current_animation = self.ANIMATIONS[4]
 		if keys[pygame.K_DOWN]:
 			self.rect.y += PLAYER_SPEED
+			self.current_animation = self.ANIMATIONS[3]
+		if keys[pygame.K_LEFT]:
+			self.rect.x -= PLAYER_SPEED
+			self.current_animation = self.ANIMATIONS[0]
+		if keys[pygame.K_RIGHT]:
+			self.rect.x += PLAYER_SPEED
+			self.current_animation = self.ANIMATIONS[1]
 
 
 # Class for handling animations
