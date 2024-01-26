@@ -12,29 +12,53 @@ BUY_MULTIPLIER = 2
 
 PLAYER_SPEED = 5
 
+
+# Literally just a bunch of buy/sell functions
 class Inventory():
 	def __init__(self):
 		self.axe_count = 0
 		self.key_count = 0
 		self.scrap_value = 0
-		self.coins = 0
+		self.coin_count = 0
 	
-	def sellAxes(self, count = 1) -> bool:
+	def sellAxe(self, count = 1) -> bool:
 		if (self.axes < count): return False
 		self.axes -= count
-		self.coins += count * AXE_VALUE
+		self.coin_count += count * AXE_VALUE
 		return True
 	
-	def sellKeys(self, count = 1) -> bool:
+	def sellKey(self, count = 1) -> bool:
 		if (self.keys < count): return False
 		self.keys -= count
-		self.coins += count * KEY_VALUE
+		self.coin_count += count * KEY_VALUE
 		return True
 	
 	def sellScrap(self) -> bool:
 		if (self.scrap_value <= 0): return False
-		self.coins += self.scrap_value
+		self.coin_count += self.scrap_value
 		self.scrap_value = 0
+		return True
+
+	def sellAll(self) -> bool:
+		sold_something = False
+		if (self.sellAxe(self.axe_count)): sold_something = True
+		if (self.sellKey(self.key_count)): sold_something = True
+		if (self.sellScrap()): sold_something = True
+		return sold_something
+
+	def buyAxe(self, count = 1) -> bool:
+		value = AXE_VALUE * BUY_MULTIPLIER * count
+		if (self.coin_count < value): return False
+		self.axes += count
+		self.coin_count -= value
+		return True
+	
+	def buyKey(self, count = 1) -> bool:
+		value = KEY_VALUE * BUY_MULTIPLIER * count
+		if (self.coin_count < value): return False
+		self.key_count += count
+		self.coin_count -= value
+		return True
 
 
 class Player(pygame.sprite.Sprite):
@@ -76,30 +100,37 @@ class Player(pygame.sprite.Sprite):
 	# Run every frame	
 	def update(self):
 		self.move()
+		# If the animation frame has updated
 		if (self.current_animation.update()):
 			self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
 		pass
 
 	# Sets the current animation
 	def setAnimation(self, index):
-		index = min(0, max(self.ANI_COUNT, index))
-		self.current_animation = self.ANIMATIONS[index]
+		if (0 <= index < self.ANI_COUNT):
+			new_animation = self.ANIMATIONS[index]
+			if (new_animation != self.current_animation):
+				self.current_animation.reset()
+				self.current_animation = self.ANIMATIONS[index]
+				self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
 
 	# Updating based on inputs
 	def move(self):
 		keys = pygame.key.get_pressed()
+		ani = -1
 		if keys[pygame.K_UP]:
 			self.rect.y -= PLAYER_SPEED
-			self.current_animation = self.ANIMATIONS[4]
+			ani = 4
 		if keys[pygame.K_DOWN]:
 			self.rect.y += PLAYER_SPEED
-			self.current_animation = self.ANIMATIONS[3]
+			ani = 3
 		if keys[pygame.K_LEFT]:
 			self.rect.x -= PLAYER_SPEED
-			self.current_animation = self.ANIMATIONS[0]
+			ani = 0
 		if keys[pygame.K_RIGHT]:
 			self.rect.x += PLAYER_SPEED
-			self.current_animation = self.ANIMATIONS[1]
+			ani = 1
+		self.setAnimation(ani)
 
 
 # Class for handling animations
@@ -124,9 +155,13 @@ class Animation():
 	# Returns True if the frame has changed
 	def update(self) -> bool:
 		if (self.IS_ANIMATED): # Skip if animation is a single frame (not animated)
+			self.sub_frame = (self.sub_frame + 1) % self.FRAME_RATIO
 			if (self.sub_frame == 0):
 				self.current_frame += 1
 				if self.current_frame > self.FRAME_RANGE[1]: self.current_frame = self.FRAME_RANGE[0]
-			self.sub_frame = (self.sub_frame + 1) % self.FRAME_RATIO
-			return True
+				return True
 		return False
+	
+	def reset(self):
+		self.sub_frame = 0
+		self.current_frame = self.FRAME_RANGE[0]

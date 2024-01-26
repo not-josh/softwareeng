@@ -16,10 +16,10 @@ red = (255, 0, 0)
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Lightning Bolt Town")
+pygame.display.set_caption("Player Class Testing")
 
 # Setting the background to an image jpg
-background_image = pygame.image.load("Assets\Background\mudkip.jpg")  # Replace with your image file path
+background_image = pygame.image.load("Assets/Background/mudkip.jpg")  # Replace with your image file path
 background_image = pygame.transform.scale(background_image, (room_width, room_height))  # Adjust the size according to your map size
 background_rect = background_image.get_rect()
 
@@ -59,7 +59,8 @@ while running:
     pygame.display.flip()
 
     # Cap frame rate
-    clock.tick(frame_rate)
+    ft = clock.tick(frame_rate)
+    print("%dms/frame" % (ft))
 
 
 # Quit
