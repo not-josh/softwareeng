@@ -21,8 +21,8 @@ class Camera:
         
     # Updating the camera's location based on a target
     def update(self, target):
-        x = -target.rect.x + self.screen_width // 2
-        y = -target.rect.y + self.screen_height // 2
+        x = -target.rect.center[0] + self.screen_width // 2
+        y = -target.rect.center[1] + self.screen_height // 2
 
         # Limit to map bounds
         x = min(0, max(-(self.width - self.screen_width), x))
