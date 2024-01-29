@@ -137,7 +137,7 @@ while running:
     screen.blit(background_image, camera.apply(background_rect))
 
     #comment this line out to make collision map invisible
-    screen.blit(collision, camera.apply(background_rect))
+#    screen.blit(collision, camera.apply(background_rect))
 
 
     # Drawing all objects that we added to all_sprites
