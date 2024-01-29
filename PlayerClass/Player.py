@@ -2,15 +2,18 @@ import pygame
 
 # "Player" class
 #	Contains sprites w/ animations
+#		All frames of a sprite are pre-calculated, e.i. loaded and drawn onto surfaces
 # 	Contains an inventory for loot
-# 		Still needs a loot class for full functionality
+# 		Should still create a separate loot class of some kind
 # 	Able to move with WASD or arrow keys
+#	Functions to deal damage and heal the player
 
 AXE_VALUE = 15
 KEY_VALUE = 5
 BUY_MULTIPLIER = 2
 
 PLAYER_SPEED = 5
+PLAYER_MAX_HEALTH = 5
 
 
 # Literally just a bunch of buy/sell functions
@@ -73,19 +76,20 @@ class Player(pygame.sprite.Sprite):
 		spritesheet = pygame.image.load(sprite_file)
 		for i in range(0, self.SPRITE_FRAME_COUNT):
 			frame = pygame.Surface(SPRITE_RES, pygame.SRCALPHA)
-			# draw (sprite) on (origin of surface)  (X Start, Y Start, X length, Y length)
+			# draw from spritesheet onto (origin of surface), piece of spritesheet = (X Start, Y Start, X length, Y length)
 			frame.blit(spritesheet, (0, 0),	(self.SPRITE_RES[0] * i, 0, self.SPRITE_RES[0], self.SPRITE_RES[1]))
 			if SCALE != 1: 
 				frame = pygame.transform.scale(frame, (self.SPRITE_RES[0] * SCALE, self.SPRITE_RES[1] * SCALE))
 			self.SPRITE_FRAMES.append(frame)
 
 		# Create animation list
-		self.ANIMATIONS: list = []
-		self.ANIMATIONS.append(Animation((1, 3), 16))
-		self.ANIMATIONS.append(Animation((4, 9), 8))
-		self.ANIMATIONS.append(Animation((11, 12), 8))
-		self.ANIMATIONS.append(Animation((14, 16), 12))
-		self.ANIMATIONS.append(Animation((18, 23), 6))
+		self.ANIMATIONS = [
+			Animation((1, 3), 16),
+			Animation((4, 9), 8),
+			Animation((11, 12), 8),
+			Animation((14, 16), 12),
+			Animation((18, 23), 6)
+		]
 		self.ANI_COUNT = len(self.ANIMATIONS)
 		self.current_animation = self.ANIMATIONS[0]
 
@@ -94,7 +98,9 @@ class Player(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 
+		# Set up player stats
 		self.inventory = Inventory()
+		self.health = PLAYER_MAX_HEALTH
 
 	# Updates the current animation & frame
 	# Run every frame	
@@ -105,7 +111,7 @@ class Player(pygame.sprite.Sprite):
 			self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
 		pass
 
-	# Sets the current animation
+	# Sets the current animation & reset the previous animation
 	def setAnimation(self, index):
 		if (0 <= index < self.ANI_COUNT):
 			new_animation = self.ANIMATIONS[index]
@@ -132,6 +138,17 @@ class Player(pygame.sprite.Sprite):
 			ani = 1
 		self.setAnimation(ani)
 
+	def isAlive(self):
+		return self.health > 0
+	
+	def damage(self, damage):
+		self.health -= damage
+		
+	def heal(self, heal, can_revive: bool = False): 
+		if (self.isAlive() or can_revive): # If alive or can be revived
+			self.health = min(self.health + heal, PLAYER_MAX_HEALTH)
+		# If dead and can't revive, do nothing
+
 
 # Class for handling animations
 class Animation():
@@ -148,7 +165,6 @@ class Animation():
 					  		max(FRAME_RANGE[0], FRAME_RANGE[1]))
 		
 		self.FRAME_RATIO = max(1, FRAME_RATIO)
-		
 		self.sub_frame = 0 # Will need to increment FRAME_RATIO times before current_frame increments
 
 	# Should be run at every frame of the game
