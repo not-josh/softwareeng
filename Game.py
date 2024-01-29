@@ -2,6 +2,7 @@ import pygame
 from Player import Player
 from Camera import Camera
 import sys
+from UI import UI
 
 # Initial variables
 screen_width, screen_height = 800, 800
@@ -15,6 +16,11 @@ black = (0, 0, 0)
 red = (255, 0, 0)
 
 pygame.init()
+
+# UI and font setup
+font = pygame.font.Font(None, 36)
+ui = UI(50, 50)
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Lightning Bolt Town")
 
@@ -54,6 +60,11 @@ while running:
     # Drawing all objects that we added to all_sprites
     for sprite in all_sprites:
         screen.blit(sprite.image, camera.apply(sprite))
+
+    # Drawing the UI
+    #screen.blit(ui.drawUI(), ((screen_width - ui.drawUI().get_width()) // 2, (screen_height - ui.drawUI().get_height()) // 2))
+    ui.drawUI(screen, screen_width, screen_height, font)
+    #screen.blit(text_surface, ((screen_width - text_surface.get_width()) // 2, (screen_height - text_surface.get_height()) // 2))
 
     # Refresh (or else the old stuff stays)
     pygame.display.flip()
