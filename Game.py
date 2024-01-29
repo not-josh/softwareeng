@@ -63,18 +63,19 @@ while running:
 
     #get x and y coord changes movement
     move = player.get_pos_change()
-    print(move)
+    if move[0] != 0 or move[1] !=0:
+        # print(move)
 
-    #if the x change would cause an overlap, set it to 0
-    if (collision_mask.overlap(player_mask, (player.rect.x + move[0],player.rect.y + 0))):
-        move[0] = 0
-    #if the y change would cause an overlap, set it to 0
-    if (collision_mask.overlap(player_mask, (player.rect.x + 0, player.rect.y + move[1]))):
-        move[1] = 0
-    #if the com=bined x and y change would cause an overlap, set both to 0
-    if (collision_mask.overlap(player_mask, (player.rect.x + move[0], player.rect.y + move[1]))):
-        move[0] = 0
-        move[1] = 0
+        #if the x change would cause an overlap, set it to 0
+        if (collision_mask.overlap(player_mask, (player.rect.x + move[0],player.rect.y + 0))):
+            move[0] = 0
+        #if the y change would cause an overlap, set it to 0
+        if (collision_mask.overlap(player_mask, (player.rect.x + 0, player.rect.y + move[1]))):
+            move[1] = 0
+        #if the com=bined x and y change would cause an overlap, set both to 0
+        if (collision_mask.overlap(player_mask, (player.rect.x + move[0], player.rect.y + move[1]))):
+            move[0] = 0
+            move[1] = 0
     #send the cleaned movement coords to player.update
     player.update(move)
     camera.update(player)

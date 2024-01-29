@@ -2,6 +2,7 @@ import pygame
 
 red = (255, 0, 0)
 
+
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
