@@ -19,7 +19,11 @@ pygame.init()
 
 # UI and font setup
 font = pygame.font.Font(None, 36)
-ui = UI(50, 50)
+ui = UI(50, 50, 100)
+
+# Sprites
+heart = pygame.image.load("Assets/heart.png")
+heart_rect = heart.get_rect()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Lightning Bolt Town")
@@ -51,6 +55,7 @@ while running:
     # Update calls for objects (aka: ticking)
     player.update()
     camera.update(player)
+    ui.update()
 
     # Draw calls for objects (aka: rendering)
 
@@ -63,7 +68,7 @@ while running:
 
     # Drawing the UI
     #screen.blit(ui.drawUI(), ((screen_width - ui.drawUI().get_width()) // 2, (screen_height - ui.drawUI().get_height()) // 2))
-    ui.drawUI(screen, screen_width, screen_height, font)
+    ui.drawUI(screen, screen_width, screen_height, font, heart, heart_rect)
     #screen.blit(text_surface, ((screen_width - text_surface.get_width()) // 2, (screen_height - text_surface.get_height()) // 2))
 
     # Refresh (or else the old stuff stays)
