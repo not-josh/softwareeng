@@ -13,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 5
+        self.coin_count = 0
 
     # Updating based on inputs
     def update(self, coords):

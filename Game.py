@@ -3,6 +3,8 @@ from Player import Player
 from Camera import Camera
 import sys
 from UI import UI
+import random
+from Coin import Coin
 
 # Initial variables
 screen_width, screen_height = 800, 800
@@ -40,7 +42,6 @@ collision = pygame.transform.scale(collision, (room_width, room_height))
 collision_mask = pygame.mask.from_surface(collision)
 collision_mask_image = collision_mask.to_surface()
 
-
 # Making an instance of the Player and placing them in the center of the screen
 player = Player(camera_width // 2, camera_height // 2)
 player_mask = pygame.mask.from_surface(player.image)
@@ -52,9 +53,31 @@ camera = Camera(room_width, room_height, screen_width, screen_height)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
+coins = []
+coin_x = 0
+coin_y = 0
+num_remaining_coins = random.randint(0,5)
+print("Number of coins: ", num_remaining_coins)
+while num_remaining_coins > 0:# a in range (0, 100):#num_coins):
+    coin_x = random.randint(0, screen_width)
+    coin_y = random.randint(0, screen_height)
+    newc = Coin(coin_x, coin_y)
+    if not (collision_mask.overlap(newc.mask, (newc.rect.x, newc.rect.y))):
+        coins.append(newc)
+        all_sprites.add(newc)
+        num_remaining_coins -= 1
+
+print(len(coins))
+    
+
 # Starting the game loop
 clock = pygame.time.Clock()
 running = True
+
+active_collision = False
+x_collision = False
+y_collision = False
+thud = pygame.mixer.Sound("Assets/Sounds/loud_thud.mp3")
 
 while running:
 
@@ -69,13 +92,40 @@ while running:
         #if the x change would cause an overlap, set it to 0
         if (collision_mask.overlap(player_mask, (player.rect.x + move[0],player.rect.y + 0))):
             move[0] = 0
+            x_collision = True
+        else:
+            x_collision = False
         #if the y change would cause an overlap, set it to 0
         if (collision_mask.overlap(player_mask, (player.rect.x + 0, player.rect.y + move[1]))):
             move[1] = 0
+            y_collision = True
+        else:
+            y_collision = False
         #if the com=bined x and y change would cause an overlap, set both to 0
         if (collision_mask.overlap(player_mask, (player.rect.x + move[0], player.rect.y + move[1]))):
             move[0] = 0
             move[1] = 0
+            #x_collision = True
+            #y_collision = True
+        if (x_collision == True) or (y_collision == True):
+            if active_collision == False:
+                thud.play()
+                active_collision = True
+        else:
+            active_collision = False
+
+        for c in coins:
+            if (c.mask.overlap(player_mask, (player.rect.x - c.rect.x, player.rect.y - c.rect.y))):
+                pygame.mixer.Sound("Assets/Sounds/explosion.wav").play()
+                coins.remove(c)
+                player.coin_count += 1
+                all_sprites.remove(c)
+        
+
+    else:
+        active_collision = False
+    #x_collision = False
+    #y_collision = False
     #send the cleaned movement coords to player.update
     player.update(move)
     camera.update(player)
@@ -89,9 +139,13 @@ while running:
     #comment this line out to make collision map invisible
     screen.blit(collision, camera.apply(background_rect))
 
+
     # Drawing all objects that we added to all_sprites
     for sprite in all_sprites:
         screen.blit(sprite.image, camera.apply(sprite))
+
+    #for c in coins:
+    #    screen.blit(c.mask_image, camera.apply(c.rect))
         
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
