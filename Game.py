@@ -77,7 +77,7 @@ running = True
 active_collision = False
 x_collision = False
 y_collision = False
-thud = pygame.mixer.Sound("Assets/Sounds/loud_thud.mp3")
+thud = pygame.mixer.Sound("Assets/Sounds/big_thud.wav")
 
 while running:
 
