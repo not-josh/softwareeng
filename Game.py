@@ -156,6 +156,8 @@ while running:
             l_move[0] = 0
             l_move[1] = 0
         lightning_bolt.update(l_move)
+    if (lightning_bolt.time == 0):
+        lightning_bolt.strike()
 
     camera.update(player)
     ui.update()
