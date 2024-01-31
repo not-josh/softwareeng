@@ -132,7 +132,6 @@ while running:
                 coins.remove(c)
                 player.inventory.coin_count += 1
                 all_sprites.remove(c)
-        
 
     else:
         active_collision = False
@@ -141,29 +140,22 @@ while running:
     #send the cleaned movement coords to player.update
     player.update(move)
 
-    player_pos = [player.rect.x, player.rect.y]
-    print(player_pos)
+    player_pos = [player.x, player.y]
+    print(player_pos, player.rect.x, player.rect.y)
     l_move = lightning_bolt.get_pos_change(player_pos)
     if l_move[0] != 0 or l_move[1] !=0:
-        print(l_move, lightning_bolt.rect.x, lightning_bolt.rect.y)
-
+        #print(l_move, lightning_bolt.rect.x, lightning_bolt.rect.y)
         #if the x change would cause an overlap, set it to 0
         if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + l_move[0],lightning_bolt.rect.y + 0))):
             l_move[0] = 0
-            print("collision")
         #if the y change would cause an overlap, set it to 0
         if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + 0, lightning_bolt.rect.y + l_move[1]))):
             l_move[1] = 0
-            print("collision")
-        #if the com=bined x and y change would cause an overlap, set both to 0
+        #if the combined x and y change would cause an overlap, set both to 0
         if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + l_move[0], lightning_bolt.rect.y + l_move[1]))):
             l_move[0] = 0
             l_move[1] = 0
-            print("collision")\
-            
         lightning_bolt.update(l_move)
-
-
 
     camera.update(player)
     ui.update()
