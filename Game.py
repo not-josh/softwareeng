@@ -5,6 +5,7 @@ import sys
 from UI import UI
 import random
 from Coin import Coin
+import LightningBolt
 
 # Initial variables
 screen_width, screen_height = 800, 800
@@ -41,6 +42,7 @@ background_rect = background_image.get_rect()
 foreground_image = pygame.image.load("Assets/temptown2_roofs.png")  # Replace with your image file path
 foreground_image = pygame.transform.scale(foreground_image, (room_width, room_height))  # Adjust the size according to your map size
 foreground_rect = foreground_image.get_rect()
+foreground_collision = pygame.mask.from_surface(foreground_image)
 
 #Get collision mask stuff from collision map of background
 collision = pygame.image.load("Assets/temptown2_collisionmap.png")
@@ -53,12 +55,15 @@ collision_mask_image = collision_mask.to_surface()
 player = Player("Assets/doux.png", (24, 24), 24, screen_width // 2, screen_width // 2, SPRITE_SCALE)
 player_mask = pygame.mask.from_surface(player.image)
 
+lightning_bolt = LightningBolt.LightningBolt("Assets/Enemies", (24,24), 0, screen_width//2, screen_width//2, SPRITE_SCALE)
+
 # Making a camera that is the size of the room
 camera = Camera(room_width, room_height, screen_width, screen_height)
 
 # Making a sprite group
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
+all_sprites.add(lightning_bolt)
 
 coins = []
 coin_x = 0
@@ -135,6 +140,31 @@ while running:
     #y_collision = False
     #send the cleaned movement coords to player.update
     player.update(move)
+
+    player_pos = [player.rect.x, player.rect.y]
+    print(player_pos)
+    l_move = lightning_bolt.get_pos_change(player_pos)
+    if l_move[0] != 0 or l_move[1] !=0:
+        print(l_move, lightning_bolt.rect.x, lightning_bolt.rect.y)
+
+        #if the x change would cause an overlap, set it to 0
+        if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + l_move[0],lightning_bolt.rect.y + 0))):
+            l_move[0] = 0
+            print("collision")
+        #if the y change would cause an overlap, set it to 0
+        if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + 0, lightning_bolt.rect.y + l_move[1]))):
+            l_move[1] = 0
+            print("collision")
+        #if the com=bined x and y change would cause an overlap, set both to 0
+        if (foreground_collision.overlap(lightning_bolt.mask, (lightning_bolt.rect.x + l_move[0], lightning_bolt.rect.y + l_move[1]))):
+            l_move[0] = 0
+            l_move[1] = 0
+            print("collision")\
+            
+        lightning_bolt.update(l_move)
+
+
+
     camera.update(player)
     ui.update()
 
