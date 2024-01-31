@@ -41,6 +41,10 @@ while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
+		
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_q:
+				print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
 	
 	# Update calls for objects (aka: ticking)
 	map.updatePlayerRooms()
@@ -69,7 +73,8 @@ while running:
 	if not f:
 		avg = ft / FRAMES_AVG_OVER
 		if (avg > 1):
-			print("%3.2f (ms/frame)" % (avg))
+			# print("%3.2f (ms/frame)" % (avg))
+			pass
 		ft = 0
 
 

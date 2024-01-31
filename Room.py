@@ -4,11 +4,11 @@ import PlayerClass.Player as Player
 
 # Currently only two types of buildings: Building & Emptys
 BUILDING_TYPES = 5
-TILE_COUNT = 32
+TILE_COUNT = 4
 LOOT_VALUE = TILE_COUNT*6
 
 # These may become class parameters later on
-TILE_HEIGHT = 256
+TILE_HEIGHT = 64
 TILE_WIDTH = 1000
 BUILDING_WIDTH = 192
 BUILDING_MAX_HEIGHT = TILE_HEIGHT - 4
@@ -24,15 +24,29 @@ ROOM_UNREND_COUNT = 10
 ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
 
 
+
+
+# Render area:
+	# Constrained to within the room list
+	# When player leaves center, shifts forwards or backwards
+		# When shifting forward
+			# If render area passes room range, insert room at index 0
+			# If room limit passed, delete last room (largest index)
+				# Don't increment render_start
+		# When shifting down
+			# If would be out of range, don't shift
+	# Render area defined as render_start (initialized at 0)
+
+
 class Map():
 	def __init__(self, player: Player):
 		self.room_list: list[Room] = []
 		self.room_count = 0
 
-		for i in range(0, ROOM_TOT_COUNT):
+		for i in range(0, ROOM_REND_COUNT):
 			self.addRoom()
 		
-		self.render_end = ROOM_REND_COUNT # Furthest room forward that will be rendered
+		self.render_start = 0 # Room furthest back that will be rendered
 
 		self.player = player
 		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
@@ -40,62 +54,97 @@ class Map():
 		self.image = pygame.Surface((ROOM_WIDTH, ROOM_HEIGHT))
 		self.image.fill((255, 100, 100))
 
+		self.render_group = pygame.sprite.Group()
+
 	def addRoom(self):
 		room = Room(self.room_count)
 		room.updateImage()
-		self.room_list.append(room)
+		self.room_list.insert(0, room)
 		self.room_count += 1
+
+	def removeRoom(self):
+		self.room_list.pop()
+
+	# Converts on-screen y position to room index
+	# **Index is based on rooms that are rendered, not actual index in the list
+	def getPlayerRoom(self):
+		player_pos = self.player.rect.center
+		actual_rend_count = min(self.render_start + 1, ROOM_REND_COUNT)
+		return player_pos[1] // ROOM_HEIGHT
 	
 	def updatePlayerRooms(self):
-		player_pos = self.player.rect.center
-		actual_rend_count = min(self.render_end + 1, ROOM_REND_COUNT)
-		
-		player_current_room = (ROOM_HEIGHT * actual_rend_count - player_pos[1]) // ROOM_HEIGHT
+		player_current_room = self.getPlayerRoom()
 		if player_current_room > REND_CENTER_INDEX:
-			self.up(player_current_room)
-
-		if player_current_room < REND_CENTER_INDEX - 1:
 			self.down()
-	
+		elif player_current_room < REND_CENTER_INDEX - 1:
+			self.up()
 
-	def up(self, player_current_room):
+
+	def up(self):
+		# Rendering area will extend past the room list
+		if (self.render_start <= 0):
+			self.addRoom()
+			if (len(self.room_list) >= ROOM_TOT_COUNT):
+				self.removeRoom()
+		else:
+			self.render_start -= 1
+
+		self.playerDownshift()
+		self.updateImage()
+
+
+	def playerDownshift(self):
 		# Shift player down
 		player_pos = self.player.rect.center
 		player_pos = (player_pos[0], player_pos[1] + ROOM_HEIGHT)
 		self.player.rect.center = player_pos
-		if (len(self.room_list)-1 > self.render_end):
-			self.render_end += 1
-		else:
-			# Shift room list (delete & create room)
-			self.addRoom()
-			self.room_list.pop(0)
-		self.updateImage()
-	
+
 
 	def down(self):
-		new_render_end = max(self.render_end-1, ROOM_REND_COUNT-1)
-		if (new_render_end < self.render_end):
+		# If render area is at the end of the list
+		if (self.render_start + ROOM_REND_COUNT + 1) >= len(self.room_list):
+			# print("Skip shift")
+			pass
+		else:
+			self.render_start += 1
+			self.playerUpshift()
+			self.updateImage()
+
+
+	def playerUpshift(self):
 			# Shift player up
 			player_pos = self.player.rect.center
 			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
 			self.player.rect.center = player_pos
 
-			self.render_end = new_render_end
-			self.updateImage()
 	
+	# Old function for rendering, will hopefully make a faster one
 	def updateImage(self):
 		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
 		image.fill((30,30,30))
 
-		print("Render from start %d: " % (self.render_end))
+		print("Render from start %d: " % (self.render_start))
 		for i in range(0, ROOM_REND_COUNT):
-			index = self.render_end - i
+			index = self.render_start + i
 			if (index >= 0):
 				room = self.room_list[index]
 				image.blit(room.image, (0, i * ROOM_HEIGHT))
-				print("%d - %d - %d" % (room.id, index, i))
+				print("i%d - r%d" % (index, i))
 
 		self.image = image
+
+	# Adds tiles (& loot?) to render group (WIP)
+	def render(self):
+		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
+		image.fill((30,30,30))
+
+		for i in range(0, ROOM_REND_COUNT):
+			index = self.render_start + i
+			room = self.room_list[index]
+			image.blit(room.image, (0, i * ROOM_HEIGHT))
+
+		self.image = image
+		
 
 
 class Room():
