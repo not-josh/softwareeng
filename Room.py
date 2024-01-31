@@ -1,9 +1,10 @@
 import pygame
 import random
+import PlayerClass.Player as Player
 
 # Currently only two types of buildings: Building & Emptys
 BUILDING_TYPES = 5
-TILE_COUNT = 32
+TILE_COUNT = 2
 LOOT_VALUE = TILE_COUNT*6
 
 # These may become class parameters later on
@@ -13,11 +14,95 @@ BUILDING_WIDTH = 192
 BUILDING_MAX_HEIGHT = TILE_HEIGHT - 4
 BUILDING_PORCH_WIDTH = 64
 
+ROOM_HEIGHT = TILE_HEIGHT * TILE_COUNT + 10
+ROOM_WIDTH = TILE_WIDTH
+RENDER_HEIGHT = 1000 # Should be half of screen height
+ROOM_REND_RAD = 4
+ROOM_REND_COUNT = ROOM_REND_RAD * 2
+REND_CENTER_INDEX = ROOM_REND_COUNT // 2
+ROOM_UNREND_COUNT = 10
+ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
+
+
+class Map():
+	def __init__(self, player: Player):
+		self.room_list: list[Room] = []
+		self.room_count = 0
+
+		for i in range(0, ROOM_TOT_COUNT):
+			self.addRoom()
+		
+		self.render_end = ROOM_REND_COUNT # Furthest room forward that will be rendered
+
+		self.player = player
+		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
+
+		self.image = pygame.Surface((ROOM_WIDTH, ROOM_HEIGHT))
+		self.image.fill((255, 100, 100))
+
+	def addRoom(self):
+		room = Room(self.room_count)
+		room.updateImage()
+		self.room_list.append(room)
+		self.room_count += 1
+	
+	def updatePlayerRooms(self):
+		player_pos = self.player.rect.center
+		actual_rend_count = min(self.render_end + 1, ROOM_REND_COUNT)
+		
+		player_current_room = (ROOM_HEIGHT * actual_rend_count - player_pos[1]) // ROOM_HEIGHT
+		if player_current_room > REND_CENTER_INDEX:
+			self.up(player_current_room)
+
+		if player_current_room < REND_CENTER_INDEX - 1:
+			self.down()
+	
+
+	def up(self, player_current_room):
+		# Shift player down
+		player_pos = self.player.rect.center
+		player_pos = (player_pos[0], player_pos[1] + ROOM_HEIGHT)
+		self.player.rect.center = player_pos
+		if (len(self.room_list)-1 > self.render_end):
+			self.render_end += 1
+		else:
+			# Shift room list (delete & create room)
+			self.addRoom()
+			self.room_list.pop(0)
+		self.updateImage()
+	
+
+	def down(self):
+		new_render_end = max(self.render_end-1, ROOM_REND_COUNT-1)
+		if (new_render_end < self.render_end):
+			# Shift player up
+			player_pos = self.player.rect.center
+			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
+			self.player.rect.center = player_pos
+
+			self.render_end = new_render_end
+			self.updateImage()
+	
+	def updateImage(self):
+		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
+		image.fill((30,30,30))
+
+		print("Render from start %d: " % (self.render_end))
+		for i in range(0, ROOM_REND_COUNT):
+			index = self.render_end - i
+			if (index >= 0):
+				room = self.room_list[index]
+				image.blit(room.image, (0, i * ROOM_HEIGHT))
+				print("%d - %d - %d" % (room.id, index, i))
+
+		self.image = image
+
 
 class Room():
-	def __init__(self, total_loot = LOOT_VALUE):
+	def __init__(self, id = 0, total_loot = LOOT_VALUE):
 		self.tile_list: list[Tile] = []
 		remaining_loot = total_loot
+		self.id = id
 		
 		# Generate tiles white distributing loot
 		remaining_tiles = TILE_COUNT - 1
@@ -39,8 +124,6 @@ class Room():
 			remaining_tiles -= 1
 		
 		self.tile_list.append(Tile(remaining_loot))
-
-		# self.updateImage()
 
 
 	def updateImage(self) -> pygame.Surface:
