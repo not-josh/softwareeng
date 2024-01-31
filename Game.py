@@ -35,6 +35,11 @@ background_image = pygame.image.load("Assets/temptown2.png")  # Replace with you
 background_image = pygame.transform.scale(background_image, (room_width, room_height))  # Adjust the size according to your map size
 background_rect = background_image.get_rect()
 
+# Setting the foreground to an image jpg
+foreground_image = pygame.image.load("Assets/temptown2_roofs.png")  # Replace with your image file path
+foreground_image = pygame.transform.scale(foreground_image, (room_width, room_height))  # Adjust the size according to your map size
+foreground_rect = foreground_image.get_rect()
+
 #Get collision mask stuff from collision map of background
 collision = pygame.image.load("Assets/temptown2_collisionmap.png")
 collision = pygame.transform.scale(collision, (room_width, room_height))
@@ -143,6 +148,9 @@ while running:
     # Drawing all objects that we added to all_sprites
     for sprite in all_sprites:
         screen.blit(sprite.image, camera.apply(sprite))
+
+    # Drawing the foreground
+    screen.blit(foreground_image, camera.apply(foreground_rect))
 
     #for c in coins:
     #    screen.blit(c.mask_image, camera.apply(c.rect))
