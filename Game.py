@@ -12,6 +12,8 @@ camera_width, camera_height = 800, 800
 room_width, room_height = 800, 800
 frame_rate = 60
 
+SPRITE_SCALE = 5
+
 # Colors
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -48,7 +50,7 @@ collision_mask = pygame.mask.from_surface(collision)
 collision_mask_image = collision_mask.to_surface()
 
 # Making an instance of the Player and placing them in the center of the screen
-player = Player(camera_width // 2, camera_height // 2)
+player = Player("Assets/doux.png", (24, 24), 24, screen_width // 2, screen_width // 2, SPRITE_SCALE)
 player_mask = pygame.mask.from_surface(player.image)
 
 # Making a camera that is the size of the room
@@ -123,7 +125,7 @@ while running:
             if (c.mask.overlap(player_mask, (player.rect.x - c.rect.x, player.rect.y - c.rect.y))):
                 pygame.mixer.Sound("Assets/Sounds/explosion.wav").play()
                 coins.remove(c)
-                player.coin_count += 1
+                player.inventory.coin_count += 1
                 all_sprites.remove(c)
         
 
