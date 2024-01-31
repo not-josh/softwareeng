@@ -6,12 +6,12 @@ import sys
 
 # Initial variables
 screen_width, screen_height = 1000, 720
-room_width, room_height = 1000, 32768
+room_width, room_height = 1000, 65536
 frame_rate = 60
 SPRITE_SCALE = 5
 
 FRAMES_AVG_OVER = 60
-REGENERATE_ROOM_RATE = 10
+REGENERATE_ROOM_RATE = 60
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -67,7 +67,9 @@ while running:
 	# Cap frame rate
 	ft += clock.tick(frame_rate)
 	if not f:
-		# print("%3.2f (ms/frame)" % (ft / FRAMES_AVG_OVER))
+		avg = ft / FRAMES_AVG_OVER
+		if (avg > 1):
+			print("%3.2f (ms/frame)" % (avg))
 		ft = 0
 
 
