@@ -4,42 +4,34 @@ import PlayerClass.Player as Player
 
 # Currently only two types of buildings: Building & Emptys
 BUILDING_TYPES = 5
-TILE_COUNT = 4
+TILE_COUNT = 32
 LOOT_VALUE = TILE_COUNT*6
 
 # These may become class parameters later on
-TILE_HEIGHT = 64
+TILE_HEIGHT = 320
 TILE_WIDTH = 1000
 BUILDING_WIDTH = 192
 BUILDING_MAX_HEIGHT = TILE_HEIGHT - 4
 BUILDING_PORCH_WIDTH = 64
 
+RENDER_RAD = 500 # Should be half of screen height
+RENDER_UPDATE_RATE = 10 # How many frames need to pass before updating which tiles should be rendered
+
 ROOM_HEIGHT = TILE_HEIGHT * TILE_COUNT + 10
 ROOM_WIDTH = TILE_WIDTH
-RENDER_HEIGHT = 1000 # Should be half of screen height
 ROOM_REND_RAD = 2
 ROOM_REND_COUNT = ROOM_REND_RAD * 2
 REND_CENTER_INDEX = ROOM_REND_COUNT // 2
 ROOM_UNREND_COUNT = 10
 ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
 
+ROAD_COLOR = (200, 150, 100, 255)
 
-
-
-# Render area:
-	# Constrained to within the room list
-	# When player leaves center, shifts forwards or backwards
-		# When shifting forward
-			# If render area passes room range, insert room at index 0
-			# If room limit passed, delete last room (largest index)
-				# Don't increment render_start
-		# When shifting down
-			# If would be out of range, don't shift
-	# Render area defined as render_start (initialized at 0)
 
 
 class Map():
-	def __init__(self, player: Player):
+	def __init__(self, player: Player, use_old_rendering = False):
+		self.USE_OLD_RENDERING = use_old_rendering
 		self.room_list: list[Room] = []
 		self.room_count = 0
 
@@ -54,11 +46,16 @@ class Map():
 		self.image = pygame.Surface((ROOM_WIDTH, ROOM_HEIGHT))
 		self.image.fill((255, 100, 100))
 
-		self.render_group = pygame.sprite.Group()
+		self.render_list = []
+		self.rend_update_itt = 0
 
 	def addRoom(self):
 		room = Room(self.room_count)
-		room.updateImage()
+		if self.USE_OLD_RENDERING:
+			room.updateImage()
+		else:
+			for tile in room.tile_list:
+				tile.updateImage()
 		self.room_list.insert(0, room)
 		self.room_count += 1
 
@@ -72,12 +69,17 @@ class Map():
 		actual_rend_count = min(self.render_start + 1, ROOM_REND_COUNT)
 		return player_pos[1] // ROOM_HEIGHT
 	
-	def updatePlayerRooms(self):
+	def update(self):
 		player_current_room = self.getPlayerRoom()
 		if player_current_room > REND_CENTER_INDEX:
 			self.down()
 		elif player_current_room < REND_CENTER_INDEX - 1:
 			self.up()
+		
+		if self.rend_update_itt == 0:
+			self.fillRenderList()
+		else:
+			self.rend_update_itt = (self.rend_update_itt + 1) % RENDER_UPDATE_RATE
 
 
 	def up(self):
@@ -89,29 +91,28 @@ class Map():
 		else:
 			self.render_start -= 1
 
-		self.playerDownshift()
-		self.updateImage()
+		self.downshift()
+		self.fillRenderList()
 
 
-	def playerDownshift(self):
+	def down(self):
+		# If render area is at the end of the list
+		if (self.render_start + ROOM_REND_COUNT + 1) >= len(self.room_list):
+			pass # Do nothing
+		else:
+			self.render_start += 1
+			self.upshift()
+			self.fillRenderList()
+
+
+	def downshift(self):
 		# Shift player down
 		player_pos = self.player.rect.center
 		player_pos = (player_pos[0], player_pos[1] + ROOM_HEIGHT)
 		self.player.rect.center = player_pos
 
 
-	def down(self):
-		# If render area is at the end of the list
-		if (self.render_start + ROOM_REND_COUNT + 1) >= len(self.room_list):
-			# print("Skip shift")
-			pass
-		else:
-			self.render_start += 1
-			self.playerUpshift()
-			self.updateImage()
-
-
-	def playerUpshift(self):
+	def upshift(self):
 			# Shift player up
 			player_pos = self.player.rect.center
 			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
@@ -123,27 +124,39 @@ class Map():
 		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
 		image.fill((30,30,30))
 
-		print("Render from start %d: " % (self.render_start))
+		# print("Render from start %d: " % (self.render_start))
 		for i in range(0, ROOM_REND_COUNT):
 			index = self.render_start + i
 			if (index >= 0):
 				room = self.room_list[index]
 				image.blit(room.image, (0, i * ROOM_HEIGHT))
-				print("i%d - r%d" % (index, i))
+				# print("i%d - r%d" % (index, i))
 
 		self.image = image
 
 	# Adds tiles (& loot?) to render group (WIP)
-	def render(self):
-		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
-		image.fill((30,30,30))
+	# Render group will just be a list because it needs to be ordered
+	def fillRenderList(self):
+		if (self.USE_OLD_RENDERING):
+			self.updateImage()
+			return
+		
+		self.rend_update_itt = 1
+		self.render_list.clear()
 
+		player_y = self.player.rect.center[1]
+
+		# For every room that's potentially visible
 		for i in range(0, ROOM_REND_COUNT):
 			index = self.render_start + i
 			room = self.room_list[index]
-			image.blit(room.image, (0, i * ROOM_HEIGHT))
-
-		self.image = image
+			room_y = i * ROOM_HEIGHT
+			for j in range(0, TILE_COUNT):
+				tile = room.tile_list[j]
+				tile.pos = (0, room_y + j * TILE_HEIGHT)
+				# If within render radius, add to render list
+				if (abs(tile.pos[1] - player_y + TILE_HEIGHT) < RENDER_RAD + TILE_HEIGHT):
+					self.render_list.append(tile)
 		
 
 
@@ -173,15 +186,14 @@ class Room():
 			remaining_tiles -= 1
 		
 		self.tile_list.append(Tile(remaining_loot))
+		self.image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT * TILE_COUNT))
 
 
 	def updateImage(self) -> pygame.Surface:
-		image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT * TILE_COUNT))
-		image.fill((80, 80, 80, 255))
+		self.image.fill((80, 80, 80, 255))
 		for i in range(0, TILE_COUNT):
 			self.tile_list[i].updateImage()
-			image.blit(self.tile_list[i].image, (0, TILE_HEIGHT * i))
-		self.image = image
+			self.image.blit(self.tile_list[i].image, (0, TILE_HEIGHT * i))
 
 	
 	def __str__(self):
@@ -215,10 +227,12 @@ class Tile():
 
 			self.building_right = Building(type_right, False, bundle_1)
 			self.building_left = Building(type_left, True, bundle_2)
+		
+		self.pos = (0,0)
 		# self.updateImage()
 
 	def updateImage(self):
-		self.image.fill((0,0,0,0))
+		self.image.fill(ROAD_COLOR)
 		self.building_left.updateImage()
 		self.building_right.updateImage()
 		self.image.blit(self.building_left.image, (0,0))

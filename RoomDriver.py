@@ -6,12 +6,13 @@ import sys
 
 # Initial variables
 screen_width, screen_height = 1000, 720
-room_width, room_height = 1000, 65536
-frame_rate = 60
+room_width, room_height = 1000, 65536 * 16
+frame_rate = 45
 SPRITE_SCALE = 5
 
-FRAMES_AVG_OVER = 60
-REGENERATE_ROOM_RATE = 60
+FRAMES_AVG_OVER = 600
+
+USE_OLD_RENDERING = False
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -28,8 +29,9 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
 # Create map
-map = Map(player)
+map = Map(player, USE_OLD_RENDERING)
 map.updateImage()
+map.fillRenderList()
 
 # Starting the game loop
 clock = pygame.time.Clock()
@@ -37,6 +39,7 @@ running = True
 
 f = 0
 ft = 0
+tft = 0
 while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -47,7 +50,7 @@ while running:
 				print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
 	
 	# Update calls for objects (aka: ticking)
-	map.updatePlayerRooms()
+	map.update()
 	player.update()
 	camera.update(player)
 
@@ -55,8 +58,13 @@ while running:
 	
 	screen.fill((0,0,0))
 
-	# Drawing the background
-	screen.blit(map.image, camera.apply(map.image.get_rect()))
+	if (USE_OLD_RENDERING):
+		screen.blit(map.image, camera.apply(map.image.get_rect()))
+	else:
+		tile_list = map.render_list
+		for i in range(0, len(tile_list)):
+			tile = tile_list[i]
+			screen.blit(tile.image, camera.apply(tile.pos))
 
 	# Drawing all objects that we added to all_sprites
 	for sprite in all_sprites:
@@ -69,13 +77,12 @@ while running:
 
 	f = (f + 1) % FRAMES_AVG_OVER
 	# Cap frame rate
-	ft += clock.tick(frame_rate)
+	ft = clock.tick(frame_rate)
+	if (ft > 2): print("Single Frame: %d ms" % (ft))
+	tft += ft
 	if not f:
-		avg = ft / FRAMES_AVG_OVER
-		if (avg > 1):
-			# print("%3.2f (ms/frame)" % (avg))
-			pass
-		ft = 0
+		print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
+		tft = 0
 
 
 # Quit
