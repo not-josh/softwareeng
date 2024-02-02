@@ -5,6 +5,8 @@ from RenderGroup import *
 
 # File locations of all buildings
 BUILDING_FILES = [
+	"Assets/doux.png",
+	"Assets/doux.png",
 	"Assets/doux.png"
 ]
 
@@ -28,6 +30,7 @@ ROOM_REND_RAD = 4
 ROOM_UNREND_COUNT = 28 # Number of rooms that can be unloaded but stored & returned to
 
 ROAD_COLOR = (200, 150, 100)
+ERROR_COLOR = (255, 100, 100)
 
 	# CALCULATED CONSTANTS #
 
@@ -197,8 +200,8 @@ class Tile(Renderable):
 
 	def __init__(self, loot_value):
 		super().__init__()
-		type_right = 1 #random.randint(0, BUILDING_TYPES - 1)
-		type_left = 1 #random.randint(0, BUILDING_TYPES - 1)
+		type_right = random.randint(0, len(BUILDING_FILES) + EMPTY_BUILDINGS - 1)
+		type_left = random.randint(0, len(BUILDING_FILES) + EMPTY_BUILDINGS - 1)
 		self.total_loot = loot_value
 		self.street_loot = 0
 
@@ -263,9 +266,9 @@ class Building(Renderable):
 		self.pos = (0,0)
 
 		self.image = pygame.Surface((50, 50))
-		self.image.fill((255, 150, 150))
+		self.image.fill(ERROR_COLOR)
 
-		if (self.type != 0):
+		if (self.type >= EMPTY_BUILDINGS):
 			if self.faces_right:
 				self.image = Building.buildingsFaceRight[self.type]
 			else:
