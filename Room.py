@@ -1,31 +1,47 @@
 import pygame
 import random
 import PlayerClass.Player as Player
+from RenderGroup import *
 
-# Currently only two types of buildings: Building & Emptys
-BUILDING_TYPES = 5
-TILE_COUNT = 32
-LOOT_VALUE = TILE_COUNT*6
+# File locations of all buildings
+BUILDING_FILES = [
+	"Assets/doux.png"
+]
 
-# These may become class parameters later on
-TILE_HEIGHT = 320
-TILE_WIDTH = 1000
-BUILDING_WIDTH = 192
-BUILDING_MAX_HEIGHT = TILE_HEIGHT - 4
+# Size in pixels of all buildings
+BUILDING_RES_X = 48
+BUILDING_RES_Y = 24
+BUILDING_FLOOR_RES_Y = 16
+BUILDING_SCALE = 10 # Scalar value to increase size
 BUILDING_PORCH_WIDTH = 64
 
-RENDER_RAD = 500 # Should be half of screen height
+BUILDING_GAP = 0
+EMPTY_BUILDINGS = 1
+
+TILE_COUNT = 64
+LOOT_VALUE = TILE_COUNT*6
+TILE_WIDTH = 1000
+
+RENDER_DIST = 500 # Should be half of screen height
 RENDER_UPDATE_RATE = 10 # How many frames need to pass before updating which tiles should be rendered
+ROOM_REND_RAD = 4
+ROOM_UNREND_COUNT = 28 # Number of rooms that can be unloaded but stored & returned to
+
+ROAD_COLOR = (200, 150, 100)
+
+	# CALCULATED CONSTANTS #
+
+BUILDING_WIDTH = BUILDING_RES_X * BUILDING_SCALE
+BUILDING_HEIGHT = BUILDING_RES_Y * BUILDING_SCALE
+BUILDING_FLOOR_HEIGHT = BUILDING_FLOOR_RES_Y * BUILDING_SCALE
+
+TILE_HEIGHT = BUILDING_FLOOR_HEIGHT + BUILDING_GAP
+ROOM_REND_COUNT = ROOM_REND_RAD * 2
+REND_CENTER_INDEX = ROOM_REND_COUNT // 2
 
 ROOM_HEIGHT = TILE_HEIGHT * TILE_COUNT + 10
 ROOM_WIDTH = TILE_WIDTH
-ROOM_REND_RAD = 2
-ROOM_REND_COUNT = ROOM_REND_RAD * 2
-REND_CENTER_INDEX = ROOM_REND_COUNT // 2
-ROOM_UNREND_COUNT = 10
 ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
-
-ROAD_COLOR = (200, 150, 100, 255)
 
 
 
@@ -43,19 +59,11 @@ class Map():
 		self.player = player
 		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
 
-		self.image = pygame.Surface((ROOM_WIDTH, ROOM_HEIGHT))
-		self.image.fill((255, 100, 100))
-
-		self.render_list = []
+		self.render_group = RenderGroup(2)
 		self.rend_update_itt = 0
 
 	def addRoom(self):
 		room = Room(self.room_count)
-		if self.USE_OLD_RENDERING:
-			room.updateImage()
-		else:
-			for tile in room.tile_list:
-				tile.updateImage()
 		self.room_list.insert(0, room)
 		self.room_count += 1
 
@@ -77,7 +85,7 @@ class Map():
 			self.up()
 		
 		if self.rend_update_itt == 0:
-			self.fillRenderList()
+			self.fillRenderGroup()
 		else:
 			self.rend_update_itt = (self.rend_update_itt + 1) % RENDER_UPDATE_RATE
 
@@ -92,7 +100,7 @@ class Map():
 			self.render_start -= 1
 
 		self.downshift()
-		self.fillRenderList()
+		self.fillRenderGroup()
 
 
 	def down(self):
@@ -102,7 +110,7 @@ class Map():
 		else:
 			self.render_start += 1
 			self.upshift()
-			self.fillRenderList()
+			self.fillRenderGroup()
 
 
 	def downshift(self):
@@ -118,45 +126,19 @@ class Map():
 			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
 			self.player.rect.center = player_pos
 
-	
-	# Old function for rendering, will hopefully make a faster one
-	def updateImage(self):
-		image = pygame.Surface((ROOM_WIDTH, ROOM_REND_COUNT * ROOM_HEIGHT))
-		image.fill((30,30,30))
 
-		# print("Render from start %d: " % (self.render_start))
-		for i in range(0, ROOM_REND_COUNT):
-			index = self.render_start + i
-			if (index >= 0):
-				room = self.room_list[index]
-				image.blit(room.image, (0, i * ROOM_HEIGHT))
-				# print("i%d - r%d" % (index, i))
-
-		self.image = image
-
-	# Adds tiles (& loot?) to render group (WIP)
-	# Render group will just be a list because it needs to be ordered
-	def fillRenderList(self):
-		if (self.USE_OLD_RENDERING):
-			self.updateImage()
-			return
-		
+	def fillRenderGroup(self):
 		self.rend_update_itt = 1
-		self.render_list.clear()
+		self.render_group.clear()
 
-		player_y = self.player.rect.center[1]
+		player_pos = self.player.rect.center
 
 		# For every room that's potentially visible
 		for i in range(0, ROOM_REND_COUNT):
 			index = self.render_start + i
 			room = self.room_list[index]
-			room_y = i * ROOM_HEIGHT
-			for j in range(0, TILE_COUNT):
-				tile = room.tile_list[j]
-				tile.pos = (0, room_y + j * TILE_HEIGHT)
-				# If within render radius, add to render list
-				if (abs(tile.pos[1] - player_y + TILE_HEIGHT) < RENDER_RAD + TILE_HEIGHT):
-					self.render_list.append(tile)
+			room.pos = (0, i * ROOM_HEIGHT)
+			room.fillRenderGroup(self.render_group, player_pos)
 		
 
 
@@ -186,15 +168,16 @@ class Room():
 			remaining_tiles -= 1
 		
 		self.tile_list.append(Tile(remaining_loot))
-		self.image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT * TILE_COUNT))
+		self.pos = (0,0)
 
 
-	def updateImage(self) -> pygame.Surface:
-		self.image.fill((80, 80, 80, 255))
-		for i in range(0, TILE_COUNT):
-			self.tile_list[i].updateImage()
-			self.image.blit(self.tile_list[i].image, (0, TILE_HEIGHT * i))
-
+	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+		for j in range(0, TILE_COUNT):
+			tile = self.tile_list[j]
+			tile.pos = (0, self.pos[1] + j * TILE_HEIGHT)
+			# If within render radius, add to render list
+			if (abs(tile.pos[1] - player_pos[1] + BUILDING_HEIGHT // 2) < RENDER_DIST + BUILDING_HEIGHT):
+				tile.fillRenderGroup(render_group, player_pos)
 	
 	def __str__(self):
 		string = ""
@@ -206,9 +189,13 @@ class Room():
 
 # Can have a building on either side
 # Ditributes loot randomly between buildings
-class Tile():
+class Tile(Renderable):
+	image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT))
+	image.fill(ROAD_COLOR)
+	pygame.draw.line(image, (30,30,10), (0,0), (TILE_WIDTH-1,0))
+
 	def __init__(self, loot_value):
-		self.image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT), pygame.SRCALPHA)
+		super().__init__()
 		type_right = 1 #random.randint(0, BUILDING_TYPES - 1)
 		type_left = 1 #random.randint(0, BUILDING_TYPES - 1)
 		self.total_loot = loot_value
@@ -229,61 +216,68 @@ class Tile():
 			self.building_left = Building(type_left, True, bundle_2)
 		
 		self.pos = (0,0)
-		# self.updateImage()
 
-	def updateImage(self):
-		self.image.fill(ROAD_COLOR)
-		self.building_left.updateImage()
-		self.building_right.updateImage()
-		self.image.blit(self.building_left.image, (0,0))
-		self.image.blit(self.building_right.image, (TILE_WIDTH - BUILDING_WIDTH, 0))
-		# Draw street loot
-		if (self.street_loot):
-			pygame.draw.circle(self.image, (0,0,0), (TILE_WIDTH//2, TILE_HEIGHT//2), 4*(self.street_loot**0.5))
+	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+		render_group.addTo(self, 0)
+
+		building_y = self.pos[1] - (BUILDING_HEIGHT - TILE_HEIGHT)
+
+		self.building_left.pos = (0, building_y)
+		self.building_right.pos = (TILE_WIDTH - BUILDING_WIDTH, building_y)
+
+		self.building_left.fillRenderGroup(render_group, player_pos)
+		self.building_right.fillRenderGroup(render_group, player_pos)
+
 
 	def __str__(self):
 		return "%7s    %3d    %7s | T=%3d" % (self.building_left, self.street_loot, self.building_right, self.total_loot)
 
 
-class Building():
+
+class Building(Renderable):
 	# Static building images
-	building: list[pygame.Surface] = []
-	for i in range(0, BUILDING_TYPES):
-		building.append(pygame.Surface((BUILDING_WIDTH, BUILDING_MAX_HEIGHT), pygame.SRCALPHA))
-	for i in range(1, BUILDING_TYPES):
-		building[i].fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+	buildingsFaceRight: list[pygame.Surface] = []
+	buildingsFaceLeft: list[pygame.Surface] = []
+
+	for i in range(0, EMPTY_BUILDINGS):
+		buildingsFaceRight.append(0)
+		buildingsFaceLeft.append(0)
+	
+	for file in BUILDING_FILES:
+		asset = pygame.image.load(file)
+		buildingR = pygame.Surface((BUILDING_RES_X, BUILDING_RES_Y), pygame.SRCALPHA)
+		buildingR.blit(asset, (0,0), (0,0,BUILDING_RES_X,BUILDING_RES_Y))
+		buildingR = pygame.transform.scale(buildingR, (BUILDING_WIDTH, BUILDING_HEIGHT))
+		buildingL = pygame.transform.flip(buildingR, True, False)
+
+		buildingsFaceRight.append(buildingR)
+		buildingsFaceLeft.append(buildingL)
 
 	# Contructor (style of house), (side of street), (value of loot it contains)
 	def __init__(self, type, is_on_left, loot_value):
+		super().__init__()
 		self.valueToLoot(loot_value)
 		self.type = type
 		self.faces_right = is_on_left
-		# self.updateImage()
+		self.pos = (0,0)
+
+		self.image = pygame.Surface((50, 50))
+		self.image.fill((255, 150, 150))
+
+		if (self.type != 0):
+			if self.faces_right:
+				self.image = Building.buildingsFaceRight[self.type]
+			else:
+				self.image = Building.buildingsFaceLeft[self.type]
 	
 	# Will eventually create loot objects and place them in random locations
 	def valueToLoot(self, loot_value):
 		self.loot_value = loot_value
-
-	def updateImage(self):
-		self.image = pygame.Surface((BUILDING_WIDTH, BUILDING_MAX_HEIGHT), pygame.SRCALPHA)
-		# If there is a building to be drawn
-		if (self.type != 0):
-			self.image.blit(Building.building[self.type], (0,0))
-			# If the building need to face right, flip
-			if (self.faces_right):
-				pygame.transform.flip(self.image, True, False)
-		
-		self.drawLoot()
-		# Draw porch roof
-
-	# Just draws a circle on the center of the porch for now
-	def drawLoot(self):
-		y = BUILDING_MAX_HEIGHT // 2
-		if (self.faces_right):
-			x = BUILDING_WIDTH - BUILDING_PORCH_WIDTH // 2
-		else:
-			x = BUILDING_PORCH_WIDTH // 2
-		pygame.draw.circle(self.image, (0,0,0), (x, y), 4*(self.loot_value**0.5))
+	
+	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+		if (self.type >= EMPTY_BUILDINGS):
+			render_group.addTo(self, 1)
+		# Add loot to render group
 
 		
 	def __str__(self):
@@ -291,3 +285,4 @@ class Building():
 		string += '#' if self.type else ' '
 		string += str(self.loot_value)
 		return string
+

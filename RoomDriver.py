@@ -5,14 +5,12 @@ from Room import Map
 import sys
 
 # Initial variables
-screen_width, screen_height = 1000, 720
+screen_width, screen_height = 1000, 1000
 room_width, room_height = 1000, 65536 * 16
-frame_rate = 45
+frame_rate = 0
 SPRITE_SCALE = 5
 
 FRAMES_AVG_OVER = 600
-
-USE_OLD_RENDERING = False
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -29,9 +27,8 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
 # Create map
-map = Map(player, USE_OLD_RENDERING)
-map.updateImage()
-map.fillRenderList()
+map = Map(player)
+map.fillRenderGroup()
 
 # Starting the game loop
 clock = pygame.time.Clock()
@@ -58,13 +55,12 @@ while running:
 	
 	screen.fill((0,0,0))
 
-	if (USE_OLD_RENDERING):
-		screen.blit(map.image, camera.apply(map.image.get_rect()))
-	else:
-		tile_list = map.render_list
-		for i in range(0, len(tile_list)):
-			tile = tile_list[i]
-			screen.blit(tile.image, camera.apply(tile.pos))
+	map.render_group.render(screen, camera)
+		
+		# tile_list = map.render_group.super_list[0]
+		# for i in range(0, len(tile_list)):
+		# 	tile = tile_list[i]
+		# 	screen.blit(tile.image, camera.apply(tile.pos))
 
 	# Drawing all objects that we added to all_sprites
 	for sprite in all_sprites:
@@ -78,10 +74,17 @@ while running:
 	f = (f + 1) % FRAMES_AVG_OVER
 	# Cap frame rate
 	ft = clock.tick(frame_rate)
-	if (ft > 2): print("Single Frame: %d ms" % (ft))
+	if (frame_rate):
+		if (ft > 2 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
+	else:
+		if (ft > 5): print("Single Frame: %d ms" % (ft))
+	
 	tft += ft
 	if not f:
-		print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
+		if (frame_rate):
+			print("%3.2f / %3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER, 1000 / frame_rate))
+		else:
+			print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
 		tft = 0
 
 
