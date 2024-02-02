@@ -7,14 +7,14 @@ import sys
 # Initial variables
 screen_width, screen_height = 1000, 1000
 room_width, room_height = 1000, 65536 * 16
-frame_rate = 0
+frame_rate = 120
 SPRITE_SCALE = 5
 
-FRAMES_AVG_OVER = 600
+FRAMES_AVG_OVER = 300 if frame_rate == 0 else frame_rate
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Room Generation Testing")
+pygame.display.set_caption("Room Gen / Rendering")
 
 # Making an instance of the Player and placing them in the center of the screen
 player = Player("Assets/doux.png", (24, 24), 24, 0, 0, SPRITE_SCALE)
@@ -75,7 +75,7 @@ while running:
 	# Cap frame rate
 	ft = clock.tick(frame_rate)
 	if (frame_rate):
-		if (ft > 2 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
+		if (ft > 1 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
 	else:
 		if (ft > 5): print("Single Frame: %d ms" % (ft))
 	

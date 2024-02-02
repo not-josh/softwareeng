@@ -25,6 +25,9 @@ class RenderGroup():
 			for rendable in l:
 				screen.blit(rendable.image, camera.apply(rendable.pos))
 
-	def clear(self):
-		for l in self.super_list:
-			l.clear()
+	def clear(self, list_index = -1):
+		if (list_index == -1):
+			for l in self.super_list:
+				l.clear()
+		else:
+			self.super_list[list_index].clear()

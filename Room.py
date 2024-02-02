@@ -9,7 +9,7 @@ BUILDING_FILES = [
 ]
 
 # Size in pixels of all buildings
-BUILDING_RES_X = 48
+BUILDING_RES_X = 36
 BUILDING_RES_Y = 24
 BUILDING_FLOOR_RES_Y = 16
 BUILDING_SCALE = 10 # Scalar value to increase size
@@ -18,7 +18,7 @@ BUILDING_PORCH_WIDTH = 64
 BUILDING_GAP = 0
 EMPTY_BUILDINGS = 1
 
-TILE_COUNT = 64
+TILE_COUNT = 8
 LOOT_VALUE = TILE_COUNT*6
 TILE_WIDTH = 1000
 
@@ -129,7 +129,8 @@ class Map():
 
 	def fillRenderGroup(self):
 		self.rend_update_itt = 1
-		self.render_group.clear()
+		self.render_group.clear(0)
+		self.render_group.clear(1)
 
 		player_pos = self.player.rect.center
 
