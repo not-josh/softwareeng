@@ -5,16 +5,16 @@ from RenderGroup import *
 
 # File locations of all buildings
 BUILDING_FILES = [
-	"Assets/doux.png",
-	"Assets/doux.png",
-	"Assets/doux.png"
+	"Assets/temptown_building_1.png",
 ]
 
 # Size in pixels of all buildings
-BUILDING_RES_X = 36
-BUILDING_RES_Y = 24
+BUILDING_RES_X = 51
+BUILDING_RES_Y = 41
 BUILDING_FLOOR_RES_Y = 16
-BUILDING_SCALE = 10 # Scalar value to increase size
+ROOF_OFSET_X = 32
+ROOF_OFSET_Y = 2
+BUILDING_SCALE = 5 # Scalar value to increase size
 BUILDING_PORCH_WIDTH = 64
 
 BUILDING_GAP = 0
@@ -62,7 +62,7 @@ class Map():
 		self.player = player
 		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
 
-		self.render_group = RenderGroup(2)
+		self.render_group = RenderGroup(5)
 		self.rend_update_itt = 0
 
 	def addRoom(self):
@@ -180,7 +180,7 @@ class Room():
 			tile = self.tile_list[j]
 			tile.pos = (0, self.pos[1] + j * TILE_HEIGHT)
 			# If within render radius, add to render list
-			if (abs(tile.pos[1] - player_pos[1] + BUILDING_HEIGHT // 2) < RENDER_DIST + BUILDING_HEIGHT):
+			if (abs(tile.pos[1] - player_pos[1]) < RENDER_DIST + BUILDING_HEIGHT):
 				tile.fillRenderGroup(render_group, player_pos)
 	
 	def __str__(self):
