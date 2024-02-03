@@ -11,18 +11,19 @@ BUILDING_FILES = [
 # Size in pixels of all buildings
 BUILDING_RES_X = 51
 BUILDING_RES_Y = 41
-BUILDING_FLOOR_RES_Y = 16
+BUILDING_FLOOR_RES_Y = 19
 ROOF_OFSET_X = 32
 ROOF_OFSET_Y = 2
-BUILDING_SCALE = 5 # Scalar value to increase size
+BUILDING_SCALE = 5
 BUILDING_PORCH_WIDTH = 64
 
-BUILDING_GAP = 0
+BUILDING_GAP = BUILDING_SCALE * 0
 EMPTY_BUILDINGS = 1
 
 TILE_COUNT = 8
-LOOT_VALUE = TILE_COUNT*6
+ROOM_GAP = 10
 TILE_WIDTH = 1000
+LOOT_VALUE = TILE_COUNT*6
 
 RENDER_DIST = 500 # Should be half of screen height
 RENDER_UPDATE_RATE = 10 # How many frames need to pass before updating which tiles should be rendered
@@ -30,7 +31,6 @@ ROOM_REND_RAD = 4
 ROOM_UNREND_COUNT = 28 # Number of rooms that can be unloaded but stored & returned to
 
 ROAD_COLOR = (200, 150, 100)
-ERROR_COLOR = (255, 100, 100)
 
 	# CALCULATED CONSTANTS #
 
@@ -42,15 +42,14 @@ TILE_HEIGHT = BUILDING_FLOOR_HEIGHT + BUILDING_GAP
 ROOM_REND_COUNT = ROOM_REND_RAD * 2
 REND_CENTER_INDEX = ROOM_REND_COUNT // 2
 
-ROOM_HEIGHT = TILE_HEIGHT * TILE_COUNT + 10
+ROOM_HEIGHT = TILE_HEIGHT * TILE_COUNT + ROOM_GAP
 ROOM_WIDTH = TILE_WIDTH
 ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
 
 
 
 class Map():
-	def __init__(self, player: Player, use_old_rendering = False):
-		self.USE_OLD_RENDERING = use_old_rendering
+	def __init__(self, player: Player):
 		self.room_list: list[Room] = []
 		self.room_count = 0
 
@@ -63,6 +62,7 @@ class Map():
 		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
 
 		self.render_group = RenderGroup(5)
+		self.render_group.addTo(player, 3)
 		self.rend_update_itt = 0
 
 	def addRoom(self):
@@ -141,7 +141,7 @@ class Map():
 		for i in range(0, ROOM_REND_COUNT):
 			index = self.render_start + i
 			room = self.room_list[index]
-			room.pos = (0, i * ROOM_HEIGHT)
+			room.rect.topleft = (0, i * ROOM_HEIGHT)
 			room.fillRenderGroup(self.render_group, player_pos)
 		
 
@@ -172,15 +172,15 @@ class Room():
 			remaining_tiles -= 1
 		
 		self.tile_list.append(Tile(remaining_loot))
-		self.pos = (0,0)
+		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
 
 	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
 		for j in range(0, TILE_COUNT):
 			tile = self.tile_list[j]
-			tile.pos = (0, self.pos[1] + j * TILE_HEIGHT)
+			tile.rect.topleft = (0, self.rect.topleft[1] + j * TILE_HEIGHT)
 			# If within render radius, add to render list
-			if (abs(tile.pos[1] - player_pos[1]) < RENDER_DIST + BUILDING_HEIGHT):
+			if (abs(tile.rect.topleft[1] - player_pos[1]) < RENDER_DIST + BUILDING_HEIGHT):
 				tile.fillRenderGroup(render_group, player_pos)
 	
 	def __str__(self):
@@ -219,15 +219,15 @@ class Tile(Renderable):
 			self.building_right = Building(type_right, False, bundle_1)
 			self.building_left = Building(type_left, True, bundle_2)
 		
-		self.pos = (0,0)
+		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
 
 	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
 		render_group.addTo(self, 0)
 
-		building_y = self.pos[1] - (BUILDING_HEIGHT - TILE_HEIGHT)
+		building_y = self.rect.topleft[1] - (BUILDING_HEIGHT - TILE_HEIGHT)
 
-		self.building_left.pos = (0, building_y)
-		self.building_right.pos = (TILE_WIDTH - BUILDING_WIDTH, building_y)
+		self.building_left.rect.topleft = (0, building_y)
+		self.building_right.rect.topleft = (TILE_WIDTH - BUILDING_WIDTH, building_y)
 
 		self.building_left.fillRenderGroup(render_group, player_pos)
 		self.building_right.fillRenderGroup(render_group, player_pos)
@@ -263,10 +263,7 @@ class Building(Renderable):
 		self.valueToLoot(loot_value)
 		self.type = type
 		self.faces_right = is_on_left
-		self.pos = (0,0)
-
-		self.image = pygame.Surface((50, 50))
-		self.image.fill(ERROR_COLOR)
+		self.rect = pygame.Rect(0, 0, BUILDING_WIDTH, BUILDING_HEIGHT)
 
 		if (self.type >= EMPTY_BUILDINGS):
 			if self.faces_right:

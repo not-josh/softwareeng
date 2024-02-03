@@ -6,8 +6,8 @@ import sys
 
 # Initial variables
 screen_width, screen_height = 1000, 1000
-room_width, room_height = 1000, 65536 * 16
-frame_rate = 120
+room_width, room_height = 1000, 65536
+frame_rate = 60
 SPRITE_SCALE = 5
 
 FRAMES_AVG_OVER = 300 if frame_rate == 0 else frame_rate
@@ -56,15 +56,6 @@ while running:
 	screen.fill((0,0,0))
 
 	map.render_group.render(screen, camera)
-		
-		# tile_list = map.render_group.super_list[0]
-		# for i in range(0, len(tile_list)):
-		# 	tile = tile_list[i]
-		# 	screen.blit(tile.image, camera.apply(tile.pos))
-
-	# Drawing all objects that we added to all_sprites
-	for sprite in all_sprites:
-		screen.blit(sprite.image, camera.apply(sprite))
 
 	# Refresh (or else the old stuff stays)
 	pygame.display.flip()

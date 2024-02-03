@@ -5,9 +5,11 @@ import Camera
 # Dummy simple class to declare something "renderable"
 class Renderable():
 	image = 0
+	image = pygame.Surface((50, 50), pygame.SRCALPHA)
+	image.fill((255, 50, 50, 127))
 	
 	def __init__(self):
-		self.pos = (0,0)
+		self.rect = (0,0,0,0)
 
 
 class RenderGroup():
@@ -23,7 +25,7 @@ class RenderGroup():
 	def render(self, screen: pygame.Surface, camera: Camera):
 		for l in self.super_list:
 			for rendable in l:
-				screen.blit(rendable.image, camera.apply(rendable.pos))
+				screen.blit(rendable.image, camera.apply(rendable.rect))
 
 	def clear(self, list_index = -1):
 		if (list_index == -1):
