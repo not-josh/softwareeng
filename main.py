@@ -32,6 +32,9 @@ quit_button = Button(250, options_button.y + 150, white_blank_menu, "Quit", menu
 
 menu_buttons = [play_button, options_button, quit_button]
 
+# Playing the title screen music
+pygame.mixer.music.play(-1)
+
 def get_font(size):
     pass
 
@@ -205,6 +208,11 @@ def play():
             # Cap frame rate
             clock.tick(frame_rate)
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
 
 def options():
     pygame.display.set_caption("Options")
@@ -239,9 +247,6 @@ def main_menu():
     # Starting the game loop
     clock = pygame.time.Clock()
     running = True
-
-    # Playing the title screen music
-    pygame.mixer.music.play(-1)
 
     while running:
 
