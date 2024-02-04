@@ -9,12 +9,12 @@ class Renderable():
 	image.fill((255, 50, 50, 127))
 	
 	def __init__(self):
-		self.rect = (0,0,0,0)
+		self.rect = pygame.Rect(0,0,0,0)
 
 
 class RenderGroup():
 	def __init__(self, initialize_count):
-		self.super_list: list[list] = []
+		self.super_list: list[list[Renderable]] = []
 		for i in range(0, initialize_count):
 			self.super_list.append([])
 		

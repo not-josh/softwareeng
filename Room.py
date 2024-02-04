@@ -5,17 +5,24 @@ from RenderGroup import *
 
 # File locations of all buildings
 BUILDING_FILES = [
-	"Assets/temptown_building_1.png",
+	"Assets/temptown_building_base_1.png"
+]
+
+ROOF_FILES = [
+	"Assets/temptown_roof_1.png"
 ]
 
 # Size in pixels of all buildings
 BUILDING_RES_X = 51
 BUILDING_RES_Y = 41
-BUILDING_FLOOR_RES_Y = 19
-ROOF_OFSET_X = 32
-ROOF_OFSET_Y = 2
+BUILDING_TILE_RES_Y = 19
 BUILDING_SCALE = 5
-BUILDING_PORCH_WIDTH = 64
+BUILDING_PORCH_RES_X = 19
+
+PAWN_FILE = "Assets/temptown_pawn_full.png"
+PAWN_ROOF_FILE = ""
+PAWN_RES_X = 59
+PAWN_PORCH_RES_X = 22
 
 BUILDING_GAP = BUILDING_SCALE * 0
 EMPTY_BUILDINGS = 1
@@ -36,7 +43,13 @@ ROAD_COLOR = (200, 150, 100)
 
 BUILDING_WIDTH = BUILDING_RES_X * BUILDING_SCALE
 BUILDING_HEIGHT = BUILDING_RES_Y * BUILDING_SCALE
-BUILDING_FLOOR_HEIGHT = BUILDING_FLOOR_RES_Y * BUILDING_SCALE
+BUILDING_FLOOR_HEIGHT = BUILDING_TILE_RES_Y * BUILDING_SCALE
+BUILDING_PORCH_WIDTH = BUILDING_PORCH_RES_X * BUILDING_SCALE
+
+PAWN_RES_Y = BUILDING_TILE_RES_Y
+PAWN_WIDTH = PAWN_RES_X * BUILDING_SCALE
+PAWN_HEIGHT = PAWN_RES_Y * BUILDING_SCALE
+PAWN_PORCH_WIDTH = PAWN_PORCH_RES_X
 
 TILE_HEIGHT = BUILDING_FLOOR_HEIGHT + BUILDING_GAP
 ROOM_REND_COUNT = ROOM_REND_RAD * 2
@@ -134,15 +147,16 @@ class Map():
 		self.rend_update_itt = 1
 		self.render_group.clear(0)
 		self.render_group.clear(1)
+		self.render_group.clear(4)
 
-		player_pos = self.player.rect.center
+		player_rect = self.player.rect
 
 		# For every room that's potentially visible
 		for i in range(0, ROOM_REND_COUNT):
 			index = self.render_start + i
 			room = self.room_list[index]
 			room.rect.topleft = (0, i * ROOM_HEIGHT)
-			room.fillRenderGroup(self.render_group, player_pos)
+			room.fillRenderGroup(self.render_group, player_rect)
 		
 
 
@@ -175,13 +189,13 @@ class Room():
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
 
-	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		for j in range(0, TILE_COUNT):
 			tile = self.tile_list[j]
 			tile.rect.topleft = (0, self.rect.topleft[1] + j * TILE_HEIGHT)
 			# If within render radius, add to render list
-			if (abs(tile.rect.topleft[1] - player_pos[1]) < RENDER_DIST + BUILDING_HEIGHT):
-				tile.fillRenderGroup(render_group, player_pos)
+			if (abs(tile.rect.topleft[1] - player_rect.center[1]) < RENDER_DIST + BUILDING_HEIGHT):
+				tile.fillRenderGroup(render_group, player_rect)
 	
 	def __str__(self):
 		string = ""
@@ -221,16 +235,16 @@ class Tile(Renderable):
 		
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
 
-	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		render_group.addTo(self, 0)
 
 		building_y = self.rect.topleft[1] - (BUILDING_HEIGHT - TILE_HEIGHT)
 
 		self.building_left.rect.topleft = (0, building_y)
-		self.building_right.rect.topleft = (TILE_WIDTH - BUILDING_WIDTH, building_y)
+		self.building_right.rect.topright = (TILE_WIDTH, building_y)
 
-		self.building_left.fillRenderGroup(render_group, player_pos)
-		self.building_right.fillRenderGroup(render_group, player_pos)
+		self.building_left.fillRenderGroup(render_group, player_rect)
+		self.building_right.fillRenderGroup(render_group, player_rect)
 
 
 	def __str__(self):
@@ -260,10 +274,11 @@ class Building(Renderable):
 	# Contructor (style of house), (side of street), (value of loot it contains)
 	def __init__(self, type, is_on_left, loot_value):
 		super().__init__()
+		self.roof = Roof(type, is_on_left)
 		self.valueToLoot(loot_value)
 		self.type = type
 		self.faces_right = is_on_left
-		self.rect = pygame.Rect(0, 0, BUILDING_WIDTH, BUILDING_HEIGHT)
+		self.rect = pygame.Rect(0,0,BUILDING_WIDTH, BUILDING_HEIGHT)
 
 		if (self.type >= EMPTY_BUILDINGS):
 			if self.faces_right:
@@ -275,11 +290,16 @@ class Building(Renderable):
 	def valueToLoot(self, loot_value):
 		self.loot_value = loot_value
 	
-	def fillRenderGroup(self, render_group: RenderGroup, player_pos):
+	def fillRenderGroup(self, render_group: RenderGroup, player_rect):
 		if (self.type >= EMPTY_BUILDINGS):
 			render_group.addTo(self, 1)
+			# Relocate roof
+			if (self.faces_right):
+				self.roof.rect.topright = self.rect.topright
+			else:
+				self.roof.rect.topleft = self.rect.topleft
+			self.roof.fillRenderGroup(render_group, player_rect)
 		# Add loot to render group
-
 		
 	def __str__(self):
 		string = ""
@@ -287,3 +307,40 @@ class Building(Renderable):
 		string += str(self.loot_value)
 		return string
 
+class Roof(Renderable):
+	# Static roof images
+	roofsFaceRight: list[pygame.Surface] = []
+	roofsFaceLeft: list[pygame.Surface] = []
+
+	for i in range(0, EMPTY_BUILDINGS):
+		roofsFaceRight.append(0)
+		roofsFaceLeft.append(0)
+	
+	for file in ROOF_FILES:
+		asset = pygame.image.load(file)
+		roofR = pygame.Surface((BUILDING_PORCH_RES_X, BUILDING_RES_Y), pygame.SRCALPHA)
+		roofR.blit(asset, (0,0), (0,0,BUILDING_PORCH_RES_X, BUILDING_RES_Y))
+		roofR = pygame.transform.scale(roofR, (BUILDING_PORCH_WIDTH, BUILDING_HEIGHT))
+		roofL = pygame.transform.flip(roofR, True, False)
+
+		roofsFaceRight.append(roofR)
+		roofsFaceLeft.append(roofL)
+
+	# Contructor (style of house), (side of street), (value of loot it contains)
+	def __init__(self, type, is_on_left):
+		super().__init__()
+		self.type = type
+		self.faces_right = is_on_left
+		self.rect = pygame.Rect(0,0,BUILDING_PORCH_WIDTH, BUILDING_HEIGHT)
+
+		if (self.type >= EMPTY_BUILDINGS):
+			if self.faces_right:
+				self.image = Roof.roofsFaceRight[self.type]
+			else:
+				self.image = Roof.roofsFaceLeft[self.type]
+	
+	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
+		if (player_rect.colliderect(self.rect)):
+			pass
+		else:
+			render_group.addTo(self, 4)
