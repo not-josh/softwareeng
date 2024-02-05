@@ -1,13 +1,13 @@
 import pygame
 from PlayerClass.Player import Player
 from Camera import Camera
-from Room import Map
+from Map import Map
 import sys
 
 # Initial variables
 screen_width, screen_height = 1000, 1000
 room_width, room_height = 1000, 65536
-frame_rate = 60
+frame_rate = 0
 SPRITE_SCALE = 5
 
 FRAMES_AVG_OVER = 300 if frame_rate == 0 else frame_rate

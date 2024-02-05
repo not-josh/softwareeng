@@ -1,16 +1,8 @@
 import pygame
 import Camera
 
-
-# Dummy simple class to declare something "renderable"
 class Renderable():
-	image = 0
-	image = pygame.Surface((50, 50), pygame.SRCALPHA)
-	image.fill((255, 50, 50, 127))
-	
-	def __init__(self):
-		self.rect = pygame.Rect(0,0,0,0)
-
+	pass
 
 class RenderGroup():
 	def __init__(self, initialize_count):
@@ -33,3 +25,17 @@ class RenderGroup():
 				l.clear()
 		else:
 			self.super_list[list_index].clear()
+
+
+# Dummy simple class to declare something "renderable"
+class Renderable():
+	image = 0
+	image = pygame.Surface((50, 50), pygame.SRCALPHA)
+	image.fill((255, 50, 50, 127))
+	
+	def __init__(self):
+		self.rect = pygame.Rect(0,0,0,0)
+
+	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
+		render_group.addTo(self, 0)
+		pass

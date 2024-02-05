@@ -2,6 +2,7 @@ import pygame
 import random
 import PlayerClass.Player as Player
 from RenderGroup import *
+from Loot import Loot
 
 # File locations of all buildings
 BUILDING_FILES = [
@@ -151,6 +152,7 @@ class Map():
 		self.rend_update_itt = 1
 		self.render_group.clear(0)
 		self.render_group.clear(1)
+		self.render_group.clear(2)
 		self.render_group.clear(4)
 
 		player_rect = self.player.rect
@@ -160,7 +162,7 @@ class Map():
 			index = self.render_start + i
 			room = self.room_list[index]
 			room.rect.topleft = (0, i * ROOM_HEIGHT)
-			room.fillRenderGroup(self.render_group, player_rect)
+			room.appendToRenderGroup(self.render_group, player_rect)
 		
 
 
@@ -193,13 +195,13 @@ class Room():
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
 
-	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
+	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		for j in range(0, TILE_COUNT):
 			tile = self.tile_list[j]
 			tile.rect.topleft = (0, self.rect.topleft[1] + j * TILE_HEIGHT)
 			# If within render radius, add to render list
 			if (abs(tile.rect.topleft[1] - player_rect.center[1]) < RENDER_DIST + BUILDING_HEIGHT):
-				tile.fillRenderGroup(render_group, player_rect)
+				tile.appendToRenderGroup(render_group, player_rect)
 	
 	def __str__(self):
 		string = ""
@@ -221,7 +223,7 @@ class Tile(Renderable):
 		type_right = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		type_left = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		self.total_loot = loot_value
-		self.street_loot = 0
+		self.street_loot = False
 
 		if (has_pawn_shop):
 			if (random.getrandbits(1)):
@@ -233,7 +235,7 @@ class Tile(Renderable):
 			self.building_right = Building(type_right, False, 0)
 			self.building_left = Building(type_left, True, 0)
 		elif not random.getrandbits(3): # 1 in 8 chance to place all loot in the street
-			self.street_loot = loot_value
+			self.street_loot = Loot(loot_value)
 			self.building_right = Building(type_right, False, 0)
 			self.building_left = Building(type_left, True, 0)
 		else:
@@ -245,7 +247,7 @@ class Tile(Renderable):
 		
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
 
-	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
+	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		render_group.addTo(self, 0)
 
 		building_y = self.rect.topleft[1] - (BUILDING_HEIGHT - TILE_HEIGHT)
@@ -253,8 +255,12 @@ class Tile(Renderable):
 		self.building_left.rect.topleft = (0, building_y)
 		self.building_right.rect.topright = (TILE_WIDTH, building_y)
 
-		self.building_left.fillRenderGroup(render_group, player_rect)
-		self.building_right.fillRenderGroup(render_group, player_rect)
+		self.building_left.appendToRenderGroup(render_group, player_rect)
+		self.building_right.appendToRenderGroup(render_group, player_rect)
+
+		if (self.street_loot):
+			self.street_loot.rect.center = self.rect.center
+			self.street_loot.appendToRenderGroup(render_group, player_rect)
 
 
 	def __str__(self):
@@ -304,9 +310,12 @@ class Building(Renderable):
 	
 	# Will eventually create loot objects and place them in random locations
 	def valueToLoot(self, loot_value):
-		self.loot_value = loot_value
+		if (loot_value >= 0):
+			self.loot: Loot = Loot(loot_value)
+		else:
+			self.loot = False
 	
-	def fillRenderGroup(self, render_group: RenderGroup, player_rect):
+	def appendToRenderGroup(self, render_group: RenderGroup, player_rect):
 		if (self.is_not_empty):
 			render_group.addTo(self, 1)
 			# Relocate roof
@@ -314,8 +323,13 @@ class Building(Renderable):
 				self.roof.rect.topright = self.rect.topright
 			else:
 				self.roof.rect.topleft = self.rect.topleft
-			self.roof.fillRenderGroup(render_group, player_rect)
-		# Add loot to render group
+			self.roof.appendToRenderGroup(render_group, player_rect)
+		if (self.loot):
+			if (self.faces_right): loot_x = self.rect.topright[0] - 50
+			else: loot_x = self.rect.topleft[0] + 50
+			loot_y = self.rect.bottom - TILE_HEIGHT // 2 
+			self.loot.rect.center = (loot_x, loot_y)
+			self.loot.appendToRenderGroup(render_group, player_rect)
 		
 	def __str__(self):
 		string = ""
@@ -345,7 +359,7 @@ class Roof(Renderable):
 
 		self.rect: pygame.Rect = self.image.get_rect()
 	
-	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
+	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		if (player_rect.colliderect(self.rect)):
 			pass
 		else:
