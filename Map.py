@@ -4,6 +4,31 @@ import PlayerClass.Player as Player
 from RenderGroup import *
 from Loot import Loot
 
+
+# Overview of how this works:
+	# Map has Rooms
+	# Room has Tiles
+	# Tile has Loot and Buildings & is renderable
+	# Building has Loot and Roof & is renderable
+	# Roof and Loot are renderable
+
+	# Renderable means it inherits from RenderGroup.Renderable
+		# All renderable objects get added to a RenderGroup when they need to be rendered
+		# Has an image and a rect (for position/size)
+		# Has appendToRenderGroup(), which takes a RenderGroup, and the player's location (rect)
+			# Each child's implementation can be different, but the idea is to decide how and where
+			# itself and its components will be added to the RenderGroup.
+			# E.g. Tile.appendToRenderGroup() repositions all of its buildings, 
+			#  adds itself to the group, then calls buildings.appendToRenderGroup()
+
+	# Each renderable object has a static list of the possible sprites that can be rendered.
+	#  This prevents the need for sprites getting redrawn each time a new room is generated, 
+	#  which would cause lagspikes. 
+
+	# See RenderGroup.py for more details on Renderable/Rendegroup
+
+
+
 # File locations of all buildings
 BUILDING_FILES = [
 	"Assets/temptown_building_base_1.png",
@@ -17,7 +42,7 @@ ROOF_FILES = [
 	"Assets/temptown_pawn_roof.png"
 ]
 
-# Size in pixels of all buildings
+# Size in pixels of normal buildings
 BUILDING_RES_X = 51
 BUILDING_RES_Y = 41
 BUILDING_TILE_RES_Y = 19
@@ -44,8 +69,9 @@ ROOM_UNREND_COUNT = 28 # Number of rooms that can be unloaded but stored & retur
 
 ROAD_COLOR = (200, 150, 100)
 
-	# CALCULATED CONSTANTS #
 
+
+	# CALCULATED CONSTANTS #
 BUILDING_WIDTH = BUILDING_RES_X * BUILDING_SCALE
 BUILDING_HEIGHT = BUILDING_RES_Y * BUILDING_SCALE
 BUILDING_FLOOR_HEIGHT = BUILDING_TILE_RES_Y * BUILDING_SCALE
@@ -65,7 +91,7 @@ ROOM_WIDTH = TILE_WIDTH
 ROOM_TOT_COUNT = ROOM_REND_COUNT + ROOM_UNREND_COUNT
 
 
-
+# Holds and manages all rooms, as well as which rooms need to be rendered/updated
 class Map():
 	def __init__(self, player: Player):
 		self.room_list: list[Room] = []
@@ -74,20 +100,22 @@ class Map():
 		for i in range(0, ROOM_REND_COUNT):
 			self.addRoom()
 		
-		self.render_start = 0 # Room furthest back that will be rendered
+		self.render_start = 0 # Furthest-back room to be rendered (e.g. 1 might mean rooms 1~5 are rendered)
 
-		self.player = player
+		self.player: Player = player
 		self.player.rect.center = (ROOM_WIDTH // 2, ROOM_REND_COUNT * ROOM_HEIGHT - ROOM_HEIGHT // 2)
 
-		self.render_group = RenderGroup(5)
-		self.render_group.addTo(player, 3)
+		self.render_group = RenderGroup(5) # Create RenderGroup with 5 render layers (layers 0~4)
+		self.render_group.addTo(player, 3) # Add player to layer 3
 		self.rend_update_itt = 0
 
+	# Adds a room as the new "furthest forward" room
 	def addRoom(self):
 		room = Room(self.room_count)
 		self.room_list.insert(0, room)
 		self.room_count += 1
 
+	# Removes the "furthest back" room
 	def removeRoom(self):
 		self.room_list.pop()
 
@@ -98,6 +126,7 @@ class Map():
 		actual_rend_count = min(self.render_start + 1, ROOM_REND_COUNT)
 		return player_pos[1] // ROOM_HEIGHT
 	
+	# Checks if the player has reached a new room and if the map needs to be shifted
 	def update(self):
 		player_current_room = self.getPlayerRoom()
 		if player_current_room > REND_CENTER_INDEX:
@@ -110,7 +139,7 @@ class Map():
 		else:
 			self.rend_update_itt = (self.rend_update_itt + 1) % RENDER_UPDATE_RATE
 
-
+	# Player moved up
 	def up(self):
 		# Rendering area will extend past the room list
 		if (self.render_start <= 0):
@@ -120,36 +149,37 @@ class Map():
 		else:
 			self.render_start -= 1
 
-		self.downshift()
+		self.downshift() # Shift everything back down
 		self.fillRenderGroup()
 
-
+	# Player moved down
 	def down(self):
 		# If render area is at the end of the list
 		if (self.render_start + ROOM_REND_COUNT + 1) >= len(self.room_list):
 			pass # Do nothing
 		else:
 			self.render_start += 1
-			self.upshift()
+			self.upshift() # Shift everything back up
 			self.fillRenderGroup()
 
-
+	# Shift every downwards to account for player moving up too far
 	def downshift(self):
 		# Shift player down
 		player_pos = self.player.rect.center
 		player_pos = (player_pos[0], player_pos[1] + ROOM_HEIGHT)
 		self.player.rect.center = player_pos
 
-
+	# Shift every upwards to account for player moving down too far
 	def upshift(self):
 			# Shift player up
 			player_pos = self.player.rect.center
 			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
 			self.player.rect.center = player_pos
 
-
+	# Fills self.render_group with tiles/buildings/etc
 	def fillRenderGroup(self):
 		self.rend_update_itt = 1
+		# Clear render lists (except 3, which contains the player)
 		self.render_group.clear(0)
 		self.render_group.clear(1)
 		self.render_group.clear(2)
@@ -165,7 +195,7 @@ class Map():
 			room.appendToRenderGroup(self.render_group, player_rect)
 		
 
-
+# Holds and manages a set of tiles
 class Room():
 	def __init__(self, id = 0, total_loot = LOOT_VALUE):
 		self.tile_list: list[Tile] = []
@@ -194,7 +224,7 @@ class Room():
 		self.tile_list.append(Tile(remaining_loot, True))
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
-
+	# Adds all of its tiles to the render group
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		for j in range(0, TILE_COUNT):
 			tile = self.tile_list[j]
@@ -202,17 +232,11 @@ class Room():
 			# If within render radius, add to render list
 			if (abs(tile.rect.topleft[1] - player_rect.center[1]) < RENDER_DIST + BUILDING_HEIGHT):
 				tile.appendToRenderGroup(render_group, player_rect)
-	
-	def __str__(self):
-		string = ""
-		for tile in self.tile_list:
-			string += str(tile) + "\n"
-		return string
 
 
 
-# Can have a building on either side
-# Ditributes loot randomly between buildings
+# Has a building on either side
+# Ditributes loot randomly between buildings & street
 class Tile(Renderable):
 	image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT))
 	image.fill(ROAD_COLOR)
@@ -231,6 +255,7 @@ class Tile(Renderable):
 			else:
 				type_right = len(BUILDING_FILES)-1
 
+		# Loot distribution
 		if (loot_value <= 0):
 			self.building_right = Building(type_right, False, 0)
 			self.building_left = Building(type_left, True, 0)
@@ -247,6 +272,7 @@ class Tile(Renderable):
 		
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
 
+	# Add self and buildings to render group
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		render_group.addTo(self, 0)
 
@@ -263,11 +289,7 @@ class Tile(Renderable):
 			self.street_loot.appendToRenderGroup(render_group, player_rect)
 
 
-	def __str__(self):
-		return "%7s    %3d    %7s | T=%3d" % (self.building_left, self.street_loot, self.building_right, self.total_loot)
-
-
-
+# Creates lists of right/left facing images from a list of files
 def fillRLImageLists(file_list: list[str], face_right_list: list[pygame.Surface], face_left_list: list[pygame.Surface]) -> None:
 	for file in file_list:
 		asset = pygame.image.load(file)
@@ -281,6 +303,7 @@ def fillRLImageLists(file_list: list[str], face_right_list: list[pygame.Surface]
 		face_left_list.append(imageL)
 
 
+# Contains loot and roofs
 class Building(Renderable):
 	# Static building images
 	buildingsFaceRight: list[pygame.Surface] = []
@@ -295,7 +318,7 @@ class Building(Renderable):
 		self.faces_right = is_on_left
 		self.is_not_empty: bool = (self.type >= 0)
 
-		# If there is a structure
+		# If there is a structure, create roof and set self.image
 		if (self.is_not_empty):
 			self.roof = Roof(type, is_on_left)
 			if self.faces_right:
@@ -305,16 +328,18 @@ class Building(Renderable):
 			self.rect: pygame.Rect = self.image.get_rect()
 		else:
 			self.rect: pygame.Rect = pygame.Rect(0,0,BUILDING_WIDTH,BUILDING_HEIGHT)
+			self.roof = False
 		
 		self.valueToLoot(loot_value)
 	
-	# Will eventually create loot objects and place them in random locations
+	# Basically a placeholder for more complex loot generation
 	def valueToLoot(self, loot_value):
 		if (loot_value >= 0):
 			self.loot: Loot = Loot(loot_value)
 		else:
 			self.loot = False
 	
+	# Add self to render group, call appendToRenderGroup() on sub-components
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect):
 		if (self.is_not_empty):
 			render_group.addTo(self, 1)
@@ -330,13 +355,8 @@ class Building(Renderable):
 			loot_y = self.rect.bottom - TILE_HEIGHT // 2 
 			self.loot.rect.center = (loot_x, loot_y)
 			self.loot.appendToRenderGroup(render_group, player_rect)
-		
-	def __str__(self):
-		string = ""
-		string += '#' if self.type else ' '
-		string += str(self.loot_value)
-		return string
 
+# Roof for buildings
 class Roof(Renderable):
 	# Static roof images
 	roofsFaceRight: list[pygame.Surface] = []

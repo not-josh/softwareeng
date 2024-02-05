@@ -1,9 +1,23 @@
 import pygame
 import Camera
 
+# RenderGroup:
+	# Essentially a list of lists with a function to render all objects in the "super list"
+	# Lower-indexed lists get rendered first
+		# Within a list, objects are rendered in the order they were added
+
+# Renderable:
+	# Has an image (static pink box by default)
+	# Has a position (self.rect)
+	# Has a function to handle adding itself and any subcomonets it may have to the render group
+		# appendToRenderGroup()
+
+
+
 class Renderable():
 	pass
 
+# Glorified list of lists
 class RenderGroup():
 	def __init__(self, initialize_count):
 		self.super_list: list[list[Renderable]] = []
@@ -29,7 +43,6 @@ class RenderGroup():
 
 # Dummy simple class to declare something "renderable"
 class Renderable():
-	image = 0
 	image = pygame.Surface((50, 50), pygame.SRCALPHA)
 	image.fill((255, 50, 50, 127))
 	
