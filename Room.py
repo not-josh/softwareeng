@@ -5,11 +5,15 @@ from RenderGroup import *
 
 # File locations of all buildings
 BUILDING_FILES = [
-	"Assets/temptown_building_base_1.png"
+	"Assets/temptown_building_base_1.png",
+	"Assets/temptown_building_base_1.png",
+	"Assets/temptown_pawn_base.png"
 ]
 
 ROOF_FILES = [
-	"Assets/temptown_roof_1.png"
+	"Assets/temptown_roof_1.png",
+	"Assets/temptown_roof_1.png",
+	"Assets/temptown_pawn_roof.png"
 ]
 
 # Size in pixels of all buildings
@@ -182,10 +186,10 @@ class Room():
 				tile_loot += l
 
 			# Create tile
-			self.tile_list.append(Tile(tile_loot))
+			self.tile_list.append(Tile(tile_loot, False))
 			remaining_tiles -= 1
 		
-		self.tile_list.append(Tile(remaining_loot))
+		self.tile_list.append(Tile(remaining_loot, True))
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
 
@@ -212,12 +216,18 @@ class Tile(Renderable):
 	image.fill(ROAD_COLOR)
 	pygame.draw.line(image, (30,30,10), (0,0), (TILE_WIDTH-1,0))
 
-	def __init__(self, loot_value):
+	def __init__(self, loot_value, has_pawn_shop):
 		super().__init__()
-		type_right = random.randint(0, len(BUILDING_FILES) + EMPTY_BUILDINGS - 1)
-		type_left = random.randint(0, len(BUILDING_FILES) + EMPTY_BUILDINGS - 1)
+		type_right = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
+		type_left = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		self.total_loot = loot_value
 		self.street_loot = 0
+
+		if (has_pawn_shop):
+			if (random.getrandbits(1)):
+				type_left = len(BUILDING_FILES)-1
+			else:
+				type_right = len(BUILDING_FILES)-1
 
 		if (loot_value <= 0):
 			self.building_right = Building(type_right, False, 0)
@@ -252,46 +262,52 @@ class Tile(Renderable):
 
 
 
+def fillRLImageLists(file_list: list[str], face_right_list: list[pygame.Surface], face_left_list: list[pygame.Surface]) -> None:
+	for file in file_list:
+		asset = pygame.image.load(file)
+		res_x = asset.get_width()
+		imageR = pygame.Surface((res_x, BUILDING_RES_Y), pygame.SRCALPHA)
+		imageR.blit(asset, (0,0), (0, 0, res_x, BUILDING_RES_Y))
+		imageR = pygame.transform.scale_by(imageR, BUILDING_SCALE)
+		imageL = pygame.transform.flip(imageR, True, False)
+
+		face_right_list.append(imageR)
+		face_left_list.append(imageL)
+
+
 class Building(Renderable):
 	# Static building images
 	buildingsFaceRight: list[pygame.Surface] = []
 	buildingsFaceLeft: list[pygame.Surface] = []
 
-	for i in range(0, EMPTY_BUILDINGS):
-		buildingsFaceRight.append(0)
-		buildingsFaceLeft.append(0)
-	
-	for file in BUILDING_FILES:
-		asset = pygame.image.load(file)
-		buildingR = pygame.Surface((BUILDING_RES_X, BUILDING_RES_Y), pygame.SRCALPHA)
-		buildingR.blit(asset, (0,0), (0,0,BUILDING_RES_X,BUILDING_RES_Y))
-		buildingR = pygame.transform.scale(buildingR, (BUILDING_WIDTH, BUILDING_HEIGHT))
-		buildingL = pygame.transform.flip(buildingR, True, False)
-
-		buildingsFaceRight.append(buildingR)
-		buildingsFaceLeft.append(buildingL)
+	fillRLImageLists(BUILDING_FILES, buildingsFaceRight, buildingsFaceLeft)
 
 	# Contructor (style of house), (side of street), (value of loot it contains)
 	def __init__(self, type, is_on_left, loot_value):
 		super().__init__()
-		self.roof = Roof(type, is_on_left)
-		self.valueToLoot(loot_value)
 		self.type = type
 		self.faces_right = is_on_left
-		self.rect = pygame.Rect(0,0,BUILDING_WIDTH, BUILDING_HEIGHT)
+		self.is_not_empty: bool = (self.type >= 0)
 
-		if (self.type >= EMPTY_BUILDINGS):
+		# If there is a structure
+		if (self.is_not_empty):
+			self.roof = Roof(type, is_on_left)
 			if self.faces_right:
 				self.image = Building.buildingsFaceRight[self.type]
 			else:
 				self.image = Building.buildingsFaceLeft[self.type]
+			self.rect: pygame.Rect = self.image.get_rect()
+		else:
+			self.rect: pygame.Rect = pygame.Rect(0,0,BUILDING_WIDTH,BUILDING_HEIGHT)
+		
+		self.valueToLoot(loot_value)
 	
 	# Will eventually create loot objects and place them in random locations
 	def valueToLoot(self, loot_value):
 		self.loot_value = loot_value
 	
 	def fillRenderGroup(self, render_group: RenderGroup, player_rect):
-		if (self.type >= EMPTY_BUILDINGS):
+		if (self.is_not_empty):
 			render_group.addTo(self, 1)
 			# Relocate roof
 			if (self.faces_right):
@@ -312,32 +328,22 @@ class Roof(Renderable):
 	roofsFaceRight: list[pygame.Surface] = []
 	roofsFaceLeft: list[pygame.Surface] = []
 
-	for i in range(0, EMPTY_BUILDINGS):
-		roofsFaceRight.append(0)
-		roofsFaceLeft.append(0)
-	
-	for file in ROOF_FILES:
-		asset = pygame.image.load(file)
-		roofR = pygame.Surface((BUILDING_PORCH_RES_X, BUILDING_RES_Y), pygame.SRCALPHA)
-		roofR.blit(asset, (0,0), (0,0,BUILDING_PORCH_RES_X, BUILDING_RES_Y))
-		roofR = pygame.transform.scale(roofR, (BUILDING_PORCH_WIDTH, BUILDING_HEIGHT))
-		roofL = pygame.transform.flip(roofR, True, False)
-
-		roofsFaceRight.append(roofR)
-		roofsFaceLeft.append(roofL)
+	fillRLImageLists(ROOF_FILES, roofsFaceRight, roofsFaceLeft)
 
 	# Contructor (style of house), (side of street), (value of loot it contains)
 	def __init__(self, type, is_on_left):
 		super().__init__()
 		self.type = type
 		self.faces_right = is_on_left
-		self.rect = pygame.Rect(0,0,BUILDING_PORCH_WIDTH, BUILDING_HEIGHT)
+		self.image: pygame.Surface
 
-		if (self.type >= EMPTY_BUILDINGS):
+		if (self.type >= 0):
 			if self.faces_right:
 				self.image = Roof.roofsFaceRight[self.type]
 			else:
 				self.image = Roof.roofsFaceLeft[self.type]
+
+		self.rect: pygame.Rect = self.image.get_rect()
 	
 	def fillRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		if (player_rect.colliderect(self.rect)):

@@ -22,10 +22,6 @@ player = Player("Assets/doux.png", (24, 24), 24, 0, 0, SPRITE_SCALE)
 # Making a camera that is the size of the room
 camera = Camera(room_width, room_height, screen_width, screen_height)
 
-# Making a sprite group
-all_sprites = pygame.sprite.Group()
-all_sprites.add(player)
-
 # Create map
 map = Map(player)
 map.fillRenderGroup()
