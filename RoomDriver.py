@@ -44,6 +44,7 @@ while running:
 	
 	# Update calls for objects (aka: ticking)
 	map.update()
+	map.checkInteractions()
 	player.update()
 	camera.update(player)
 

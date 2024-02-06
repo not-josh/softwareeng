@@ -193,6 +193,13 @@ class Map():
 			room = self.room_list[index]
 			room.rect.topleft = (0, i * ROOM_HEIGHT)
 			room.appendToRenderGroup(self.render_group, player_rect)
+	
+	def checkInteractions(self): 
+		for i in range(0, ROOM_REND_COUNT):
+			room_index = self.render_start + i
+			room = self.room_list[room_index]
+
+			room.checkInteractions(self.player)
 		
 
 # Holds and manages a set of tiles
@@ -232,6 +239,15 @@ class Room():
 			# If within render radius, add to render list
 			if (abs(tile.rect.topleft[1] - player_rect.center[1]) < RENDER_DIST + BUILDING_HEIGHT):
 				tile.appendToRenderGroup(render_group, player_rect)
+	
+	def checkInteractions(self, player: Player):
+		# Check interactions for this room
+		for j in range(0, TILE_COUNT):
+			tile = self.tile_list[j]
+			tile_y = tile.rect.centery
+			player_y = player.rect.centery
+			if (tile_y - TILE_HEIGHT < player_y < tile_y + TILE_HEIGHT):
+				tile.checkInteractions(player)
 
 
 
@@ -248,6 +264,9 @@ class Tile(Renderable):
 		type_left = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		self.total_loot = loot_value
 		self.street_loot = False
+		self.image = pygame.Surface((TILE_WIDTH, TILE_HEIGHT))
+		self.image.fill(ROAD_COLOR)
+		pygame.draw.line(self.image, (30,30,10), (0,0), (TILE_WIDTH-1,0))
 
 		if (has_pawn_shop):
 			if (random.getrandbits(1)):
@@ -287,6 +306,12 @@ class Tile(Renderable):
 		if (self.street_loot):
 			self.street_loot.rect.center = self.rect.center
 			self.street_loot.appendToRenderGroup(render_group, player_rect)
+
+	def checkInteractions(self, player: Player):
+		# Check interactions for this tile
+		self.building_left.checkInteractions(player)
+		self.building_right.checkInteractions(player)
+		pass
 
 
 # Creates lists of right/left facing images from a list of files
@@ -355,6 +380,11 @@ class Building(Renderable):
 			loot_y = self.rect.bottom - TILE_HEIGHT // 2 
 			self.loot.rect.center = (loot_x, loot_y)
 			self.loot.appendToRenderGroup(render_group, player_rect)
+		
+	def checkInteractions(self, player: Player):
+		# Check interactions for this building
+		pass
+
 
 # Roof for buildings
 class Roof(Renderable):
