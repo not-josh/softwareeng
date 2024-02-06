@@ -96,6 +96,8 @@ class Player(pygame.sprite.Sprite):
 		# Set the current image and rect (position)
 		self.image = self.SPRITE_FRAMES[self.ANIMATIONS[0].current_frame]
 		self.rect = self.image.get_rect()
+		self.x = x
+		self.y = y
 		self.rect.center = (x, y)
 
 		# Set up player stats
@@ -145,7 +147,9 @@ class Player(pygame.sprite.Sprite):
 	def move(self, coords):
 		ani = -1
 		self.rect.x += coords[0]
+		self.x += coords[0]
 		self.rect.y += coords[1]
+		self.y += coords[1]
         #keys = pygame.key.get_pressed()
         #if keys[pygame.K_LEFT]:
         #    self.rect.x -= self.speed
