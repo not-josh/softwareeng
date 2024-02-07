@@ -83,15 +83,15 @@ def play():
                     print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
         
         move = player.get_pos_change()
-        player_room = map.getPlayerRoom()
-        mask_image = map.mask_img#room_list[player_room].mask_image
-        collision_room = map.room_list[player_room]
-        offset = map.room_list[0].tile_list[0].rect.topleft
-        moffset = (player.rect.x - map.room_list[0].tile_list[0].rect.topleft[0], player.rect.y - map.room_list[0].tile_list[0].rect.topleft[1])
-        print(offset)
-        collision = map.room_list[0].tile_list[0].mask
+        player_room = map.getPlayerRoom() + map.render_start
+        player_offset = (map.room_list[player_room].rect.topleft[0]+player.x+440, map.room_list[player_room].rect.topleft[1]+player.y+340)#tile_list[4].building_left.rect.topleft
+        mask_image_offset = (map.room_list[player_room].rect.topleft[0], map.room_list[player_room].rect.topleft[1])
+        player_mask_offset = (player.x-map.room_list[player_room].rect.topleft[0], player.y-map.room_list[player_room].rect.topleft[1])
+        moffset = (player.rect.x - 880- map.room_list[player_room].rect.topleft[0], player.rect.y - map.room_list[player_room].rect.topleft[1])#tile_list[4].rect.topleft[1])
+        print(moffset, mask_image_offset, player.x, player.y)
+        collision = map.room_list[player_room].mask#tile_list[4].mask#building_left.mask
         mask_image = collision.to_surface()
-        move = Collision.collision_stop(player.mask, collision, moffset, move)
+        move = Collision.collision_stop(player.mask, collision, player_mask_offset, move)
         player.update(move)
 
         
@@ -106,7 +106,9 @@ def play():
         screen.fill((0,0,0))
 
         map.render_group.render(screen, camera)
-        screen.blit(mask_image, offset)#(map.room_list[player_room].rect.topleft))
+        screen.blit(mask_image, camera.apply(mask_image_offset))#(map.room_list[player_room].rect.topleft))
+        screen.blit(player.mask_image, camera.apply(player_offset))#(map.room_list[player_room].rect.topleft))
+    
 
         # Refresh (or else the old stuff stays)
         pygame.display.flip()
@@ -119,14 +121,14 @@ def play():
         if (frame_rate):
             if (ft > 1 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
         else:
-            if (ft > 5): print("Single Frame: %d ms" % (ft))
+            if (ft > 5): pass# print("Single Frame: %d ms" % (ft))
         
         tft += ft
         if not f:
             if (frame_rate):
-                print("%3.2f / %3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER, 1000 / frame_rate))
+                pass#print("%3.2f / %3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER, 1000 / frame_rate))
             else:
-                print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
+                pass#print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
             tft = 0
 
 
