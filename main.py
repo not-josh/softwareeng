@@ -89,8 +89,8 @@ def play():
 
         room_above = map.room_list[player_room_index-1]
         player_room = map.room_list[player_room_index]
-        print(player_room_index)
-        print(len(map.room_list))
+        #print(player_room_index)
+        #print(len(map.room_list))
         if (player_room_index) > (len(map.room_list))-2:
             room_below = player_room
         else:
@@ -133,7 +133,7 @@ def play():
         # Cap frame rate
         ft = clock.tick(frame_rate)
         if (frame_rate):
-            if (ft > 1 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
+            if (ft > 1 + 1000 / frame_rate): pass#print("Single Frame: %d ms" % (ft))
         else:
             if (ft > 5): pass# print("Single Frame: %d ms" % (ft))
 
