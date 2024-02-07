@@ -123,7 +123,7 @@ def play():
         screen.fill((0,0,0))
 
         map.render_group.render(screen, camera)
-        screen.blit(mask_image, camera.apply(room_above_offset))#(map.room_list[player_room].rect.topleft))
+        #screen.blit(mask_image, camera.apply(room_above_offset))#(map.room_list[player_room].rect.topleft))
         #screen.blit(player.mask_image, camera.apply(player.rect.topleft))#(map.room_list[player_room].rect.topleft))
 
         # Refresh (or else the old stuff stays)

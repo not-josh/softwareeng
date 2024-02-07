@@ -36,6 +36,12 @@ BUILDING_FILES = [
 	"Assets/temptown_pawn_base.png"
 ]
 
+BUILDING_MASK_FILES = [
+	"Assets/temptown_building_base_1_mask.png",
+	"Assets/temptown_building_base_1_mask.png",
+	"Assets/temptown_pawn_base_mask.png"
+]
+
 ROOF_FILES = [
 	"Assets/temptown_roof_1.png",
 	"Assets/temptown_roof_1.png",
@@ -262,7 +268,7 @@ class Tile(Renderable):
 		type_left = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		self.total_loot = loot_value
 		self.street_loot = False
-		self.mask = pygame.mask.Mask((TILE_WIDTH, TILE_HEIGHT))
+		self.mask = pygame.mask.Mask((TILE_WIDTH, TILE_HEIGHT*2))
 
 		if (has_pawn_shop):
 			if (random.getrandbits(1)):
@@ -286,7 +292,7 @@ class Tile(Renderable):
 			self.building_left = Building(type_left, True, bundle_2)
 		
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
-		self.mask.draw(self.building_left.mask, (0,0))# = pygame.mask.from_surface(self.building_left.image)#.draw(self.building_left.mask, self.building_left.rect.topleft)
+		self.mask.draw(self.building_left.mask, (0,0))
 		self.mask.draw(self.building_right.mask, (TILE_WIDTH-BUILDING_WIDTH, self.building_right.rect.topleft[1]))
 
 	# Add self and buildings to render group
@@ -326,23 +332,30 @@ class Building(Renderable):
 
 	fillRLImageLists(BUILDING_FILES, buildingsFaceRight, buildingsFaceLeft)
 
+	buildingsMasksFaceRight: list[pygame.mask.Mask] = []
+	buildingsMasksFaceLeft: list[pygame.mask.Mask] = []
+
+	fillRLImageLists(BUILDING_MASK_FILES, buildingsMasksFaceRight, buildingsMasksFaceLeft)
+
 	# Contructor (style of house), (side of street), (value of loot it contains)
 	def __init__(self, type, is_on_left, loot_value):
 		super().__init__()
 		self.type = type
 		self.faces_right = is_on_left
 		self.is_not_empty: bool = (self.type >= 0)
-		self.mask = pygame.mask.Mask((0,0))
+		self.mask = pygame.mask.Mask((BUILDING_WIDTH, BUILDING_HEIGHT))
 
 		# If there is a structure, create roof and set self.image
 		if (self.is_not_empty):
 			self.roof = Roof(type, is_on_left)
 			if self.faces_right:
 				self.image = Building.buildingsFaceRight[self.type]
+				self.mask = pygame.mask.from_surface(Building.buildingsMasksFaceRight[self.type])
 			else:
 				self.image = Building.buildingsFaceLeft[self.type]
+				self.mask = pygame.mask.from_surface(Building.buildingsMasksFaceLeft[self.type])
 			self.rect: pygame.Rect = self.image.get_rect()
-			self.mask = pygame.mask.from_surface(self.image)
+			#self.mask = pygame.mask.from_surface(self.image)
 		else:
 			self.rect: pygame.Rect = pygame.Rect(0,0,BUILDING_WIDTH,BUILDING_HEIGHT)
 			self.roof = False
