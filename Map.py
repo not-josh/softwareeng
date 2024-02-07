@@ -222,6 +222,7 @@ class Room():
 		self.id = id
 		self.masky = 0-TILE_HEIGHT
 		self.mask = pygame.mask.Mask((ROOM_WIDTH, ROOM_HEIGHT))
+		self.roof_mask = pygame.mask.Mask((ROOM_WIDTH, ROOM_HEIGHT))
 		
 		# Generate tiles white distributing loot
 		remaining_tiles = TILE_COUNT - 1
@@ -242,11 +243,13 @@ class Room():
 			newtile = Tile(tile_loot, False)
 			self.tile_list.append(newtile)
 			self.mask.draw(newtile.mask, (0, self.masky))
+			self.roof_mask.draw(newtile.roof_mask, (0, self.masky))
 			self.masky += TILE_HEIGHT
 			remaining_tiles -= 1
 		newpawntile = Tile(remaining_loot, True)
 		self.tile_list.append(newpawntile)
 		self.mask.draw(newpawntile.mask, (newpawntile.rect.topleft[0], self.masky))
+		self.roof_mask.draw(newpawntile.roof_mask, (newpawntile.rect.topleft[0], self.masky))
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
 
 		
@@ -288,6 +291,7 @@ class Tile(Renderable):
 		self.image.fill(ROAD_COLOR)
 		pygame.draw.line(self.image, (30,30,10), (0,0), (TILE_WIDTH-1,0))
 		self.mask = pygame.mask.Mask((TILE_WIDTH, TILE_HEIGHT*2))
+		self.roof_mask = pygame.mask.Mask((TILE_WIDTH, TILE_HEIGHT*2))
 
 		if (has_pawn_shop):
 			if (random.getrandbits(1)):
@@ -313,6 +317,11 @@ class Tile(Renderable):
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
 		self.mask.draw(self.building_left.mask, (0,0))
 		self.mask.draw(self.building_right.mask, (TILE_WIDTH-self.building_right.rect.width, self.building_right.rect.topleft[1]))
+		if (type_left >= 0):
+			self.roof_mask.draw(self.building_left.roof.mask, (self.building_left.rect.width-self.building_left.roof.mask.get_size()[0],0))
+		if (type_right >= 0):
+			self.roof_mask.draw(self.building_right.roof.mask, (TILE_WIDTH-self.building_right.rect.width, self.building_right.rect.topleft[1]))
+
 
 	# Add self and buildings to render group
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect, player_mask):
@@ -437,6 +446,7 @@ class Roof(Renderable):
 				self.image = Roof.roofsFaceRight[self.type]
 			else:
 				self.image = Roof.roofsFaceLeft[self.type]
+		self.mask = pygame.mask.from_surface(self.image)
 
 		self.rect: pygame.Rect = self.image.get_rect()
 	
