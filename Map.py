@@ -207,7 +207,7 @@ class Room():
 		self.tile_list: list[Tile] = []
 		remaining_loot = total_loot
 		self.id = id
-		self.masky = 0
+		self.masky = 0-TILE_HEIGHT
 		self.mask = pygame.mask.Mask((ROOM_WIDTH, ROOM_HEIGHT))
 		
 		# Generate tiles white distributing loot

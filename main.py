@@ -83,15 +83,32 @@ def play():
                     print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
         
         move = player.get_pos_change()
-        player_room = map.getPlayerRoom() + map.render_start
-        player_offset = (map.room_list[player_room].rect.topleft[0]+player.x+440, map.room_list[player_room].rect.topleft[1]+player.y+340)#tile_list[4].building_left.rect.topleft
-        mask_image_offset = (map.room_list[player_room].rect.topleft[0], map.room_list[player_room].rect.topleft[1])
-        player_mask_offset = (player.x-map.room_list[player_room].rect.topleft[0], player.y-map.room_list[player_room].rect.topleft[1])
-        moffset = (player.rect.x - 880- map.room_list[player_room].rect.topleft[0], player.rect.y - map.room_list[player_room].rect.topleft[1])#tile_list[4].rect.topleft[1])
-        print(moffset, mask_image_offset, player.x, player.y)
-        collision = map.room_list[player_room].mask#tile_list[4].mask#building_left.mask
+
+        player_room_index = map.getPlayerRoom() + map.render_start
+        room_below_index = map.getPlayerRoom() + map.render_start + 1
+
+        room_above = map.room_list[player_room_index-1]
+        player_room = map.room_list[player_room_index]
+        print(player_room_index)
+        print(len(map.room_list))
+        if (player_room_index) > (len(map.room_list))-2:
+            room_below = player_room
+        else:
+            room_below = map.room_list[player_room_index+1]
+            #room_below = map.room_list[player_room_index+1]
+
+        room_above_offset = (room_above.rect.topleft)
+        player_room_offset = (player_room.rect.topleft)
+        room_below_offset = (room_below.rect.topleft)
+
+        collision = pygame.mask.Mask((room_width, room_below.rect.bottom-room_above.rect.top))
+        collision.draw(room_above.mask,(0,0))# room_above_offset-room_above_offset)
+        collision.draw(player_room.mask, (player_room_offset[0]-room_above_offset[0], player_room_offset[1]-room_above_offset[1]))
+        collision.draw(room_below.mask, (room_below_offset[0]-room_above_offset[0], room_below_offset[1]-room_above_offset[1]))
+
+        offset = (player.rect.left-room_above_offset[0], player.rect.top-room_above_offset[1])
         mask_image = collision.to_surface()
-        move = Collision.collision_stop(player.mask, collision, player_mask_offset, move)
+        move = Collision.collision_stop(collision, player.mask, offset, move)
         player.update(move)
 
         
@@ -99,21 +116,18 @@ def play():
         map.update()
         #player.update()
         camera.update(player)
-        #print(player.x, player.y, map.room_list[player_room].rect.topleft)
+        #print(player.rect.topleft, player_room.rect.topleft)
 
         # Draw calls for objects (aka: rendering)
         
         screen.fill((0,0,0))
 
         map.render_group.render(screen, camera)
-        screen.blit(mask_image, camera.apply(mask_image_offset))#(map.room_list[player_room].rect.topleft))
-        screen.blit(player.mask_image, camera.apply(player_offset))#(map.room_list[player_room].rect.topleft))
-    
+        screen.blit(mask_image, camera.apply(room_above_offset))#(map.room_list[player_room].rect.topleft))
+        #screen.blit(player.mask_image, camera.apply(player.rect.topleft))#(map.room_list[player_room].rect.topleft))
 
         # Refresh (or else the old stuff stays)
         pygame.display.flip()
-        
-        
 
         f = (f + 1) % FRAMES_AVG_OVER
         # Cap frame rate
@@ -122,7 +136,7 @@ def play():
             if (ft > 1 + 1000 / frame_rate): print("Single Frame: %d ms" % (ft))
         else:
             if (ft > 5): pass# print("Single Frame: %d ms" % (ft))
-        
+
         tft += ft
         if not f:
             if (frame_rate):
@@ -131,11 +145,9 @@ def play():
                 pass#print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
             tft = 0
 
-
     # Quit
     pygame.quit()
     sys.exit()
-
 
 def options():
     pygame.display.set_caption("Options")
