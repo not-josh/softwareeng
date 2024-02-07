@@ -61,6 +61,12 @@ def play():
     # Making a camera that is the size of the room
     camera = Camera(room_width, room_height, screen_width, screen_height)
 
+    # Creating the UI and its dependencies
+    ui = UI(50, 50, 0)
+    ui_font = pygame.font.Font(None, 36)
+    heart = pygame.image.load("Assets/heart.png")
+    heart_rect = heart.get_rect()
+
     # Create map
     map = Map(player)
     map.fillRenderGroup()
@@ -85,12 +91,14 @@ def play():
         map.update()
         player.update()
         camera.update(player)
+        ui.update()
 
         # Draw calls for objects (aka: rendering)
         
         screen.fill((0,0,0))
 
         map.render_group.render(screen, camera)
+        ui.drawUI(screen, screen_width, screen_height, ui_font, heart, heart_rect)
 
         # Refresh (or else the old stuff stays)
         pygame.display.flip()
