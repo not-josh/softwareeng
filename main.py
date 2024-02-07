@@ -5,8 +5,9 @@ from Player import Player
 from Camera import Camera
 import random
 from Coin import Coin
-from PlayerClass.Player import *
+#from PlayerClass.Player import *
 from Map import Map
+import Collision
 
 
 
@@ -81,16 +82,31 @@ def play():
                 if event.key == pygame.K_q:
                     print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
         
+        move = player.get_pos_change()
+        player_room = map.getPlayerRoom()
+        mask_image = map.mask_img#room_list[player_room].mask_image
+        collision_room = map.room_list[player_room]
+        offset = map.room_list[0].tile_list[0].rect.topleft
+        moffset = (player.rect.x - map.room_list[0].tile_list[0].rect.topleft[0], player.rect.y - map.room_list[0].tile_list[0].rect.topleft[1])
+        print(offset)
+        collision = map.room_list[0].tile_list[0].mask
+        mask_image = collision.to_surface()
+        move = Collision.collision_stop(player.mask, collision, moffset, move)
+        player.update(move)
+
+        
         # Update calls for objects (aka: ticking)
         map.update()
-        player.update()
+        #player.update()
         camera.update(player)
+        #print(player.x, player.y, map.room_list[player_room].rect.topleft)
 
         # Draw calls for objects (aka: rendering)
         
         screen.fill((0,0,0))
 
         map.render_group.render(screen, camera)
+        screen.blit(mask_image, offset)#(map.room_list[player_room].rect.topleft))
 
         # Refresh (or else the old stuff stays)
         pygame.display.flip()

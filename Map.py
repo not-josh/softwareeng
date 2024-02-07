@@ -96,9 +96,14 @@ class Map():
 	def __init__(self, player: Player):
 		self.room_list: list[Room] = []
 		self.room_count = 0
+		self.mask = pygame.mask.Mask((0,0))
 
 		for i in range(0, ROOM_REND_COUNT):
 			self.addRoom()
+
+		self.mask_img = self.mask.to_surface()
+
+
 		
 		self.render_start = 0 # Furthest-back room to be rendered (e.g. 1 might mean rooms 1~5 are rendered)
 
@@ -114,6 +119,7 @@ class Map():
 		room = Room(self.room_count)
 		self.room_list.insert(0, room)
 		self.room_count += 1
+		self.mask.draw(room.mask, room.rect.topleft)
 
 	# Removes the "furthest back" room
 	def removeRoom(self):
@@ -201,6 +207,8 @@ class Room():
 		self.tile_list: list[Tile] = []
 		remaining_loot = total_loot
 		self.id = id
+		self.mask = pygame.mask.Mask((0,0))
+		self.mask_image = self.mask.to_surface()
 		
 		# Generate tiles white distributing loot
 		remaining_tiles = TILE_COUNT - 1
@@ -218,11 +226,17 @@ class Room():
 				tile_loot += l
 
 			# Create tile
-			self.tile_list.append(Tile(tile_loot, False))
+			newtile = Tile(tile_loot, False)
+			self.tile_list.append(newtile)
+			self.mask.draw(newtile.mask, newtile.rect.topleft)
 			remaining_tiles -= 1
-		
-		self.tile_list.append(Tile(remaining_loot, True))
+		newpawntile = Tile(remaining_loot, True)
+		self.tile_list.append(newpawntile)
+		self.mask.draw(newpawntile.mask, newpawntile.rect.topleft)
 		self.rect = pygame.Rect(0,0, ROOM_WIDTH, ROOM_HEIGHT)
+
+	#def draw_mask(self):
+		
 
 	# Adds all of its tiles to the render group
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
@@ -248,6 +262,7 @@ class Tile(Renderable):
 		type_left = random.randint(-EMPTY_BUILDINGS, len(BUILDING_FILES)-2)
 		self.total_loot = loot_value
 		self.street_loot = False
+		#self.mask = pygame.mask.Mask
 
 		if (has_pawn_shop):
 			if (random.getrandbits(1)):
@@ -271,6 +286,8 @@ class Tile(Renderable):
 			self.building_left = Building(type_left, True, bundle_2)
 		
 		self.rect = pygame.Rect(0,0, TILE_WIDTH, TILE_HEIGHT)
+		self.mask = pygame.mask.from_surface(self.building_left.image)#.draw(self.building_left.mask, self.building_left.rect.topleft)
+		self.mask.draw(self.building_right.mask, (TILE_WIDTH-BUILDING_WIDTH, self.building_right.rect.topleft[1]))
 
 	# Add self and buildings to render group
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
@@ -302,7 +319,6 @@ def fillRLImageLists(file_list: list[str], face_right_list: list[pygame.Surface]
 		face_right_list.append(imageR)
 		face_left_list.append(imageL)
 
-
 # Contains loot and roofs
 class Building(Renderable):
 	# Static building images
@@ -317,6 +333,7 @@ class Building(Renderable):
 		self.type = type
 		self.faces_right = is_on_left
 		self.is_not_empty: bool = (self.type >= 0)
+		self.mask = pygame.mask.Mask((0,0))
 
 		# If there is a structure, create roof and set self.image
 		if (self.is_not_empty):
@@ -326,6 +343,7 @@ class Building(Renderable):
 			else:
 				self.image = Building.buildingsFaceLeft[self.type]
 			self.rect: pygame.Rect = self.image.get_rect()
+			self.mask = pygame.mask.from_surface(self.image)
 		else:
 			self.rect: pygame.Rect = pygame.Rect(0,0,BUILDING_WIDTH,BUILDING_HEIGHT)
 			self.roof = False

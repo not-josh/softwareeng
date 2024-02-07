@@ -99,6 +99,7 @@ class Player(pygame.sprite.Sprite):
 		self.x = x
 		self.y = y
 		self.rect.center = (x, y)
+		self.mask = pygame.mask.from_surface(self.image)
 
 		# Set up player stats
 		self.inventory = Inventory()
