@@ -103,6 +103,7 @@ class Map():
 		self.room_list: list[Room] = []
 		self.room_count = 0
 		self.mask = pygame.mask.Mask((0,0))
+		self.rh = ROOM_HEIGHT
 
 		for i in range(0, ROOM_REND_COUNT):
 			self.addRoom()
@@ -140,16 +141,20 @@ class Map():
 	
 	# Checks if the player has reached a new room and if the map needs to be shifted
 	def update(self):
+		ret = 0
 		player_current_room = self.getPlayerRoom()
 		if player_current_room > REND_CENTER_INDEX:
 			self.down()
+			ret = 1
 		elif player_current_room < REND_CENTER_INDEX - 1:
 			self.up()
+			ret = 1
 		
 		if self.rend_update_itt == 0:
 			self.fillRenderGroup()
 		else:
 			self.rend_update_itt = (self.rend_update_itt + 1) % RENDER_UPDATE_RATE
+		return ret
 
 	# Player moved up
 	def up(self):

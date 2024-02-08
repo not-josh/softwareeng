@@ -13,6 +13,7 @@ class LightningBolt(pygame.sprite.Sprite):
 		self.SPRITE_FRAMES = []
 		self.time = TOTAL_TIME
 		self.sprite_folder = sprite_folder
+		self.can_move = True
 
 		# Set the current image and rect (position)
 		self.image = pygame.transform.scale_by(pygame.image.load(sprite_folder + "/lightning_bolt_target.png"), SCALE)
@@ -31,15 +32,18 @@ class LightningBolt(pygame.sprite.Sprite):
 	#Gets future position if the player is allowed to move
 	def get_pos_change(self, player_pos):
 		pos_change = [0,0]
-		if player_pos[0] < self.rect.center[0]:
-			pos_change[0] -= TARGET_SPEED
-		if player_pos[0] > self.rect.center[0]:
-			pos_change[0] += TARGET_SPEED
-		if player_pos[1] < self.rect.center[1]:
-			pos_change[1] -= TARGET_SPEED
-		if player_pos[1] > self.rect.center[1]:
-			pos_change[1] += TARGET_SPEED
-		return pos_change
+		if (self.can_move == False):
+			return pos_change
+		else:
+			if player_pos[0] < self.rect.center[0]:
+				pos_change[0] -= TARGET_SPEED
+			if player_pos[0] > self.rect.center[0]:
+				pos_change[0] += TARGET_SPEED
+			if player_pos[1] < self.rect.center[1]:
+				pos_change[1] -= TARGET_SPEED
+			if player_pos[1] > self.rect.center[1]:
+				pos_change[1] += TARGET_SPEED
+			return pos_change
 
 	def move(self, coords):
 		self.rect.x += coords[0]
@@ -49,5 +53,6 @@ class LightningBolt(pygame.sprite.Sprite):
 		
 	def strike(self):
 		self.image = pygame.transform.scale_by(pygame.image.load(self.sprite_folder + "/lightning_bolt.png"), 5)
-		#pygame.transform.
+		self.rect.y -= 256
+		self.can_move = False
 		pygame.mixer.Sound("Assets/Sounds/weird_zap_damage.wav").play()
