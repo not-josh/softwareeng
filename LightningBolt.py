@@ -2,7 +2,7 @@ import pygame
 
 #class LightningTarget():
 TARGET_SPEED = 3
-TOTAL_TIME = 300
+TOTAL_TIME = 500
 
 class LightningBolt(pygame.sprite.Sprite):
 	# SPRITE_RES = Resolution of a *single* frame of the sprite

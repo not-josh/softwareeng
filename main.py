@@ -121,6 +121,7 @@ def play():
             collision.draw(player_room.mask, (player_room_offset[0]-room_above_offset[0], player_room_offset[1]-room_above_offset[1]))
             collision.draw(room_below.mask, (room_below_offset[0]-room_above_offset[0], room_below_offset[1]-room_above_offset[1]))
 
+            roof_collision.clear()
             roof_collision.draw(room_above.roof_mask,(0,0))
             roof_collision.draw(player_room.roof_mask, (player_room_offset[0]-room_above_offset[0], player_room_offset[1]-room_above_offset[1]))
             roof_collision.draw(room_below.roof_mask, (room_below_offset[0]-room_above_offset[0], room_below_offset[1]-room_above_offset[1]))
@@ -136,7 +137,7 @@ def play():
         if (pygame.key.get_pressed()[pygame.K_l]):
             bolt_exists = True
             bolt_move = True
-            lightning_bolt = LightningBolt.LightningBolt("Assets/Enemies", (24,24), 0, 500, player.rect.top-50, SPRITE_SCALE)
+            lightning_bolt = LightningBolt.LightningBolt("Assets/Enemies", (24,24), 0, 500, player.rect.top-500, SPRITE_SCALE)
         
         if (bolt_move ==True):
             l_offset = (lightning_bolt.rect.left-room_above_offset[0], lightning_bolt.rect.top-room_above_offset[1])
@@ -164,8 +165,11 @@ def play():
         map.render_group.render(screen, camera)
         if (pygame.key.get_pressed()[pygame.K_m]):
             screen.blit(mask_image, camera.apply(room_above_offset))#(map.room_list[player_room].rect.topleft))
-        #screen.blit(roof_mask_image, camera.apply(room_above_offset))
-        #screen.blit(player.mask_image, camera.apply(player.rect.topleft))
+            screen.blit(player.mask_image, camera.apply(player.rect.topleft))
+
+        if (pygame.key.get_pressed()[pygame.K_n]):
+            screen.blit(roof_mask_image, camera.apply(room_above_offset))
+            
         if (bolt_exists == True):
             screen.blit(lightning_bolt.image, camera.apply(lightning_bolt.rect.topleft))
         
