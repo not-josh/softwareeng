@@ -116,7 +116,7 @@ def play():
                 # Lightning collisions
                 if (bolt_move):
                     l_offset = (lightning_bolt.rect.left-room.rect.left, lightning_bolt.rect.top-room.rect.top)
-                    l_move = Collision.collision_stop(room.mask, lightning_bolt.mask, l_offset, l_move)
+                    l_move = Collision.collision_stop(room.roof_mask, lightning_bolt.mask, l_offset, l_move)
 
         # Move player
         player.move(player_move)
@@ -144,10 +144,20 @@ def play():
 
         # Draw calls for objects (aka: rendering)
         screen.fill((0,0,0))
-        map.render_group.render(screen, camera)    
+        map.render_group.render(screen, camera)
+
+        if (pygame.key.get_pressed()[pygame.K_m]):
+            screen.blit(map.room_list[player_room_index].mask.to_surface(), camera.apply(map.room_list[player_room_index].rect.topleft))
+            screen.blit(player.mask.to_surface(), camera.apply(player.rect.topleft))
+
+        if (pygame.key.get_pressed()[pygame.K_n]):
+            screen.blit(map.room_list[player_room_index].roof_mask.to_surface(), camera.apply(map.room_list[player_room_index].rect.topleft))
+
         if (bolt_exists == True):
             screen.blit(lightning_bolt.image, camera.apply(lightning_bolt.rect.topleft))
         
+
+
         ui.drawUI(screen, screen_width, screen_height, ui_font, heart, heart_rect)
 
         # Refresh (or else the old stuff stays)
