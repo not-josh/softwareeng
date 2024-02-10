@@ -14,9 +14,10 @@ class LightningBolt(pygame.sprite.Sprite):
 		self.time = TOTAL_TIME
 		self.sprite_folder = sprite_folder
 		self.can_move = True
+		self.SCALE = SCALE
 
 		# Set the current image and rect (position)
-		self.image = pygame.transform.scale_by(pygame.image.load(sprite_folder + "/lightning_bolt_target.png"), SCALE)
+		self.image = pygame.transform.scale_by(pygame.image.load(sprite_folder + "/lightning_bolt_target_bigger.png"), SCALE)
 		self.mask = pygame.mask.from_surface(self.image)
 		self.rect = self.image.get_rect()
 		self.x = x
@@ -52,7 +53,7 @@ class LightningBolt(pygame.sprite.Sprite):
 		self.y += coords[1]
 		
 	def strike(self):
-		self.image = pygame.transform.scale_by(pygame.image.load(self.sprite_folder + "/lightning_bolt.png"), 5)
-		self.rect.y -= 256
+		self.image = pygame.transform.scale_by(pygame.image.load(self.sprite_folder + "/lightning_bolt.png"), self.SCALE)
+		self.rect.y -= self.rect.height // 2
 		self.can_move = False
 		pygame.mixer.Sound("Assets/Sounds/weird_zap_damage.wav").play()

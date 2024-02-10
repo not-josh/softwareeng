@@ -10,7 +10,11 @@ from Map import Map
 import Collision
 import LightningBolt
 
-
+# Initial variables
+screen_width, screen_height = 1000, 1000
+room_width, room_height = 1000, 65536
+frame_rate = 60
+SPRITE_SCALE = 5
 
 pygame.init()
 pygame.mixer.init()
@@ -23,8 +27,6 @@ menu_button_font = pygame.font.Font(None, 56)
 BG = pygame.image.load("Assets/Background/TitleScreen_bgd.png")
 music_titlescreen = pygame.mixer.music.load("Assets/Music/TitleScreen.mp3")
 pygame.mixer.music.set_volume(0.25)
-
-frame_rate = 60
 
 white_blank_menu = pygame.image.load("Assets/Menu/White_Blank.png")
 red_blank_menu = pygame.image.load("Assets/Menu/Red_Blank.png")
@@ -45,11 +47,6 @@ def get_font(size):
     pass
 
 def play():
-    # Initial variables
-    screen_width, screen_height = 1000, 1000
-    room_width, room_height = 1000, 65536
-    frame_rate = 0
-    SPRITE_SCALE = 5
 
     FRAMES_AVG_OVER = 300 if frame_rate == 0 else frame_rate
 
@@ -97,79 +94,57 @@ def play():
                 if event.key == pygame.K_q:
                     print("Player is in room %d" % (map.getPlayerRoom()), map.player.rect.center)
 
-
-        player_room_index = map.getPlayerRoom() + map.render_start
-
-        room_above = map.room_list[player_room_index-1]
-        player_room = map.room_list[player_room_index]
-        if (player_room_index) > (len(map.room_list))-2:
-            room_below = player_room
-        else:
-            room_below = map.room_list[player_room_index+1]
-
-        room_above_offset = (room_above.rect.topleft)
-        player_room_offset = (player_room.rect.topleft)
-        room_below_offset = (room_below.rect.topleft)
-        #print(map.getPlayerRoom())
-
-        #collision = pygame.mask.Mask((room_width, room_below.rect.bottom-room_above.rect.top))
-        if (True):
-            print("room change", map.getPlayerRoom())
-            #player_last_room = player.rect.top
-            collision.clear()
-            collision.draw(room_above.mask,(0,0))# room_above_offset-room_above_offset)
-            collision.draw(player_room.mask, (player_room_offset[0]-room_above_offset[0], player_room_offset[1]-room_above_offset[1]))
-            collision.draw(room_below.mask, (room_below_offset[0]-room_above_offset[0], room_below_offset[1]-room_above_offset[1]))
-
-            roof_collision.clear()
-            roof_collision.draw(room_above.roof_mask,(0,0))
-            roof_collision.draw(player_room.roof_mask, (player_room_offset[0]-room_above_offset[0], player_room_offset[1]-room_above_offset[1]))
-            roof_collision.draw(room_below.roof_mask, (room_below_offset[0]-room_above_offset[0], room_below_offset[1]-room_above_offset[1]))
-            roof_mask_image = roof_collision.to_surface()
-
-        offset = (player.rect.left-room_above_offset[0], player.rect.top-room_above_offset[1])
-        mask_image = collision.to_surface()
-        move = player.get_pos_change()
-        if (move[0] != 0 or move[1] != 0):
-            move = Collision.collision_stop(collision, player.mask, offset, move)
-            player.update(move)
-
+        # Spawn a lightning bolt
         if (pygame.key.get_pressed()[pygame.K_l]):
             bolt_exists = True
             bolt_move = True
-            lightning_bolt = LightningBolt.LightningBolt("Assets/Enemies", (24,24), 0, 500, player.rect.top-500, SPRITE_SCALE)
+            lightning_bolt = LightningBolt.LightningBolt("Assets/Enemies", (24,24), 0, 500, player.rect.top-500, 2)
         
-        if (bolt_move ==True):
-            l_offset = (lightning_bolt.rect.left-room_above_offset[0], lightning_bolt.rect.top-room_above_offset[1])
-            l_move = lightning_bolt.get_pos_change(player.rect.center)
-            if l_move[0] != 0 or l_move[1] !=0:
-                l_move = Collision.collision_stop(roof_collision, lightning_bolt.mask, l_offset, l_move)
-                lightning_bolt.update(l_move)
+        # Get player lovation and movement attempts
+        player_room_index = map.getPlayerRoom() + map.render_start
+        player_move = player.get_pos_change()
+        if (bolt_move): l_move = lightning_bolt.get_pos_change(player.rect.center)
+        
+        for room_index in range(player_room_index-1, player_room_index+2):
+            if (0 <= room_index < len(map.room_list)):
+                room = map.room_list[room_index]
+                
+                # Player collisions
+                player_offset = (player.rect.left-room.rect.left, player.rect.top-room.rect.top)
+                player_move = Collision.collision_stop(room.mask, player.mask, player_offset, player_move)
+
+                # Lightning collisions
+                if (bolt_move):
+                    l_offset = (lightning_bolt.rect.left-room.rect.left, lightning_bolt.rect.top-room.rect.top)
+                    l_move = Collision.collision_stop(room.mask, lightning_bolt.mask, l_offset, l_move)
+
+        # Move player
+        player.move(player_move)
+        # Move lightning
+        if (bolt_move):
+            lightning_bolt.update(l_move)
             if (lightning_bolt.time == 0):
                 lightning_bolt.strike()
-                bolt_move = False
-            #screen.blit(lightning_bolt.image, camera.apply(lightning_bolt.rect.topleft))
-            #print(lightning_bolt.rect.topleft, player.rect.topleft)
+                bolt_move == False
             
         
-        # Update calls for objects (aka: ticking)
+        # Update calls for objects (aka: ticking)    
         chng = map.update()
-        #player.update()
         camera.update(player)
         ui.update()
+        
+        # Shift lightning if map is shifted
+        if (chng and bolt_exists):
+            # Player moved up (-), all shifted down (+)
+            if (chng == 1):
+                lightning_bolt.move((0, map.rh))
+            # Player moved down (+), all shifted up (-)
+            if (chng == -1):
+                lightning_bolt.move((0, -map.rh))
 
         # Draw calls for objects (aka: rendering)
-        
         screen.fill((0,0,0))
-
-        map.render_group.render(screen, camera)
-        if (pygame.key.get_pressed()[pygame.K_m]):
-            screen.blit(mask_image, camera.apply(room_above_offset))#(map.room_list[player_room].rect.topleft))
-            screen.blit(player.mask_image, camera.apply(player.rect.topleft))
-
-        if (pygame.key.get_pressed()[pygame.K_n]):
-            screen.blit(roof_mask_image, camera.apply(room_above_offset))
-            
+        map.render_group.render(screen, camera)    
         if (bolt_exists == True):
             screen.blit(lightning_bolt.image, camera.apply(lightning_bolt.rect.topleft))
         
@@ -189,9 +164,9 @@ def play():
         tft += ft
         if not f:
             if (frame_rate):
-                pass#print("%3.2f / %3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER, 1000 / frame_rate))
+                print("%3.2f / %3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER, 1000 / frame_rate))
             else:
-                pass#print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
+                print("%3.2f (ms/frame)" % (tft / FRAMES_AVG_OVER))
             tft = 0
 
     # Quit
@@ -248,13 +223,6 @@ def main_menu():
                 button.image = white_blank_menu
             button.draw(screen)
 
-        # Update calls for objects (aka: ticking)
-
-
-        # Draw calls for objects (aka: rendering)
-
-        
-            
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False

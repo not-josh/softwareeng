@@ -108,8 +108,7 @@ class Player(pygame.sprite.Sprite):
 
 	# Updates the current animation & frame
 	# Run every frame	
-	def update(self, movechange):
-		self.move(movechange)
+	def update(self):
 		# If the animation frame has updated
 		if (self.current_animation.update()):
 			self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
@@ -147,7 +146,6 @@ class Player(pygame.sprite.Sprite):
 
 	    # Updating based on inputs
 	def move(self, coords):
-		ani = -1
 		self.rect.x += coords[0]
 		self.x += coords[0]
 		self.rect.y += coords[1]

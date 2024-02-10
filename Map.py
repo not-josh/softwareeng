@@ -141,14 +141,13 @@ class Map():
 	
 	# Checks if the player has reached a new room and if the map needs to be shifted
 	def update(self):
+		self.player.update()
 		ret = 0
 		player_current_room = self.getPlayerRoom()
 		if player_current_room > REND_CENTER_INDEX:
-			self.down()
-			ret = 1
+			ret = self.down()
 		elif player_current_room < REND_CENTER_INDEX - 1:
-			self.up()
-			ret = 1
+			ret = self.up()
 		
 		if self.rend_update_itt == 0:
 			self.fillRenderGroup()
@@ -168,16 +167,18 @@ class Map():
 
 		self.downshift() # Shift everything back down
 		self.fillRenderGroup()
+		return 1
 
 	# Player moved down
 	def down(self):
 		# If render area is at the end of the list
 		if (self.render_start + ROOM_REND_COUNT + 1) >= len(self.room_list):
-			pass # Do nothing
+			return 0 # Do nothing
 		else:
 			self.render_start += 1
 			self.upshift() # Shift everything back up
 			self.fillRenderGroup()
+			return -1
 
 	# Shift every downwards to account for player moving up too far
 	def downshift(self):
@@ -188,10 +189,10 @@ class Map():
 
 	# Shift every upwards to account for player moving down too far
 	def upshift(self):
-			# Shift player up
-			player_pos = self.player.rect.center
-			player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
-			self.player.rect.center = player_pos
+		# Shift player up
+		player_pos = self.player.rect.center
+		player_pos = (player_pos[0], player_pos[1] - ROOM_HEIGHT)
+		self.player.rect.center = player_pos
 
 	# Fills self.render_group with tiles/buildings/etc
 	def fillRenderGroup(self,):
