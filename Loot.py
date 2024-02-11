@@ -2,10 +2,11 @@ import pygame
 import random
 from RenderGroup import *
 from RenderGroup import RenderGroup
+import Player
 
-SPRITE_SCALE = 1
+SPRITE_SCALE = 2
 
-COIN_FILE = AXE_FILE = KEY_FILE = SCRAP_FILE = "Assets/heart.png"
+COIN_FILE = AXE_FILE = KEY_FILE = SCRAP_FILE = "Assets/1_coin.png"
 
 AXE_VALUE = 15
 KEY_VALUE = 10
@@ -37,3 +38,10 @@ class Loot(Renderable):
 	
 	def appendToRenderGroup(self, render_group: RenderGroup, player_rect: pygame.Rect):
 		render_group.addTo(self, 2)
+	
+	# If the player is colliding with loot, pickup loot
+	def pickup(self, player: Player) -> bool:
+		if (self.rect.colliderect(player.rect)):
+			player.inventory.coin_count += self.value
+			return True
+		return False

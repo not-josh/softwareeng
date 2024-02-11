@@ -103,7 +103,7 @@ class Player(pygame.sprite.Sprite):
 		self.mask_image = self.mask.to_surface()
 
 		# Set up player stats
-		self.inventory = Inventory()
+		self.inventory: Inventory = Inventory()
 		self.health = PLAYER_MAX_HEALTH
 
 	# Updates the current animation & frame

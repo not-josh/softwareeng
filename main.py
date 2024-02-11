@@ -121,17 +121,26 @@ def play():
         # Move player
         player.move(player_move)
         # Move lightning
+        health_dec = 0
         if (bolt_move):
             lightning_bolt.update(l_move)
             if (lightning_bolt.time == 0):
+                if player.rect.collidepoint((lightning_bolt.rect.center)):
+                    health_dec = 10
                 lightning_bolt.strike()
                 bolt_move == False
+                
             
         
-        # Update calls for objects (aka: ticking)    
+        # Update calls for objects (aka: ticking)
+        prev_score = player.inventory.coin_count 
+        map.checkInteractions()
+        score_diff = player.inventory.coin_count - prev_score
         chng = map.update()
         camera.update(player)
         ui.update()
+        ui.loot += score_diff
+        ui.current_hp -= health_dec
         
         # Shift lightning if map is shifted
         if (chng and bolt_exists):

@@ -63,10 +63,10 @@ PAWN_PORCH_RES_X = 22
 BUILDING_GAP = BUILDING_SCALE * 0
 EMPTY_BUILDINGS = 1
 
-TILE_COUNT = 8
+TILE_COUNT = 16
 ROOM_GAP = 10
 TILE_WIDTH = 1000
-LOOT_VALUE = TILE_COUNT*6
+LOOT_VALUE = TILE_COUNT*4
 
 RENDER_DIST = 500 # Should be half of screen height
 RENDER_UPDATE_RATE = 10 # How many frames need to pass before updating which tiles should be rendered
@@ -347,6 +347,10 @@ class Tile(Renderable):
 
 	def checkInteractions(self, player: Player):
 		# Check interactions for this tile
+		if (self.street_loot):
+			if self.street_loot.pickup(player):
+				self.street_loot = False
+		
 		self.building_left.checkInteractions(player)
 		self.building_right.checkInteractions(player)
 		pass
@@ -404,7 +408,7 @@ class Building(Renderable):
 	
 	# Basically a placeholder for more complex loot generation
 	def valueToLoot(self, loot_value):
-		if (loot_value >= 0):
+		if (loot_value > 0):
 			self.loot: Loot = Loot(loot_value)
 		else:
 			self.loot = False
@@ -428,6 +432,9 @@ class Building(Renderable):
 		
 	def checkInteractions(self, player: Player):
 		# Check interactions for this building
+		if (self.loot):
+			if self.loot.pickup(player):
+				self.loot = False
 		pass
 
 
