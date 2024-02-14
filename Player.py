@@ -99,15 +99,16 @@ class Player(pygame.sprite.Sprite):
 		self.x = x
 		self.y = y
 		self.rect.center = (x, y)
+		self.mask = pygame.mask.from_surface(self.image)
+		self.mask_image = self.mask.to_surface()
 
 		# Set up player stats
-		self.inventory = Inventory()
+		self.inventory: Inventory = Inventory()
 		self.health = PLAYER_MAX_HEALTH
 
 	# Updates the current animation & frame
 	# Run every frame	
-	def update(self, movechange):
-		self.move(movechange)
+	def update(self):
 		# If the animation frame has updated
 		if (self.current_animation.update()):
 			self.image = self.SPRITE_FRAMES[self.current_animation.current_frame]
@@ -145,7 +146,6 @@ class Player(pygame.sprite.Sprite):
 
 	    # Updating based on inputs
 	def move(self, coords):
-		ani = -1
 		self.rect.x += coords[0]
 		self.x += coords[0]
 		self.rect.y += coords[1]

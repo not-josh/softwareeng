@@ -20,10 +20,10 @@ class UI:
         return "Loot: " + str(self.loot)
     
     def getHPTextSurface(self, font):
-        return font.render(self.getHPText(), True, (0, 0, 0))
+        return font.render(self.getHPText(), True, (255, 255, 255))
     
     def getLootTextSurface(self, font):
-        return font.render(self.getLootText(), True, (0, 0, 0))
+        return font.render(self.getLootText(), True, (255, 255, 255))
 
     def incrementLoot(self, loot_to_add):
         self.loot += loot_to_add
@@ -33,7 +33,7 @@ class UI:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and self.current_hp > 0:
             self.decrementHP(1)
         if keys[pygame.K_TAB]:
             self.incrementLoot(1)

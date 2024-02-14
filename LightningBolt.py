@@ -2,7 +2,7 @@ import pygame
 
 #class LightningTarget():
 TARGET_SPEED = 3
-TOTAL_TIME = 300
+TOTAL_TIME = 500
 
 class LightningBolt(pygame.sprite.Sprite):
 	# SPRITE_RES = Resolution of a *single* frame of the sprite
@@ -13,9 +13,11 @@ class LightningBolt(pygame.sprite.Sprite):
 		self.SPRITE_FRAMES = []
 		self.time = TOTAL_TIME
 		self.sprite_folder = sprite_folder
+		self.can_move = True
+		self.SCALE = SCALE
 
 		# Set the current image and rect (position)
-		self.image = pygame.image.load(sprite_folder + "/lightning_bolt_target.png")
+		self.image = pygame.transform.scale_by(pygame.image.load(sprite_folder + "/lightning_bolt_target_bigger.png"), SCALE)
 		self.mask = pygame.mask.from_surface(self.image)
 		self.rect = self.image.get_rect()
 		self.x = x
@@ -31,15 +33,18 @@ class LightningBolt(pygame.sprite.Sprite):
 	#Gets future position if the player is allowed to move
 	def get_pos_change(self, player_pos):
 		pos_change = [0,0]
-		if player_pos[0] < self.x:
-			pos_change[0] -= TARGET_SPEED
-		if player_pos[0] > self.x:
-			pos_change[0] += TARGET_SPEED
-		if player_pos[1] < self.y:
-			pos_change[1] -= TARGET_SPEED
-		if player_pos[1] > self.y:
-			pos_change[1] += TARGET_SPEED
-		return pos_change
+		if (self.can_move == False):
+			return pos_change
+		else:
+			if player_pos[0] < self.rect.center[0]:
+				pos_change[0] -= TARGET_SPEED
+			if player_pos[0] > self.rect.center[0]:
+				pos_change[0] += TARGET_SPEED
+			if player_pos[1] < self.rect.center[1]:
+				pos_change[1] -= TARGET_SPEED
+			if player_pos[1] > self.rect.center[1]:
+				pos_change[1] += TARGET_SPEED
+			return pos_change
 
 	def move(self, coords):
 		self.rect.x += coords[0]
@@ -48,4 +53,7 @@ class LightningBolt(pygame.sprite.Sprite):
 		self.y += coords[1]
 		
 	def strike(self):
-		self.image = pygame.image.load(self.sprite_folder + "/lightning_bolt.png")
+		self.image = pygame.transform.scale_by(pygame.image.load(self.sprite_folder + "/lightning_bolt.png"), self.SCALE)
+		self.rect.y -= self.rect.height // 2
+		self.can_move = False
+		pygame.mixer.Sound("Assets/Sounds/weird_zap_damage.wav").play()
