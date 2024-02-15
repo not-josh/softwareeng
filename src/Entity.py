@@ -1,11 +1,10 @@
 import pygame
+import Renderable
 
-class Entity:
+class Entity(Renderable.Renderable):
     def __init__(self, texture, size, pos, health, speed):
-        self.surface = pygame.transform.scale(pygame.image.load(texture),size)
-        self.rect = self.surface.get_rect()
-        self.rect.topleft = pos
-        self.mask = pygame.mask.from_surface(self.surface)
+        super().__init__(   texture,    (100,100),  (400,400))
+        #                   ^ img file  ^ size      ^start pos
 
         self.speed = speed
         self.health = health
