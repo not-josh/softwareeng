@@ -17,5 +17,8 @@ while True:
     window.blit(player.surface, player.rect.topleft)
     pygame.display.update()
     player.move()
+    if (pygame.key.get_pressed()[pygame.K_i]):
+        player.inventory.add_item("Chocolate")
+        print(player.inventory.items["Chocolate"])
     clock.tick(60)
     
