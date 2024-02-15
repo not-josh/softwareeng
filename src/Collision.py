@@ -18,7 +18,7 @@ def collision_stop(mask1:pygame.mask.Mask, mask2:pygame.mask.Mask,
 def collision_stop(obj1:Renderable.Renderable, obj2:Renderable.Renderable,
                    movement:tuple[int,int]):
     x_diff = obj2.rect.left - obj1.rect.left
-    y_diff = obj2.rect.top - obj1,rect.top
+    y_diff = obj2.rect.top - obj1.rect.top
     if (obj1.mask.overlap(obj2.mask, (x_diff + movement[0], y_diff))):
         movement[0] = 0
     if (obj1.mask.overlap(obj2.mask, (x_diff, y_diff + movement[1]))):

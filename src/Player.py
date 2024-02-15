@@ -2,7 +2,7 @@ import pygame
 import Entity
 import Inventory
 
-class Player(Entity.Entity, pygame.sprite.Sprite):
+class Player(Entity.Entity):# pygame.sprite.Sprite):
     def __init__(self, texture):
         super().__init__(   texture,    (100,100),  (400,400),  100,    5)
         #                   ^ img file  ^ size      ^start pos  ^health ^speed
