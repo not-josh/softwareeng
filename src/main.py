@@ -17,8 +17,15 @@ while True:
     window.blit(player.surface, player.rect.topleft)
     pygame.display.update()
     player.move()
-    if (pygame.key.get_pressed()[pygame.K_i]):
+    if (pygame.key.get_pressed()[pygame.K_c]):
         player.inventory.add_item("Chocolate")
         print(player.inventory.items["Chocolate"])
+
+    if (pygame.key.get_pressed()[pygame.K_v]):
+        try:
+            player.inventory.remove_item("Vanilla")     #this stuff can be ignored i was just figuring out
+        except :                                        #how to manage exceptions in python
+            print("a")
+
     clock.tick(60)
     

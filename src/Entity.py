@@ -5,6 +5,7 @@ class Entity:
         self.surface = pygame.transform.scale(pygame.image.load(texture),size)
         self.rect = self.surface.get_rect()
         self.rect.topleft = pos
+        self.mask = pygame.mask.from_surface(self.surface)
 
         self.speed = speed
         self.health = health

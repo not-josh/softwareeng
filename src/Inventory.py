@@ -19,9 +19,9 @@ class Inventory:
             if self.items[item] >= 1:
                 self.items[item] -= 1
             else:
-                raise Exception("Tried to remove " + item + "but there are < 1 items left to remove")
+                raise Exception("Tried to remove " + item + " but there are < 1 items left to remove")
         else:
-            raise Exception("Tried to remove a(n) " + item + "but that item does not exist in the inventory")
+            raise Exception("Tried to remove a(n) " + item + " but that item does not exist in the inventory")
 
     def remove_items(self, item, amount):
         if item in self.items:
