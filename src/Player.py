@@ -1,20 +1,12 @@
 import pygame
+import Entity
+import Inventory
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity.Entity, pygame.sprite.Sprite):
     def __init__(self, texture):
-        self.speed = 5
-        self.surface = pygame.transform.scale(pygame.image.load(texture),(100,100))
-        self.rect = pygame.Rect(100,100,10,10)
+        super().__init__(texture, (100,100), (400,400), 100, 5)
+        self.points = 0 #probably best to store points/money directly, rather than in inventory
+        #self.inventory = Inventory.Inventory()
     
     def move(self):
-        move = [0,0]
-        if (pygame.key.get_pressed()[pygame.K_a]):
-            move[0] -= self.speed
-        if (pygame.key.get_pressed()[pygame.K_d]):
-            move[0] += self.speed
-        if (pygame.key.get_pressed()[pygame.K_w]):
-            move[1] -= self.speed
-        if (pygame.key.get_pressed()[pygame.K_s]):
-            move[1] += self.speed
-        self.rect.left += move[0]
-        self.rect.top += move[1]
+        super().move()
