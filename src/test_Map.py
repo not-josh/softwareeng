@@ -4,6 +4,8 @@ import sys
 from Map import Map
 from Map import Player
 
+PRINT_RATE = 40
+
 # Initialize Pygame
 pygame.init()
 
@@ -23,7 +25,7 @@ clock = pygame.time.Clock()
 
 map = Map(100, player, 4)
 
-i = 16
+i = PRINT_RATE
 
 # Game loop
 running = True
@@ -56,7 +58,7 @@ while running:
 	i -= 1
 	if i < 1:
 		print(map)
-		i = 20
+		i = PRINT_RATE
 
 	# Cap the frame rate
 	clock.tick(60)

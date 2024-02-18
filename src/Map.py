@@ -128,12 +128,22 @@ class Map():
 
 
 class Room():
-	# Parameters: room width, position (y value of top of room), tile count, tile height
+	# Parameters: room width, position (top y-value), tile count, tile height
 	def __init__(self, width:int, top_y:int, id:int, tile_count:int = TILES_PER_ROOM, tile_height:int = TILE_HEIGHT) -> None:
+		self.__WIDTH = width
+		self.ID = id # Mostly used for debugging
+		
 		# Define position and size of room
 		self.rect = Rect(0, top_y, width, tile_height * tile_count)
 
-		self.ID = id # Mostly used for debugging
+		self.tile_list:list[Tile] = []
+
+		tile_y = self.rect.bottom
+		for i in range(0, tile_count):
+			tile_y -= TILE_HEIGHT
+			tile = Tile(self.__WIDTH, tile_y)
+			self.tile_list.append(tile)
+			pass
 	
 	# Tick functions are run every frame and have no parameters
 	def tick(self):
@@ -143,4 +153,29 @@ class Room():
 		pygame.draw.rect(surface, (30,20,5), self.rect)
 
 	def __str__(self) -> str:
-		return "ID: %d @ (0,%d)" % (self.ID, self.rect.top)
+		string = "ID: %d (y : %d ~ %d)" % (self.ID, self.rect.bottom, self.rect.top)
+		for tile in self.tile_list:
+			string += "\n\t" + tile.__str__()
+		return string
+		
+
+
+class Obj():
+	def __str__(self) -> str:
+		return "*"
+
+
+class Tile():
+	def __init__(self, width:int, top_y:int):
+		self.rect = Rect(0, top_y, width, TILE_HEIGHT)
+		self.obj_list:list[Obj] = []
+	
+	def addObj(self, obj:Obj):
+		self.obj_list.append(obj)
+	
+	def __str__(self) -> str:
+		string = "(y : %d ~ %d) [" % (self.rect.bottom, self.rect.top)
+		for obj in self.obj_list:
+			string += obj.__str__()
+		string += "]"
+		return string
