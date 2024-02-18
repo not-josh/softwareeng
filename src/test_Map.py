@@ -3,8 +3,9 @@ import sys
 
 from Map import Map
 from Map import Player
+from Map import Obj
 
-PRINT_RATE = 40
+PRINT_RATE = 30
 
 # Initialize Pygame
 pygame.init()
@@ -12,7 +13,7 @@ pygame.init()
 # Set up the screen
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Simple Game")
+pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos")
 
 # Set up colors
 BLACK = (20,20,20)
@@ -34,6 +35,11 @@ while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_1:
+				obj = Obj("*")
+				map.spawnObjAtPlayer(obj)
+
 
 	# Update logic
 	keys = pygame.key.get_pressed()

@@ -20,6 +20,17 @@ ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 class Player():
 	def __init__(self):
 		self.rect = Rect(0,0,20,20)
+		
+# TEMPORARY generic object class, just for testing/debugging
+class Obj():
+	def __init__(self, name, pos:tuple[int,int] = 0):
+		self.name = name
+		self.rect = Rect(0,0,5,5)
+		if pos:
+			self.rect.center = pos
+
+	def __str__(self) -> str:
+		return "*"
 
 
 
@@ -120,11 +131,10 @@ class Map():
 		return string
 
 
-	# Temporary function to draw all objects in the active rooms
-	def drawRooms(self, surface:pygame.Surface) -> None:
-		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
-			room = self.__room_list[i]
-			room.drawRooms(surface)
+	def spawnObjAtPlayer(self, obj:Obj):
+		obj.rect.center = self.player.rect.center
+		room = self.__room_list[self.getPlayerRoomIndex()]
+		room.addObj(obj)
 
 
 class Room():
@@ -157,12 +167,13 @@ class Room():
 		for tile in self.tile_list:
 			string += "\n\t" + tile.__str__()
 		return string
-		
 
-
-class Obj():
-	def __str__(self) -> str:
-		return "*"
+	def getTileIndexAtLoc(self, rect:Rect):
+		return (rect.centery % ROOM_HEIGHT) // TILE_HEIGHT
+	
+	def addObj(self, obj:Obj):
+		tile = self.tile_list[self.getTileIndexAtLoc(obj.rect)]
+		tile.addObj(obj)
 
 
 class Tile():
