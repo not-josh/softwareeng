@@ -130,7 +130,7 @@ class Map():
 		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.player.rect.centerx,  self.player.rect.centery)
 		return string
 
-
+	# Spawns the object at the player's current position
 	def spawnObjAtPlayer(self, obj:Obj):
 		obj.rect.center = self.player.rect.center
 		room = self.__room_list[self.getPlayerRoomIndex()]
@@ -159,18 +159,18 @@ class Room():
 	def tick(self):
 		pass
 
-	def drawRooms(self, surface:pygame.Surface):
-		pygame.draw.rect(surface, (30,20,5), self.rect)
-
 	def __str__(self) -> str:
 		string = "ID: %d (y : %d ~ %d)" % (self.ID, self.rect.bottom, self.rect.top)
 		for tile in self.tile_list:
 			string += "\n\t" + tile.__str__()
 		return string
 
+	# Returns the tile that collides with the center of the given rectangle
 	def getTileIndexAtLoc(self, rect:Rect):
-		return (rect.centery % ROOM_HEIGHT) // TILE_HEIGHT
+		return (self.rect.bottom-rect.centery) // TILE_HEIGHT
 	
+
+	# Adds the given object to the tile that matches its position
 	def addObj(self, obj:Obj):
 		tile = self.tile_list[self.getTileIndexAtLoc(obj.rect)]
 		tile.addObj(obj)
