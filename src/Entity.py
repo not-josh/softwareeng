@@ -7,7 +7,8 @@ class Entity(Renderable.Renderable):
         #                   ^ img file                  ^ size      ^start pos
         self.texture_folder = texture
         self.speed = speed
-        self.health, self.max_health = health
+        self.health = health
+        self.max_health = health
         self.direction = 'r'
         self.alive = True
 
