@@ -32,26 +32,15 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         if (pygame.key.get_pressed()[pygame.K_a]):
             move[0] -= self.speed
             horizontal_direction -= 1
-            #dir = "left.png"
-            #self.surface = pygame.image.load(self.texture_folder + "left.png")
         if (pygame.key.get_pressed()[pygame.K_d]):
             move[0] += self.speed
             horizontal_direction += 1
-            #dir = "right.png"
-            #new_direction = 'r'
-            #self.surface = pygame.image.load(self.texture_folder + "right.png")
         if (pygame.key.get_pressed()[pygame.K_w]):
             move[1] -= self.speed
             vertical_direction -= 1
-            #dir = "up.png"
-            #self.surface = pygame.image.load(self.texture_folder + "up.png")
         if (pygame.key.get_pressed()[pygame.K_s]):
             move[1] += self.speed
             vertical_direction += 1
-            #dir = "down.png"
-            #self.surface = pygame.image.load(self.texture_folder + "down.png")
-        if (dir != "none"):
-            self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + dir),self.size)
 
         if (move[0] != 0) and (move[1] != 0):
             move[0] = math.sqrt((self.speed*self.speed)/2) * horizontal_direction
