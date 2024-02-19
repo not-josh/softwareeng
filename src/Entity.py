@@ -7,9 +7,8 @@ class Entity(Renderable.Renderable):
         #                   ^ img file                  ^ size      ^start pos
         self.texture_folder = texture
         self.speed = speed
-        self.health = health
+        self.health:int = health
         self.max_health = health
-        self.direction = 'r'
         self.alive = True
 
     def lower_health(self, value:int):
@@ -29,4 +28,7 @@ class Entity(Renderable.Renderable):
             self.lower_health(self.health-self.max_health)
 
     def increase_max_health(self, increase:int):
+        old_max_health = self.max_health
         self.max_health += increase
+        if (old_max_health != 0):
+            self.health = int(self.health * (self.max_health / old_max_health))
