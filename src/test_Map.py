@@ -58,12 +58,19 @@ while running:
 	# map.drawRooms(screen)
 	pygame.draw.rect(screen, (0, 0, 255), player.rect)
 
+	render_lists = map.getRenderObjects()
+
+	for lst in render_lists:
+		for obj in lst:
+			screen.blit(obj.surface, (obj.rect.left, obj.rect.top + screen_height - 50))
+			print((obj.rect.left, obj.rect.top + screen_height - 50))
+
 	# Refresh the display
 	pygame.display.flip()
 	
 	i -= 1
 	if i < 1:
-		print(map)
+		# print(map)
 		i = PRINT_RATE
 
 	# Cap the frame rate

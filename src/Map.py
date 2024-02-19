@@ -23,6 +23,9 @@ class Player():
 		
 # TEMPORARY generic object class, just for testing/debugging
 class Obj():
+	surface = pygame.Surface((5,5), pygame.SRCALPHA)
+	surface.fill((255, 50, 10))
+	
 	def __init__(self, name, pos:tuple[int,int] = 0):
 		self.name = name
 		self.rect = Rect(0,0,5,5)
@@ -35,9 +38,12 @@ class Obj():
 
 
 class Map():
+	WIDTH:int = 0
 	# Takes parameters: map width, player, active area, inactive (but loaded) area
-	def __init__(self, width:int, player_to_follow: Player, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
+	def __init__(self, width:int, player_to_follow: Player, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.__WIDTH = width
+		Map.WIDTH = width
+		self.RENDER_DIST = render_distance
 		
 		# Total number of rooms that have been generated
 		self.__room_gen_count:int = 0
@@ -56,6 +62,8 @@ class Map():
 		self.player = player_to_follow
 		player_start_y = 0 #(TILES_PER_ROOM * TILE_HEIGHT) // 2
 		self.player.rect.centery = player_start_y
+
+		self.render_lists:tuple[list, list] = [[], []]
 
 		# Generate all initial rooms
 		for i in range(0, max_active_rooms):
@@ -136,6 +144,15 @@ class Map():
 		room = self.__room_list[self.getPlayerRoomIndex()]
 		room.addObj(obj)
 
+	def getRenderObjects(self) -> tuple[list,list]:
+		render_area:Rect = Rect(0, 0, self.__WIDTH, self.RENDER_DIST * 2)
+		render_area.center = self.player.rect.center
+
+		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+			room = self.__room_list[i]
+			room.addRenderObjects(self.render_lists, render_area)
+		return self.render_lists
+
 
 class Room():
 	# Parameters: room width, position (top y-value), tile count, tile height
@@ -175,8 +192,18 @@ class Room():
 		tile = self.tile_list[self.getTileIndexAtLoc(obj.rect)]
 		tile.addObj(obj)
 
+	def addRenderObjects(self, render_lists:tuple[list,list], render_area:Rect):
+		for tile in self.tile_list:
+			if render_area.colliderect(tile.rect):
+				render_lists[0].append(tile)
+				tile.addRenderObjects(render_lists)
+		pass
+
 
 class Tile():
+	surface = pygame.Surface((Map.WIDTH, TILE_HEIGHT))
+	surface.fill((100, 50, 10))
+
 	def __init__(self, width:int, top_y:int):
 		self.rect = Rect(0, top_y, width, TILE_HEIGHT)
 		self.obj_list:list[Obj] = []
@@ -190,3 +217,7 @@ class Tile():
 			string += obj.__str__()
 		string += "]"
 		return string
+	
+	def addRenderObjects(self, render_lists:tuple[list,list]):
+		for obj in self.obj_list:
+			render_lists[1].append(obj)
