@@ -12,7 +12,7 @@ class Entity(Renderable.Renderable):
         self.direction = 'r'
         self.alive = True
 
-    def damage(self, value:int):
+    def lower_health(self, value:int):
         self.health -= value
         self.health = max(0,self.health)
         if (self.health == 0):
@@ -26,7 +26,7 @@ class Entity(Renderable.Renderable):
         self.max_health -= decrease
         self.max_health = max(0, self.max_health)
         if (self.max_health < self.health):
-            self.damage(self.health-self.max_health)
+            self.lower_health(self.health-self.max_health)
 
     def increase_max_health(self, increase:int):
         self.max_health += increase

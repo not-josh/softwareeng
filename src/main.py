@@ -18,15 +18,41 @@ def main():
         window.blit(player.surface, player.rect.topleft)
         pygame.display.update()
         player.move()
+        if (pygame.key.get_pressed()[pygame.K_z]):
+            player.add_points(10)
+
         if (pygame.key.get_pressed()[pygame.K_c]):
             player.inventory.add_item("Chocolate")
             print(player.inventory.items["Chocolate"])
-
         if (pygame.key.get_pressed()[pygame.K_v]):
-            try:
-                player.inventory.remove_item("Vanilla")     #this stuff can be ignored i was just figuring out
-            except :                                        #how to manage exceptions in python
-                print("a")
+            player.inventory.remove_item("Chocolate")
+
+        if (pygame.key.get_pressed()[pygame.K_y]):
+            player.inventory.remove_item("Item that does not exist")
+
+        if (pygame.key.get_pressed()[pygame.K_g]):
+            player.increase_health(5)
+            print(player.health)
+        if (pygame.key.get_pressed()[pygame.K_h]):
+            player.lower_health(5)
+            print(player.health)
+
+        if (pygame.key.get_pressed()[pygame.K_b]):
+            player.increase_max_health(5)
+            print(player.max_health)
+        if (pygame.key.get_pressed()[pygame.K_n]):
+            player.lower_max_health(5)
+            print(player.max_health)
+
+        if (pygame.key.get_pressed()[pygame.K_TAB]):
+            print("Points:      " , player.points)
+            print("Health:      " , player.health)
+            print("Max health:  " , player.max_health)
+            print("Player is:   " , ["dead     (player cannot be resurrected)", "alive"][player.alive])
+        if (pygame.key.get_pressed()[pygame.K_SPACE]):
+            print("Items:")
+            for item in player.inventory.items:
+                print(item , ": " , str(player.inventory.items[item]))
 
         clock.tick(60)
 

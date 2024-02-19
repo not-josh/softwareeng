@@ -24,11 +24,8 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
     
     def move(self):
         move = [0,0]
-        horizontal_direction = 0
-        vertical_direction = 0
-        right = 0
-        down = 1
-        dir = "none"
+        horizontal_direction = 0    #   These keep track of horizontal and vertical direction. Left and down are -1,
+        vertical_direction = 0      #   right and up are +1. These are used for changing direction image and for normalizing movement
         if (pygame.key.get_pressed()[pygame.K_a]):
             move[0] -= self.speed
             horizontal_direction -= 1
@@ -43,8 +40,9 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             vertical_direction += 1
 
         if (move[0] != 0) and (move[1] != 0):
-            move[0] = math.sqrt((self.speed*self.speed)/2) * horizontal_direction
-            move[1] = math.sqrt((self.speed*self.speed)/2) * vertical_direction
+            adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
+            move[0] = adjusted_speed * horizontal_direction
+            move[1] = adjusted_speed * vertical_direction
         #   ^^ "normalizes" the movement "vector" ^^
         match(horizontal_direction):
             case(-1):
@@ -59,3 +57,5 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
 
         self.rect.left += move[0]
         self.rect.top += move[1]
+        #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
+        #       maybe require a reference to the map or collision masks to be sent here?
