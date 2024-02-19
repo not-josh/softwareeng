@@ -7,5 +7,25 @@ class Entity(Renderable.Renderable):
         #                   ^ img file                  ^ size      ^start pos
         self.texture_folder = texture
         self.speed = speed
-        self.health = health
+        self.health, self.max_health = health
         self.direction = 'r'
+        self.alive = True
+
+    def damage(self, value:int):
+        self.health -= value
+        self.health = max(0,self.health)
+        if (self.health == 0):
+            self.alive = False
+
+    def increase_health(self, value:int):
+        self.health += value
+        self.health = min(self.health, self.max_health)
+
+    def lower_max_health(self, decrease:int):
+        self.max_health -= decrease
+        self.max_health = max(0, self.max_health)
+        if (self.max_health < self.health):
+            self.damage(self.health-self.max_health)
+
+    def increase_max_health(self, increase:int):
+        self.max_health += increase
