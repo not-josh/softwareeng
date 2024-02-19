@@ -7,6 +7,9 @@ from Map import Obj
 
 PRINT_RATE = 30
 
+# Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
+DRAW_OFFSET = (200, 500)
+
 # Initialize Pygame
 pygame.init()
 
@@ -24,11 +27,13 @@ player = Player()
 # Set up clock
 clock = pygame.time.Clock()
 
-map = Map(100, player, 4)
+# Pass in reference to player object, as well as the vertical render distance 
+# Render distance should be set to (screen height / 2) normally
+map = Map(player, 100)
 
 i = PRINT_RATE
 
-# Game loop
+# Game loop1
 running = True
 while running:
 	# Event handling
@@ -52,18 +57,17 @@ while running:
 	if keys[pygame.K_DOWN]:
 		player.rect.centery += 5
 
-	# Draw everything
 	screen.fill(BLACK)
 	map.tick()
-	# map.drawRooms(screen)
-	pygame.draw.rect(screen, (0, 0, 255), player.rect)
 
+	# Draw everything
 	render_lists = map.getRenderObjects()
 
 	for lst in render_lists:
 		for obj in lst:
-			screen.blit(obj.surface, (obj.rect.left, obj.rect.top + screen_height - 50))
-			print((obj.rect.left, obj.rect.top + screen_height - 50))
+			screen.blit(obj.surface, (obj.rect.left + DRAW_OFFSET[0], obj.rect.top + DRAW_OFFSET[1]))
+	
+	pygame.draw.rect(screen, (0, 0, 255), player.rect.move(DRAW_OFFSET))
 
 	# Refresh the display
 	pygame.display.flip()
