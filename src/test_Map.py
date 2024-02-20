@@ -15,7 +15,7 @@ DRAW_OFFSET = (200, 500)
 pygame.init()
 
 # Set up the screen
-screen_width, screen_height = 800, 600
+screen_width, screen_height = 800, 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos")
 

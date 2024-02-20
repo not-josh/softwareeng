@@ -18,8 +18,6 @@ WIDTH = 400
 
 collision_rect_list = []
 
-
-
 # TEMPORARY player class
 """
 class Player():
@@ -42,7 +40,6 @@ class Obj():
 
 	def __str__(self) -> str:
 		return "*"
-
 
 class Map():
 	WIDTH:int = 0
