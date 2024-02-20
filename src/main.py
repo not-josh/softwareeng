@@ -17,7 +17,9 @@ def main():
         window.fill((0,0,0))
         window.blit(player.surface, player.rect.topleft)
         pygame.display.update()
-        player.move()
+
+        player.update()
+
         if (pygame.key.get_pressed()[pygame.K_z]):
             player.add_points(10)
 

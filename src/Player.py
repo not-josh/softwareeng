@@ -2,6 +2,7 @@ import pygame
 import Entity
 import Inventory
 import math
+import Collision
 
 class Player(Entity.Entity):# pygame.sprite.Sprite):
     def __init__(self, texture:str):
@@ -22,6 +23,9 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         else:
             self.points -= amount
     
+    def update(self):
+        self.move()
+
     def move(self):
         move = [0,0]
         horizontal_direction = 0    #   These keep track of horizontal and vertical direction. Left and down are -1,
@@ -54,6 +58,8 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "up.png"),self.size)
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
+
+        move = Collision.collision_oob(self, (720, 720), move)
 
         self.rect.left += move[0]
         self.rect.top += move[1]
