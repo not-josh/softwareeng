@@ -31,6 +31,18 @@ def collision_oob(obj1:Renderable.Renderable, screen_size:tuple[int,int],
                    movement:tuple[int,int]):
     if ((obj1.rect.left + movement[0] < 0) or (obj1.rect.right + movement[0] >= screen_size[0])):
         movement[0] = 0
-    if ((obj1.rect.top + movement[1] < 0) or (obj1.rect.bottom + movement[1] >= screen_size[1])):
+    #if ((obj1.rect.top + movement[1] < 0) or (obj1.rect.bottom + movement[1] >= screen_size[1])):
+    #    movement[1] = 0
+    return movement
+
+def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
+                   movement:tuple[int,int]):
+    if (rect1.overlap(rect2.move(movement[0],0))):
+        movement[0] = 0
+    if (rect1.overlap(rect2.move(0,movement[1]))):
         movement[1] = 0
+    #if (mask1.overlap(mask2, (x_diff, y_diff + movement[1]))):
+    #    movement[1] = 0
+    #if (mask1.overlap(mask2, (x_diff + movement[0], y_diff + movement[1]))):
+    #    movement = (0,0)
     return movement
