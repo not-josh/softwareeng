@@ -24,7 +24,8 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             self.points -= amount
     
     def update(self):
-        self.move()
+        if (self.alive):
+            self.move()
 
     def move(self):
         move = [0,0]
