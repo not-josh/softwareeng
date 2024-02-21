@@ -9,7 +9,7 @@ from Camera import Camera
 PRINT_RATE = 30
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
-DRAW_OFFSET = (200, 500)
+# DRAW_OFFSET = (200, 500)
 
 # Initialize Pygame
 pygame.init()
@@ -33,7 +33,7 @@ camera = Camera(player, screen_width, screen_height)
 
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
-map = Map(player, 100)
+map = Map(player, screen_height // 2 + 10, 4, 60)
 
 i = PRINT_RATE
 
@@ -79,7 +79,8 @@ while running:
 	
 	i -= 1
 	if i < 1:
-		# print(map)
+		print(map.getStats())
+		print()
 		i = PRINT_RATE
 
 	# Cap the frame rate
