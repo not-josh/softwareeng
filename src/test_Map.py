@@ -71,10 +71,8 @@ while running:
 	for lst in render_lists:
 		for obj in lst:
 			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
-			#screen.blit(obj.surface, camera.apply( pygame.Rect((obj.rect.left + DRAW_OFFSET[0], obj.rect.top + DRAW_OFFSET[1]), (obj.size, obj.size)) ) )
-	
-	#player_draw_rect = player.rect.move(DRAW_OFFSET[0] - camera.x, DRAW_OFFSET[1] - camera.y)
-	pygame.draw.rect(screen, (0, 0, 255), player.rect.move(DRAW_OFFSET))
+
+	pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
 	# Refresh the display
 	pygame.display.flip()
