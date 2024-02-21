@@ -14,10 +14,27 @@ class Button:
         self.rect.y = self.y
         self.text = text
         self.font = font
-        self.text_surface = font.render(text, True, (255, 255, 255))
+        self.white = (255, 255, 255)
+        self.yellow = (255, 236, 0)
+        self.text_surface = font.render(text, True, self.white)
+
+        # Button setup
+        self.menu_button_font = pygame.font.Font(None, 48)
+        self.img_button_hover = pygame.image.load("assets/sprites/menu/Button_Hover.png")
+        self.img_button = pygame.image.load("assets/sprites/menu/Button.png")
+        # Scaling button assets
+        self.button_scale = .33
+        self.img_button_hover = pygame.transform.scale(self.img_button_hover, (int(self.img_button_hover.get_width() * self.button_scale), int(self.img_button_hover.get_height() * self.button_scale)))
+        self.img_button = pygame.transform.scale(self.img_button, (int(self.img_button.get_width() * self.button_scale), int(self.img_button.get_height() * self.button_scale)))
 
 
-    def draw(self, screen):
+    def draw(self, screen, mouse_pos):
+        if self.is_clicked(mouse_pos):
+            self.text_surface = self.font.render(self.text, True, self.yellow)
+            self.image = self.img_button_hover
+        elif not self.is_clicked(mouse_pos):
+            self.text_surface = self.font.render(self.text, True, self.white)
+            self.image = self.img_button
         screen.blit(self.image, self.rect)
         screen.blit(self.text_surface, (self.x + ((240 - self.text_surface.get_width()) // 2), self.y + 27))
 
