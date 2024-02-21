@@ -4,6 +4,7 @@ import sys
 from Map import Map
 from Map import Player
 from Map import Obj
+from Camera import Camera
 
 PRINT_RATE = 30
 
@@ -26,6 +27,9 @@ player = Player()
 
 # Set up clock
 clock = pygame.time.Clock()
+
+# Set up the camera
+camera = Camera(player, screen_width, screen_height)
 
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
@@ -59,14 +63,17 @@ while running:
 
 	screen.fill(BLACK)
 	map.tick()
+	camera.update()
 
 	# Draw everything
 	render_lists = map.getRenderObjects()
 
 	for lst in render_lists:
 		for obj in lst:
-			screen.blit(obj.surface, (obj.rect.left + DRAW_OFFSET[0], obj.rect.top + DRAW_OFFSET[1]))
+			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
+			#screen.blit(obj.surface, camera.apply( pygame.Rect((obj.rect.left + DRAW_OFFSET[0], obj.rect.top + DRAW_OFFSET[1]), (obj.size, obj.size)) ) )
 	
+	#player_draw_rect = player.rect.move(DRAW_OFFSET[0] - camera.x, DRAW_OFFSET[1] - camera.y)
 	pygame.draw.rect(screen, (0, 0, 255), player.rect.move(DRAW_OFFSET))
 
 	# Refresh the display
