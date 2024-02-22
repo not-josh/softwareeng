@@ -78,8 +78,8 @@ while running:
 		for obj in lst:
 			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
 
-	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 	screen.blit(player.surface, camera.apply(player.rect))
+	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
 	# Refresh the display
 	pygame.display.flip()

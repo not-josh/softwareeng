@@ -60,7 +60,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
 
-        move = Collision.collision_oob(self, (720, 720), move)
+        move = Collision.collision_oob(self, (800, 720), move)
 
         self.rect.left += move[0]
         self.rect.top += move[1]
