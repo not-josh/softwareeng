@@ -1,5 +1,6 @@
 import pygame
 from pygame import Rect
+import Player
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -18,9 +19,9 @@ WIDTH = 800
 
 
 # TEMPORARY player class
-class Player():
-	def __init__(self):
-		self.rect = Rect(0,0,20,20)
+#class Player():
+	#def __init__(self):
+		#self.rect = Rect(0,0,20,20)
 		
 # TEMPORARY generic object class, just for testing/debugging
 class Obj():
@@ -40,7 +41,7 @@ class Obj():
 
 class Map():
 	# Takes parameters: player, active area, inactive (but loaded) area
-	def __init__(self, player_to_follow: Player, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
+	def __init__(self, player_to_follow:Player.Player, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance
 		self.render_area:Rect = Rect(0, 0, WIDTH, self.RENDER_DIST * 2)
 		

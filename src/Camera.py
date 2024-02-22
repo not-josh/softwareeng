@@ -1,7 +1,8 @@
 import pygame
+import Player
 
 class Camera:
-    def __init__(self, target, width, height):
+    def __init__(self, target:Player.Player, width, height):
         self.target = target
         self.width = width
         self.height = height

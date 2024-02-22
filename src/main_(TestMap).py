@@ -2,9 +2,10 @@ import pygame
 import sys
 
 from Map import Map
-from Map import Player
+#from Map import Player
 from Map import Obj
 from Camera import Camera
+import Player
 
 PRINT_RATE = 30
 
@@ -23,7 +24,7 @@ pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos"
 BLACK = (20,20,20)
 
 # Set up the player
-player = Player()
+player = Player.Player("assets/sprites/entities/players/cowboy/")
 
 # Set up clock
 clock = pygame.time.Clock()
@@ -49,7 +50,7 @@ while running:
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
 
-
+	"""
 	# Update logic
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_LEFT]:
@@ -60,6 +61,11 @@ while running:
 		player.rect.centery -= 5
 	if keys[pygame.K_DOWN]:
 		player.rect.centery += 5
+	"""
+	player.update()
+
+	#just functions for player values and stuff
+	player.button_functions()
 
 	screen.fill(BLACK)
 	map.tick()
@@ -72,7 +78,8 @@ while running:
 		for obj in lst:
 			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
 
-	pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
+	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
+	screen.blit(player.surface, camera.apply(player.rect))
 
 	# Refresh the display
 	pygame.display.flip()

@@ -66,3 +66,40 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         self.rect.top += move[1]
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
         #       maybe require a reference to the map or collision masks to be sent here?
+
+    def button_functions(self):
+        if (pygame.key.get_pressed()[pygame.K_z]):
+            self.add_points(10)
+
+        if (pygame.key.get_pressed()[pygame.K_c]):
+            self.inventory.add_item("Chocolate")
+            print(self.inventory.items["Chocolate"])
+        if (pygame.key.get_pressed()[pygame.K_v]):
+            self.inventory.remove_item("Chocolate")
+
+        if (pygame.key.get_pressed()[pygame.K_y]):
+            self.inventory.remove_item("Item that does not exist")
+
+        if (pygame.key.get_pressed()[pygame.K_g]):
+            self.increase_health(5)
+            print(self.health)
+        if (pygame.key.get_pressed()[pygame.K_h]):
+            self.lower_health(5)
+            print(self.health)
+
+        if (pygame.key.get_pressed()[pygame.K_b]):
+            self.increase_max_health(5)
+            print(self.max_health)
+        if (pygame.key.get_pressed()[pygame.K_n]):
+            self.lower_max_health(5)
+            print(self.max_health)
+
+        if (pygame.key.get_pressed()[pygame.K_TAB]):
+            print("Points:      " , self.points)
+            print("Health:      " , self.health)
+            print("Max health:  " , self.max_health)
+            print("Player is:   " , ["dead     (player cannot be resurrected)", "alive"][self.alive])
+        if (pygame.key.get_pressed()[pygame.K_SPACE]):
+            print("Items:")
+            for item in self.inventory.items:
+                print(item , ": " , str(self.inventory.items[item]))

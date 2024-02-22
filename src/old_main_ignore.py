@@ -3,23 +3,24 @@ import pygame
 import Player
 
 def main():
-    player = Player.Player("assets/sprites/entities/players/cowboy/")
+    #player = Player.Player("assets/sprites/entities/players/cowboy/")
 
-    pygame.init()
-    pygame.display.init()
-    window = pygame.display.set_mode((720,720))
-    clock = pygame.time.Clock()
+    #pygame.init()
+    #pygame.display.init()
+    #window = pygame.display.set_mode((720,720))
+    #clock = pygame.time.Clock()
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+        #for event in pygame.event.get():
+        #    if event.type == pygame.QUIT:
+        #        pygame.quit()
+        #        sys.exit()
         window.fill((0,0,0))
         window.blit(player.surface, player.rect.topleft)
         pygame.display.update()
 
         player.update()
 
+        """
         if (pygame.key.get_pressed()[pygame.K_z]):
             player.add_points(10)
 
@@ -55,7 +56,8 @@ def main():
             print("Items:")
             for item in player.inventory.items:
                 print(item , ": " , str(player.inventory.items[item]))
-
+        """
+    
         clock.tick(60)
 
 if __name__ == '__main__':
