@@ -1,6 +1,7 @@
 import pygame
 from pygame import Rect
 import Player
+import Building
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -11,7 +12,7 @@ import Player
 # attribute / method, and single-underscore indicates protected. 
 # 	This may change if it makes things less readable. 
 
-TILE_HEIGHT = 50 # Will depend on height of building assets later
+TILE_HEIGHT = Building.TILE_HEIGHT # Will depend on height of building assets later
 TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
