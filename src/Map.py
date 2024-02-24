@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect
 import Player
-import Building
+from Building import Building
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -12,7 +12,7 @@ import Building
 # attribute / method, and single-underscore indicates protected. 
 # 	This may change if it makes things less readable. 
 
-TILE_HEIGHT = Building.TILE_HEIGHT # Will depend on height of building assets later
+TILE_HEIGHT = 50 # Will depend on height of building assets later
 TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
@@ -65,7 +65,7 @@ class Map():
 		player_start_x = WIDTH // 2
 		self.player.rect.center = (player_start_x, player_start_y)
 
-		self.render_lists:tuple[list, list] = [[], [], []]
+		self.render_lists:tuple = [[], [], [], []]
 
 		# Generate all initial rooms
 		for i in range(0, max_active_rooms):
@@ -236,6 +236,9 @@ class Tile():
 	def __init__(self, top_y:int):
 		self.rect = Rect(0, top_y, WIDTH, TILE_HEIGHT)
 		self.obj_list:list[Obj] = []
+
+		self.building_left = Building(self.rect, 0, True)
+		self.building_right = Building(self.rect, 0, False)
 	
 	def addObj(self, obj:Obj):
 		if obj.rect.colliderect(self.rect):
@@ -250,4 +253,8 @@ class Tile():
 	
 	def addRenderObjects(self, render_lists:tuple[list,list,list]):
 		for obj in self.obj_list:
-			render_lists[2].append(obj)
+			render_lists[3].append(obj)
+		
+		render_lists[2].append(self.building_left)
+		render_lists[2].append(self.building_right)
+		
