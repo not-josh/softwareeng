@@ -13,5 +13,5 @@ class Camera:
 
     def update(self):
         x = 0
-        y = max(-self.target.rect.y + self.height // 2, self.height)
+        y = max(-self.target.rect.centery + self.height // 2, self.height)
         self.rect = pygame.Rect(x, y, self.width, self.height)
