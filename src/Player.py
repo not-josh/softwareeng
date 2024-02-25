@@ -12,6 +12,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
         self.map:Map = map
+        self.build = 0
     
     def add_points(self, amount:int):
         if (amount < 0):
@@ -62,9 +63,10 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
 
-        move = Collision.collision_oob(self, (800, 720), move)
+        if self.map:
+            move = Collision.collision_oob(self, (800, 720), move)
         
-        if map:
+        if self.map:
             move = self.map.collide_stop(self, move)
 
         self.rect.left += move[0]

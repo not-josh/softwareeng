@@ -117,7 +117,7 @@ class Map():
 	# Returns the index of the room that the player is in
 	def getPlayerRoomIndex(self) -> int:
 		first_room_start_y = self.__room_list[0].rect.bottom
-		index = (first_room_start_y-self.camera.rect.centery) // ROOM_HEIGHT
+		index = (first_room_start_y-self.camera.target.rect.centery) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
 		return index
@@ -141,7 +141,7 @@ class Map():
 
 	# Spawns the object at the player's current position
 	def spawnObjAtPlayer(self, obj:Obj):
-		obj.rect.center = self.camera.rect.center
+		obj.rect.center = self.camera.target.rect.centery
 		room = self.__room_list[self.getPlayerRoomIndex()]
 		room.addObj(obj)
 
@@ -149,7 +149,7 @@ class Map():
 		for list in self.render_lists:
 			list.clear()
 
-		self.render_area.centery = self.camera.height-self.camera.rect.centery
+		self.render_area.centery = self.camera.target.rect.centery
 		if (self.render_area.bottom > 0):
 			self.render_area.bottom = 0
 
@@ -167,7 +167,8 @@ class Map():
 		bottomright = self.__room_list[0].rect.bottomright
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
-		string += "Camera position (x,y) = (%d,%d)\n" % (self.camera.rect.centerx, self.camera.rect.centery)
+		player_pos = self.camera.target.rect
+		string += "Camera position (x,y) = (%d,%d)\n" % (player_pos.centerx, player_pos.centery)
 		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
@@ -184,7 +185,8 @@ class Map():
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
 			string += room.__str__() + "\n"
-		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.camera.rect.centerx,  self.camera.rect.centery)
+		player_pos = self.camera.target.rect
+		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), player_pos.centerx, player_pos.centery)
 		return string
 
 
@@ -239,9 +241,9 @@ class Room():
 
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT > moving_object.rect.bottom \
-				or tile.rect.bottom + TILE_HEIGHT < moving_object.rect.top:
-				move = tile.collide_stop(moving_object, move)
+			# if tile.rect.top + TILE_HEIGHT > moving_object.rect.bottom \
+			# 	and tile.rect.bottom - TILE_HEIGHT < moving_object.rect.top:
+			move = tile.collide_stop(moving_object, move)
 		return move
 
 
