@@ -40,38 +40,75 @@ quit_button = Button(505, 475, img_button, "Quit", menu_button_font)
 
 buttons = [play_button, options_button, quit_button]
 
-# Main game loop
-while True:
+def play():
+    # Insert our main branch game code here once merged
+    while True:
 
-    # Getting mouse data
-    mouse_pos = pygame.mouse.get_pos()
-    mouse_buttons = pygame.mouse.get_pressed()
+        # Rendering
+        screen.fill(black)
+        pygame.display.flip()
+        # Check for clicking
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        clock.tick(60)
 
+
+def options():
+    # Insert our main branch options configurations once ready
     # Rendering
-    screen.fill(black)
+    while True:
+        screen.fill(black)
+        pygame.display.flip()
+        # Check for clicking
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        clock.tick(60)
 
-    # Logo
-    screen.blit(img_logo, (315, 25))
-    screen.blit(textsurface_logo, (275 + ((240 - textsurface_logo.get_width()) // 2), 50 + 27))
+def quit():
+    pygame.quit()
+    exit()
 
-    # Check for hover
-    for button in buttons:
-        button.draw(screen, mouse_pos)
+def main_menu():
 
-    # Check for clicking
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # Cycle through the buttons that can be clicked -> perform their action
-            if play_button.is_clicked(mouse_pos):
-                print("Play")
-            if options_button.is_clicked(mouse_pos):
-                print("Options")
-            if quit_button.is_clicked(mouse_pos):
-                print("Quit")
-            
+    # Game loop
+    while True:
 
-    pygame.display.flip()
-    clock.tick(60)
+        # Getting mouse data
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_buttons = pygame.mouse.get_pressed()
+
+        # Rendering
+        screen.fill(black)
+
+        # Logo
+        screen.blit(img_logo, (315, 25))
+        screen.blit(textsurface_logo, (275 + ((240 - textsurface_logo.get_width()) // 2), 50 + 27))
+
+        # Check for hover
+        for button in buttons:
+            button.draw(screen, mouse_pos)
+
+        # Check for clicking
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Cycle through the buttons that can be clicked -> perform their action
+                if play_button.is_clicked(mouse_pos):
+                    play()
+                if options_button.is_clicked(mouse_pos):
+                    options()
+                if quit_button.is_clicked(mouse_pos):
+                    quit()
+                
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
+main_menu()
