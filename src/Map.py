@@ -19,7 +19,7 @@ TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
 
-
+REND_BUFF_DIST = 100
 
 # TEMPORARY player class
 #class Player():
@@ -47,7 +47,7 @@ class Map():
 	def __init__(self, camera:Camera, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance
 		self.camera = camera
-		self.render_area:Rect = Rect(0, 0, WIDTH, self.RENDER_DIST * 2)
+		self.render_area:Rect = Rect(0, 0, camera.rect.width, camera.rect.height + REND_BUFF_DIST)
 		
 		# Total number of rooms that have been generated
 		self.__room_gen_count:int = 0
@@ -241,9 +241,9 @@ class Room():
 
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			# if tile.rect.top + TILE_HEIGHT > moving_object.rect.bottom \
-			# 	and tile.rect.bottom - TILE_HEIGHT < moving_object.rect.top:
-			move = tile.collide_stop(moving_object, move)
+			if tile.rect.top + TILE_HEIGHT > moving_object.rect.top \
+				or tile.rect.bottom - TILE_HEIGHT > moving_object.rect.bottom:
+				move = tile.collide_stop(moving_object, move)
 		return move
 
 
