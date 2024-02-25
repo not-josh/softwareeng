@@ -3,7 +3,7 @@ import Entity
 import Inventory
 import math
 import Collision
-# from Map import Map
+from Map import Map
 
 class Player(Entity.Entity):# pygame.sprite.Sprite):
     def __init__(self, texture:str, map = 0):
@@ -64,7 +64,8 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
 
         move = Collision.collision_oob(self, (800, 720), move)
         
-        # move = self.map.collide_stop(self, move)
+        if map:
+            move = self.map.collide_stop(self, move)
 
         self.rect.left += move[0]
         self.rect.top += move[1]

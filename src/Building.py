@@ -27,7 +27,7 @@ def initializeSurfaces(file_list:list[str], list_fright:list[list], list_fleft:l
 		for file in file_list:
 			surface_fright = pygame.image.load(fulldir + file)
 			surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
-			surface_fright = surface_fright.convert()
+			surface_fright = surface_fright.convert_alpha()
 
 			fright_entry.append(surface_fright)
 			fleft_entry.append(pygame.transform.flip(surface_fright, True, False))

@@ -34,7 +34,9 @@ camera = Camera(player, screen_width, screen_height)
 
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
-map = Map(player, screen_height // 2 + 10, 4, 60)
+map = Map(camera, screen_height // 2 + 10, 4, 60)
+map.setStartPosOf(player)
+player.map = map
 
 i = PRINT_RATE
 

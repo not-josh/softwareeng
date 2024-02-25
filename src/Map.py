@@ -1,9 +1,9 @@
 import pygame
 from pygame import Rect
-import Player
 from Building import Building
 from Renderable import Renderable
 import Collision
+from Camera import Camera
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -44,8 +44,9 @@ class Obj():
 
 class Map():
 	# Takes parameters: player, active area, inactive (but loaded) area
-	def __init__(self, player_to_follow:Player.Player, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
+	def __init__(self, camera:Camera, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance
+		self.camera = camera
 		self.render_area:Rect = Rect(0, 0, WIDTH, self.RENDER_DIST * 2)
 		
 		# Total number of rooms that have been generated
@@ -62,16 +63,18 @@ class Map():
 		self.__ACTIVE_CENTER_OFFSET = self.__ACTIVE_ROOM_COUNT // 2
 		
 		# Player positioning
-		self.player = player_to_follow
-		player_start_y = -ROOM_HEIGHT // 2#(TILES_PER_ROOM * TILE_HEIGHT) // 2
-		player_start_x = WIDTH // 2
-		self.player.rect.center = (player_start_x, player_start_y)
+		start_y = -ROOM_HEIGHT // 2#(TILES_PER_ROOM * TILE_HEIGHT) // 2
+		start_x = WIDTH // 2
+		self.start_pos = (start_x, start_y)
 
 		self.render_lists:tuple = [[], [], [], []]
 
 		# Generate all initial rooms
 		for i in range(0, max_active_rooms):
 			self.__addARoom()
+
+	def setStartPosOf(self, object:Renderable):
+		object.rect.center = self.start_pos
 
 
 	# Adds a room to self.__room_list, removes a room if the limit is reached
@@ -114,7 +117,7 @@ class Map():
 	# Returns the index of the room that the player is in
 	def getPlayerRoomIndex(self) -> int:
 		first_room_start_y = self.__room_list[0].rect.bottom
-		index = (first_room_start_y-self.player.rect.centery) // ROOM_HEIGHT
+		index = (first_room_start_y-self.camera.rect.centery) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
 		return index
@@ -138,7 +141,7 @@ class Map():
 
 	# Spawns the object at the player's current position
 	def spawnObjAtPlayer(self, obj:Obj):
-		obj.rect.center = self.player.rect.center
+		obj.rect.center = self.camera.rect.center
 		room = self.__room_list[self.getPlayerRoomIndex()]
 		room.addObj(obj)
 
@@ -146,7 +149,7 @@ class Map():
 		for list in self.render_lists:
 			list.clear()
 
-		self.render_area.center = self.player.rect.center
+		self.render_area.centery = self.camera.height-self.camera.rect.centery
 		if (self.render_area.bottom > 0):
 			self.render_area.bottom = 0
 
@@ -164,7 +167,7 @@ class Map():
 		bottomright = self.__room_list[0].rect.bottomright
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
-		string += "Player position (x,y) = (%d,%d)\n" % (self.player.rect.centerx, self.player.rect.centery)
+		string += "Camera position (x,y) = (%d,%d)\n" % (self.camera.rect.centerx, self.camera.rect.centery)
 		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
@@ -181,7 +184,7 @@ class Map():
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
 			string += room.__str__() + "\n"
-		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.player.rect.centerx,  self.player.rect.centery)
+		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.camera.rect.centerx,  self.camera.rect.centery)
 		return string
 
 
