@@ -62,13 +62,11 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "up.png"),self.size)
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
-
-        if self.map:
-            move = Collision.collision_oob(self, (800, 720), move)
         
         if self.map:
             move = self.map.collide_stop(self, move)
 
+		# Switching these two lines for "self.rect = self.rect.move(move)" fixes collision issues, but slows down player siginificantly
         self.rect.left += move[0]
         self.rect.top += move[1]
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
