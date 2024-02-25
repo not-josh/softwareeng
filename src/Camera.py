@@ -1,8 +1,8 @@
 import pygame
-import Player
+from Renderable import Renderable
 
 class Camera:
-    def __init__(self, target:Player.Player, width, height):
+    def __init__(self, target:Renderable, width, height):
         self.target = target
         self.width = width
         self.height = height

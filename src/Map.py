@@ -2,6 +2,8 @@ import pygame
 from pygame import Rect
 import Player
 from Building import Building
+from Renderable import Renderable
+import Collision
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -12,7 +14,7 @@ from Building import Building
 # attribute / method, and single-underscore indicates protected. 
 # 	This may change if it makes things less readable. 
 
-TILE_HEIGHT = 50 # Will depend on height of building assets later
+TILE_HEIGHT = Building.TILE_HEIGHT
 TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
@@ -134,15 +136,6 @@ class Map():
 		approaching_room = self.__room_list[self.__active_start_index + self.__ACTIVE_ROOM_COUNT + 1]
 		return approaching_room.rect
 
-	# String conversion used for debugging when rendering can't be done
-	def __str__(self) -> str:
-		string:str = "\nActive Rooms:\n"
-		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
-			room = self.__room_list[i]
-			string += room.__str__() + "\n"
-		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.player.rect.centerx,  self.player.rect.centery)
-		return string
-
 	# Spawns the object at the player's current position
 	def spawnObjAtPlayer(self, obj:Obj):
 		obj.rect.center = self.player.rect.center
@@ -174,6 +167,21 @@ class Map():
 		string += "Player position (x,y) = (%d,%d)\n" % (self.player.rect.centerx, self.player.rect.centery)
 		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
+		return string
+	
+	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+			room = self.__room_list[i]
+			move = room.collide_stop(moving_object, move)
+		return move
+
+	# String conversion used for debugging when rendering can't be done
+	def __str__(self) -> str:
+		string:str = "\nActive Rooms:\n"
+		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+			room = self.__room_list[i]
+			string += room.__str__() + "\n"
+		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), self.player.rect.centerx,  self.player.rect.centery)
 		return string
 
 
@@ -225,7 +233,13 @@ class Room():
 			if render_area.colliderect(tile.rect):
 				render_lists[0].append(tile)
 				tile.addRenderObjects(render_lists)
-		pass
+
+	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+		for tile in self.tile_list:
+			if tile.rect.top - TILE_HEIGHT > moving_object.rect.bottom \
+				or tile.rect.bottom + TILE_HEIGHT < moving_object.rect.top:
+				move = tile.collide_stop(moving_object, move)
+		return move
 
 
 class Tile():
@@ -257,4 +271,8 @@ class Tile():
 		
 		render_lists[2].append(self.building_left)
 		render_lists[2].append(self.building_right)
-		
+	
+	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+		move = Collision.collision_stop(self.building_left.rect, moving_object.rect, move)
+		move = Collision.collision_stop(self.building_right.rect, moving_object.rect, move)
+		return move

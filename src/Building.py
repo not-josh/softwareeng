@@ -7,6 +7,7 @@ from pygame import Surface
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
 # proper "Render Group" and rendering functionality. 
 
+TILE_HEIGHT = 120 # Will depend on height of building assets later
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
@@ -25,6 +26,7 @@ def initializeSurfaces(file_list:list[str], list_fright:list[list], list_fleft:l
 
 		for file in file_list:
 			surface_fright = pygame.image.load(fulldir + file)
+			surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
 			surface_fright = surface_fright.convert()
 
 			fright_entry.append(surface_fright)
@@ -39,13 +41,16 @@ class Building(Renderable):
 	surfaces_face_right:list[list[Surface]] = []
 	surfaces_face_left:list[list[Surface]] = []
 	blank_surface = Surface((0,0), pygame.SRCALPHA)
+	TILE_HEIGHT = TILE_HEIGHT
 	isInitialized = False
 
 
 	def __init__(self, tile_rect:Rect, type:int, facing_right:bool) -> None:
+		super().__init__()
+		
 		if not Building.isInitialized:
 			Building.initialize()
-		super().__init__()
+		
 		# Assign surface and create rect
 		if (type >= 0):
 			if facing_right:
@@ -55,7 +60,7 @@ class Building(Renderable):
 			self.rect = self.surface.get_rect()
 		else:
 			self.surface = Building.blank_surface
-			self.rect = (0,0,50,Building.TILE_HEIGHT)
+			self.rect = (0,0,50,TILE_HEIGHT)
 
 		# Align rect
 		if facing_right:
