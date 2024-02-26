@@ -1,6 +1,7 @@
 import pygame
 import Renderable
 
+#Standard (ugly) collision function using masks
 def collision_stop(mask1:pygame.mask.Mask, mask2:pygame.mask.Mask,
                    mask1_coords:tuple[int,int], mask2_coords:tuple[int,int],
                    movement:tuple[int,int]):
@@ -27,14 +28,18 @@ def collision_stop(obj1:Renderable.Renderable, obj2:Renderable.Renderable,
         movement = (0,0)
     return movement
 
+#Block going out of bounds, send in player, screen size, and player's desired movement
 def collision_oob(obj1:Renderable.Renderable, screen_size:tuple[int,int],
                    movement:tuple[int,int]):
     if ((obj1.rect.left + movement[0] < 0) or (obj1.rect.right + movement[0] >= screen_size[0])):
         movement[0] = 0
-    #if ((obj1.rect.top + movement[1] < 0) or (obj1.rect.bottom + movement[1] >= screen_size[1])):
+    if (obj1.rect.bottom + movement[1] > 0):
+        movement[1] = 0
+    #if (obj1.rect.bottom + movement[1] >= screen_size[1]):
     #    movement[1] = 0
     return movement
 
+#Rect version of collision
 def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
                    movement:tuple[int,int]):
     if (rect1.overlap(rect2.move(movement[0],0))):

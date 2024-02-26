@@ -3,13 +3,14 @@ import sys
 
 from Map import Map
 #from Map import Player
-import Player
 from Map import Obj
+from Camera import Camera
+import Player
 
 PRINT_RATE = 30
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
-DRAW_OFFSET = (200, 500)
+# DRAW_OFFSET = (200, 500)
 
 # Initialize Pygame
 pygame.init()
@@ -28,9 +29,12 @@ player = Player.Player("assets/sprites/entities/players/cowboy/")
 # Set up clock
 clock = pygame.time.Clock()
 
+# Set up the camera
+camera = Camera(player, screen_width, screen_height)
+
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
-map = Map(player, 100)
+map = Map(player, screen_height // 2 + 10, 4, 60)
 
 i = PRINT_RATE
 
@@ -45,6 +49,7 @@ while running:
 			if event.key == pygame.K_1:
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
+
 	"""
 	# Update logic
 	keys = pygame.key.get_pressed()
@@ -56,29 +61,33 @@ while running:
 		player.rect.centery -= 5
 	if keys[pygame.K_DOWN]:
 		player.rect.centery += 5
-		"""
+	"""
 	player.update()
+
+	#just functions for player values and stuff
+	player.button_functions()
 
 	screen.fill(BLACK)
 	map.tick()
+	camera.update()
 
 	# Draw everything
 	render_lists = map.getRenderObjects()
 
 	for lst in render_lists:
 		for obj in lst:
-			screen.blit(obj.surface, (obj.rect.left + DRAW_OFFSET[0], obj.rect.top + DRAW_OFFSET[1]))
-	
-	#pygame.draw.rect(screen, (0, 0, 255), player.rect.move(DRAW_OFFSET))
-	screen.blit(player.surface, player.rect.topleft)
+			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
+
+	screen.blit(player.surface, camera.apply(player.rect))
+	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
 	# Refresh the display
 	pygame.display.flip()
-	print(player.rect.topleft)
 	
 	i -= 1
 	if i < 1:
-		# print(map)
+		print(map.getStats())
+		print()
 		i = PRINT_RATE
 
 	# Cap the frame rate

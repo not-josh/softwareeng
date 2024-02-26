@@ -11,19 +11,15 @@ import Player
 # attribute / method, and single-underscore indicates protected. 
 # 	This may change if it makes things less readable. 
 
-TILE_HEIGHT = 40 # Will depend on height of building assets later
-TILES_PER_ROOM = 2
+TILE_HEIGHT = 50 # Will depend on height of building assets later
+TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
-WIDTH = 400
-
-collision_rect_list = []
+WIDTH = 800
 
 # TEMPORARY player class
-"""
-class Player():
-	def __init__(self):
-		self.rect = Rect(0,0,20,20)
-"""
+#class Player():
+	#def __init__(self):
+		#self.rect = Rect(0,0,20,20)
 		
 # TEMPORARY generic object class, just for testing/debugging
 class Obj():
@@ -36,13 +32,11 @@ class Obj():
 		self.rect = Rect(0,0,Obj.size,Obj.size)
 		if pos:
 			self.rect.center = pos
-		collision_rect_list.append(self)
 
 	def __str__(self) -> str:
 		return "*"
 
 class Map():
-	WIDTH:int = 0
 	# Takes parameters: player, active area, inactive (but loaded) area
 	def __init__(self, player_to_follow:Player.Player, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance
@@ -63,8 +57,9 @@ class Map():
 		
 		# Player positioning
 		self.player = player_to_follow
-		player_start_y = 0 #(TILES_PER_ROOM * TILE_HEIGHT) // 2
-		self.player.rect.top = player_start_y
+		player_start_y = -ROOM_HEIGHT // 2#(TILES_PER_ROOM * TILE_HEIGHT) // 2
+		player_start_x = WIDTH // 2
+		self.player.rect.center = (player_start_x, player_start_y)
 
 		self.render_lists:tuple[list, list] = [[], [], []]
 
@@ -155,6 +150,8 @@ class Map():
 			list.clear()
 
 		self.render_area.center = self.player.rect.center
+		if (self.render_area.bottom > 0):
+			self.render_area.bottom = 0
 
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
@@ -162,6 +159,18 @@ class Map():
 				self.render_lists[1].append(room)
 				room.addRenderObjects(self.render_lists, self.render_area)
 		return self.render_lists
+
+	def getStats(self) -> str:
+		string = ""
+		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getPlayerRoomIndex())
+		topleft = self.__room_list[len(self.__room_list) - 1].rect.topleft
+		bottomright = self.__room_list[0].rect.bottomright
+		string += "Player room number = %d\n" % (player_room_number)
+		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
+		string += "Player position (x,y) = (%d,%d)\n" % (self.player.rect.centerx, self.player.rect.centery)
+		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
+			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
+		return string
 
 
 class Room():
