@@ -45,7 +45,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             vertical_direction += 1
 
         if (move[0] != 0) and (move[1] != 0):
-            adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
+            adjusted_speed = math.sqrt((self.speed*self.speed)/2)
             move[0] = adjusted_speed * horizontal_direction
             move[1] = adjusted_speed * vertical_direction
         #   ^^ "normalizes" the movement "vector" ^^
