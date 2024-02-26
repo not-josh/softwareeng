@@ -70,7 +70,10 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):
             self.add_points(10)
-
+            print(self.points)
+        if (pygame.key.get_pressed()[pygame.K_x]):
+            self.remove_points(10)
+            print(self.points)
         if (pygame.key.get_pressed()[pygame.K_c]):
             self.inventory.add_item("Chocolate")
             print(self.inventory.items["Chocolate"])
