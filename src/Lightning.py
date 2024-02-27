@@ -29,13 +29,6 @@ class Lightning(Entity.Entity):
         self.rect.centerx = x
 
 
-
-
-
-
-
-
-
     def move(self, player_pos:tuple[int,int]):  #CENTER of player rect
         move = [0,0]
         horizontal_direction = 0    #   These keep track of horizontal and vertical direction. Left and down are -1,

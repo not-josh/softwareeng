@@ -55,18 +55,6 @@ while running:
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
 
-	"""
-	# Update logic
-	keys = pygame.key.get_pressed()
-	if keys[pygame.K_LEFT]:
-		player.rect.centerx -= 5
-	if keys[pygame.K_RIGHT]:
-		player.rect.centerx += 5
-	if keys[pygame.K_UP]:
-		player.rect.centery -= 5
-	if keys[pygame.K_DOWN]:
-		player.rect.centery += 5
-	"""
 	player.update()
 
 	#just functions for player values and stuff
