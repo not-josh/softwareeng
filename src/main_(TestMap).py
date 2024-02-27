@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 from Map import Map
 #from Map import Player
@@ -9,6 +10,8 @@ import Player
 import Lightning
 
 PRINT_RATE = 30
+
+FRAME_RATE = 60
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
 # DRAW_OFFSET = (200, 500)
@@ -43,6 +46,8 @@ l_pressed = False
 
 i = PRINT_RATE
 
+current_frame = 0
+
 # Game loop1
 running = True
 while running:
@@ -62,11 +67,18 @@ while running:
 
 	if (pygame.key.get_pressed()[pygame.K_l]):
 		if (l_pressed == False):
-			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), 300)
+			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
 			lightning_bolt_list.append(newl)
 		l_pressed = True
 	else:
 		l_pressed = False
+
+	if (current_frame==0):					# once per second:
+		newr = random.randrange(0,5,1)		# 20% random chance to
+		print(newr)
+		if (newr == 0):						# spawn new lightning (with 5 second duration)
+			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
+			lightning_bolt_list.append(newl)
 
 	screen.fill(BLACK)
 	map.tick()
@@ -95,15 +107,20 @@ while running:
 	pygame.display.flip()
 	
 	i -= 1
-	"""
+	
 	if i < 1:
-		print(map.getStats())
-		print()
+		#print(map.getStats())
+		#print()
 		i = PRINT_RATE
-	"""
+
+	current_frame += 1
+
+	if (current_frame == FRAME_RATE):
+		current_frame = 0
+	
 
 	# Cap the frame rate
-	clock.tick(60)
+	clock.tick(FRAME_RATE)
 
 # Quit Pygame
 pygame.quit()
