@@ -168,7 +168,7 @@ class Map():
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
 		string += "Player position (x,y) = (%d,%d)\n" % (self.player.rect.centerx, self.player.rect.centery)
-		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
+		string += "Map coordinate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
 

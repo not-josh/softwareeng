@@ -5,11 +5,12 @@ import math
 import Collision
 
 class Player(Entity.Entity):# pygame.sprite.Sprite):
-    def __init__(self, texture:str):
-        super().__init__(   texture,    (100,100),  (400,400),  100,    5)
+    def __init__(self, folder:str):
+        super().__init__(folder + "/idle.png",    (100,100),  (400,400),  100,    5)
         #                   ^ img file  ^ size      ^start pos  ^health ^speed
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
+        self.texture_folder = folder
     
     def add_points(self, amount:int):
         if (amount < 0):
@@ -66,6 +67,11 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         self.rect.top += move[1]
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
         #       maybe require a reference to the map or collision masks to be sent here?
+
+
+
+
+
 
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):

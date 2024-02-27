@@ -6,6 +6,7 @@ from Map import Map
 from Map import Obj
 from Camera import Camera
 import Player
+import Lightning
 
 PRINT_RATE = 30
 
@@ -35,6 +36,8 @@ camera = Camera(player, screen_width, screen_height)
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
 map = Map(player, screen_height // 2 + 10, 4, 60)
+
+lightning_bolt_list = []
 
 i = PRINT_RATE
 
@@ -67,12 +70,18 @@ while running:
 	#just functions for player values and stuff
 	player.button_functions()
 
+	if (pygame.key.get_pressed()[pygame.K_l]):
+		newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100))
+		lightning_bolt_list.append(newl)
+
 	screen.fill(BLACK)
 	map.tick()
 	camera.update()
 
 	# Draw everything
 	render_lists = map.getRenderObjects()
+
+	render_lists
 
 	for lst in render_lists:
 		for obj in lst:
@@ -81,14 +90,20 @@ while running:
 	screen.blit(player.surface, camera.apply(player.rect))
 	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
+	for l in lightning_bolt_list:
+		l.update(player.rect.center)
+		screen.blit(l.surface, camera.apply(l.rect))
+
 	# Refresh the display
 	pygame.display.flip()
 	
 	i -= 1
+	"""
 	if i < 1:
 		print(map.getStats())
 		print()
 		i = PRINT_RATE
+	"""
 
 	# Cap the frame rate
 	clock.tick(60)
