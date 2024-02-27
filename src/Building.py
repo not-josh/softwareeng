@@ -76,7 +76,7 @@ class Building(Renderable):
 			self.rect.bottomright = tile_rect.bottomright
 			self.roof.rect.bottomright = self.rect.topright
 
-		# self.porch:Porch = Porch(self.rect, type, facing_right)
+		self.porch = Porch(self.rect, type, facing_right)
 
 
 	def initialize():
@@ -90,7 +90,7 @@ class Building(Renderable):
 		if (not self.isEmpty):
 			render_lists[2].append(self)
 			render_lists[2].append(self.roof)
-			
+			self.porch.addRenderObjects(render_lists)
 		pass
 
 
@@ -105,7 +105,37 @@ class Porch(Renderable):
 	def __init__(self, building_rect:Rect, type:int, facing_right:bool) -> None:
 		super().__init__()
 		self.facing_right = facing_right
+		self.isEmpty = (type < 0)
+
+		# Assign surface and create rect
+		if (self.isEmpty):
+			self.surface = Porch.blank_surface
+			self.rect = (0,0,50,TILE_HEIGHT)
+		else:
+			self.roof:Renderable = Renderable()
+			if facing_right:
+				self.surface = Porch.surfaces_face_right[type][0]
+				self.roof.surface = Porch.surfaces_face_right[type][1]
+			else:
+				self.surface = Porch.surfaces_face_left[type][0]
+				self.roof.surface = Porch.surfaces_face_left[type][1]
+			self.rect = self.surface.get_rect()
+			self.roof.rect = self.roof.surface.get_rect()
+		
+		if facing_right:
+			self.rect.bottomleft = building_rect.bottomright
+			self.roof.rect.bottomleft = self.rect.bottomleft
+		else:
+			self.rect.bottomright = building_rect.bottomleft
+			self.roof.rect.bottomright = self.rect.bottomright
 	
 	def initialize():
 		initializeSurfaces(["porch_base.png", "porch_roof.png"], 
-					Porch.surfaces_face_left, Porch.surfaces_face_right)
+					Porch.surfaces_face_right, Porch.surfaces_face_left)
+
+	def addRenderObjects(self, render_lists:list[list[Renderable]]):
+		if (not self.isEmpty):
+			render_lists[2].append(self)
+			render_lists[4].append(self.roof)
+			
+		pass

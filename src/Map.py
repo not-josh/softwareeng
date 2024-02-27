@@ -15,7 +15,7 @@ from Camera import Camera
 # 	This may change if it makes things less readable. 
 
 TILE_HEIGHT = Building.TILE_HEIGHT
-TILES_PER_ROOM = 2
+TILES_PER_ROOM = 3
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
 
