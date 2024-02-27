@@ -31,8 +31,10 @@ def collision_stop(obj1:Renderable.Renderable, obj2:Renderable.Renderable,
 #Block going out of bounds, send in player, screen size, and player's desired movement
 def collision_oob(obj1:Renderable.Renderable, screen_size:tuple[int,int],
                    movement:tuple[int,int]):
-    if ((obj1.rect.left + movement[0] < 0) or (obj1.rect.right + movement[0] >= screen_size[0])):
-        movement[0] = 0
+    if (obj1.rect.left + movement[0] < 0):
+        movement[0] = -obj1.rect.left
+    elif (obj1.rect.right + movement[0] >= screen_size[0]):
+        movement[0] = screen_size[0] - obj1.rect.right
     if (obj1.rect.bottom + movement[1] > 0):
         movement[1] = 0
     #if (obj1.rect.bottom + movement[1] >= screen_size[1]):
