@@ -34,3 +34,7 @@ class Entity(Renderable.Renderable):
         self.max_health += increase
         if (old_max_health != 0):
             self.health = int(self.health * (self.max_health / old_max_health))
+    def kill(self):
+        self.health = 0
+        self.alive = False
+        

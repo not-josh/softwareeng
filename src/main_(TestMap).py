@@ -39,6 +39,8 @@ map = Map(player, screen_height // 2 + 10, 4, 60)
 
 lightning_bolt_list = []
 
+l_pressed = False
+
 i = PRINT_RATE
 
 # Game loop1
@@ -71,8 +73,12 @@ while running:
 	player.button_functions()
 
 	if (pygame.key.get_pressed()[pygame.K_l]):
-		newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100))
-		lightning_bolt_list.append(newl)
+		if (l_pressed == False):
+			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), 300)
+			lightning_bolt_list.append(newl)
+		l_pressed = True
+	else:
+		l_pressed = False
 
 	screen.fill(BLACK)
 	map.tick()
@@ -91,8 +97,11 @@ while running:
 	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
 	for l in lightning_bolt_list:
-		l.update(player.rect.center)
-		screen.blit(l.surface, camera.apply(l.rect))
+		l.update(player)
+		if (l.alive):
+			screen.blit(l.surface, camera.apply(l.rect))
+		else:
+			lightning_bolt_list.remove(l)
 
 	# Refresh the display
 	pygame.display.flip()
