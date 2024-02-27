@@ -74,7 +74,7 @@ while running:
 		l_pressed = False
 
 	if (current_frame==0):					# once per second:
-		newr = random.randrange(0,5,1)		# 20% random chance to
+		newr = random.randrange(0,10,1)		# 20% random chance to
 		print(newr)
 		if (newr == 0):						# spawn new lightning (with 5 second duration)
 			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
