@@ -15,7 +15,7 @@ from Camera import Camera
 # 	This may change if it makes things less readable. 
 
 TILE_HEIGHT = Building.TILE_HEIGHT
-TILES_PER_ROOM = 8
+TILES_PER_ROOM = 2
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
 
@@ -67,7 +67,7 @@ class Map():
 		start_x = WIDTH // 2
 		self.start_pos = (start_x, start_y)
 
-		self.render_lists:tuple = [[], [], [], []]
+		self.render_lists:list[list[Renderable]] = [[], [], [], [], []]
 
 		# Generate all initial rooms
 		for i in range(0, max_active_rooms):
@@ -145,7 +145,7 @@ class Map():
 		room = self.__room_list[self.getPlayerRoomIndex()]
 		room.addObj(obj)
 
-	def getRenderObjects(self) -> tuple[list,list,list]:
+	def getRenderObjects(self) -> list[list[Renderable]]:
 		for list in self.render_lists:
 			list.clear()
 
@@ -153,7 +153,7 @@ class Map():
 		if (self.render_area.bottom > 0):
 			self.render_area.bottom = 0
 
-		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+		for i in range(self.__active_start_index+self.__ACTIVE_ROOM_COUNT-1, self.__active_start_index-1, -1):
 			room = self.__room_list[i]
 			if room.rect.colliderect(self.render_area):
 				self.render_lists[1].append(room)
@@ -173,7 +173,7 @@ class Map():
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
 	
-	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+	def collide_stop(self, moving_object:Renderable, move:tuple[int,int], clear_roofs:bool = False) -> tuple[int,int]:
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
 			move = room.collide_stop(moving_object, move)
@@ -233,8 +233,9 @@ class Room():
 		tile = self.tile_list[self.getTileIndexAtLoc(obj.rect)]
 		tile.addObj(obj)
 
-	def addRenderObjects(self, render_lists:tuple[list,list,list], render_area:Rect):
-		for tile in self.tile_list:
+	def addRenderObjects(self, render_lists:list[list[Renderable]], render_area:Rect):
+		for i in range(len(self.tile_list)-1, -1, -1):
+			tile = self.tile_list[i]
 			if render_area.colliderect(tile.rect):
 				render_lists[0].append(tile)
 				tile.addRenderObjects(render_lists)
@@ -270,12 +271,12 @@ class Tile():
 		string += "]"
 		return string
 	
-	def addRenderObjects(self, render_lists:tuple[list,list,list]):
+	def addRenderObjects(self, render_lists:list[list[Renderable]]):
 		for obj in self.obj_list:
 			render_lists[3].append(obj)
 		
-		render_lists[2].append(self.building_left)
-		render_lists[2].append(self.building_right)
+		self.building_left.addRenderObjects(render_lists)
+		self.building_right.addRenderObjects(render_lists)
 	
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		move = Collision.collision_stop(self.building_left.rect, moving_object.rect, move)

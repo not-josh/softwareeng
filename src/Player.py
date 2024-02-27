@@ -49,8 +49,8 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
 
         if (move[0] != 0) and (move[1] != 0):
             adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
-            move[0] = adjusted_speed * horizontal_direction
-            move[1] = adjusted_speed * vertical_direction
+            move[0] = math.ceil(adjusted_speed * horizontal_direction)
+            move[1] = math.ceil(adjusted_speed * vertical_direction)
         #   ^^ "normalizes" the movement "vector" ^^
         match(horizontal_direction):
             case(-1):
@@ -66,9 +66,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         if self.map:
             move = self.map.collide_stop(self, move)
 
-		# Switching these two lines for "self.rect = self.rect.move(move)" fixes collision issues, but slows down player siginificantly
-        self.rect.left += move[0]
-        self.rect.top += move[1]
+        self.rect = self.rect.move(move)
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
         #       maybe require a reference to the map or collision masks to be sent here?
 

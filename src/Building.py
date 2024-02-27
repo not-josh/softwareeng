@@ -7,7 +7,7 @@ from pygame import Surface
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
 # proper "Render Group" and rendering functionality. 
 
-TILE_HEIGHT = 120 # Will depend on height of building assets later
+TILE_HEIGHT = 160 # Will depend on height of building assets later
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
@@ -50,23 +50,31 @@ class Building(Renderable):
 		
 		if not Building.isInitialized:
 			Building.initialize()
+
+		self.isEmpty = (type < 0)
 		
 		# Assign surface and create rect
-		if (type >= 0):
-			if facing_right:
-				self.surface = Building.surfaces_face_right[type][0]
-			else:
-				self.surface = Building.surfaces_face_left[type][0]
-			self.rect = self.surface.get_rect()
-		else:
+		if (self.isEmpty):
 			self.surface = Building.blank_surface
 			self.rect = (0,0,50,TILE_HEIGHT)
+		else:
+			self.roof:Renderable = Renderable()
+			if facing_right:
+				self.surface = Building.surfaces_face_right[type][0]
+				self.roof.surface = Building.surfaces_face_right[type][1]
+			else:
+				self.surface = Building.surfaces_face_left[type][0]
+				self.roof.surface = Building.surfaces_face_left[type][1]
+			self.rect = self.surface.get_rect()
+			self.roof.rect = self.roof.surface.get_rect()
 
-		# Align rect
+		# Align rects
 		if facing_right:
 			self.rect.bottomleft = tile_rect.bottomleft
+			self.roof.rect.bottomleft = self.rect.topleft
 		else:
 			self.rect.bottomright = tile_rect.bottomright
+			self.roof.rect.bottomright = self.rect.topright
 
 		# self.porch:Porch = Porch(self.rect, type, facing_right)
 
@@ -77,6 +85,13 @@ class Building(Renderable):
 					Building.surfaces_face_right, Building.surfaces_face_left)
 		Building.isInitialized = True
 		print("Initialized building: %d building types" % (len(Building.surfaces_face_left)))
+
+	def addRenderObjects(self, render_lists:list[list[Renderable]]):
+		if (not self.isEmpty):
+			render_lists[2].append(self)
+			render_lists[2].append(self.roof)
+			
+		pass
 
 
 
