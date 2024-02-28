@@ -9,12 +9,12 @@ import Collision
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
 # proper "Render Group" and rendering functionality. 
 
-TILE_HEIGHT = 260 # Will depend on height of building assets later
+TILE_HEIGHT = 200 # Will depend on height of building assets later
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
-	"Generic_1/"
-	# "Pawn_Shop/"
+	"Generic_1/",
+	"Pawn_Shop/"
 ]
 
 
@@ -62,7 +62,7 @@ class Building(Renderable, Collision.StaticCollidable):
 		# Assign surface and create rect
 		if (self.isEmpty):
 			self.surface = Building.blank_surface
-			self.rect = (0,0,50,TILE_HEIGHT)
+			self.rect = Rect(0,0,50,TILE_HEIGHT)
 		else:
 			self.roof:Renderable = Renderable()
 			if facing_right:
@@ -77,10 +77,12 @@ class Building(Renderable, Collision.StaticCollidable):
 		# Align rects
 		if facing_right:
 			self.rect.bottomleft = tile_rect.bottomleft
-			self.roof.rect.bottomleft = self.rect.topleft
+			if not self.isEmpty:
+				self.roof.rect.bottomleft = self.rect.topleft
 		else:
 			self.rect.bottomright = tile_rect.bottomright
-			self.roof.rect.bottomright = self.rect.topright
+			if not self.isEmpty:
+				self.roof.rect.bottomright = self.rect.topright
 
 		self.porch = Porch(self.rect, type, facing_right)
 
@@ -106,10 +108,15 @@ class Building(Renderable, Collision.StaticCollidable):
 		pass
 
 	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+		if self.isEmpty: return move
+
 		move = Collision.collision_stop(self.rect, object.rect, move)
 		if self.porch.burn_state > 1:
 			move = Collision.collision_stop(self.porch.rect, object.rect, move)
 		return move
+
+Building.TYPE_COUNT = len(BUILDING_VARIENTS)
+
 
 
 class Porch(Renderable):
@@ -129,7 +136,7 @@ class Porch(Renderable):
 		# Assign surface and create rect
 		if (self.isEmpty):
 			self.surface = Porch.blank_surface
-			self.rect = (0,0,50,TILE_HEIGHT)
+			self.rect = Rect(0,0,50,TILE_HEIGHT)
 		else:
 			self.roof:Renderable = Renderable()
 			if facing_right:
@@ -143,30 +150,30 @@ class Porch(Renderable):
 		
 		if facing_right:
 			self.rect.bottomleft = building_rect.bottomright
-			self.roof.rect.bottomleft = self.rect.bottomleft
+			if not self.isEmpty:
+				self.roof.rect.bottomleft = self.rect.bottomleft
 		else:
 			self.rect.bottomright = building_rect.bottomleft
-			self.roof.rect.bottomright = self.rect.bottomright
+			if not self.isEmpty:
+				self.roof.rect.bottomright = self.rect.bottomright
 	
 	def initialize():
 		initializeSurfaces(["porch_base.png", "porch_roof.png", "porch_roof_charred.png", "porch_roof_burnt.png"], 
 					Porch.surfaces_face_right, Porch.surfaces_face_left)
 
 	def addRenderObjects(self, render_lists:list[list[Renderable]]):
-		if (not self.isEmpty):
+		if not self.isEmpty:
 			render_lists[2].append(self)
 			render_lists[4].append(self.roof)
-			
-		pass
+
 
 	def hideRoof(self):
-		self.roof.surface = Porch.blank_surface
+		if not self.isEmpty:
+			self.roof.surface = Porch.blank_surface
 	
 	def showRoof(self):
-		if self.isEmpty: return
-		if self.facing_right:
-			self.roof.surface = Porch.surfaces_face_right[self.type][1+self.burn_state]
-		else:
-			self.roof.surface = Porch.surfaces_face_left[self.type][1+self.burn_state]
-
-Building.TYPE_COUNT = len(BUILDING_VARIENTS)
+		if not self.isEmpty: 
+			if self.facing_right:
+				self.roof.surface = Porch.surfaces_face_right[self.type][1+self.burn_state]
+			else:
+				self.roof.surface = Porch.surfaces_face_left[self.type][1+self.burn_state]

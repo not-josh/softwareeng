@@ -274,8 +274,8 @@ class Tile(StaticCollidable):
 		self.rect = Rect(0, top_y, WIDTH, TILE_HEIGHT)
 		self.obj_list:list[Obj] = []
 
-		self.building_left = Building(self.rect, random.randint(0, Building.TYPE_COUNT-1), True)
-		self.building_right = Building(self.rect, random.randint(0, Building.TYPE_COUNT-1), False)
+		self.building_left = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), True)
+		self.building_right = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), False)
 	
 	def addObj(self, obj:Obj):
 		if obj.rect.colliderect(self.rect):
