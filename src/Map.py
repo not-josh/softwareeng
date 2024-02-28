@@ -4,6 +4,7 @@ from Building import Building
 from Renderable import Renderable
 import Collision
 from Camera import Camera
+import random
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -15,7 +16,7 @@ from Camera import Camera
 # 	This may change if it makes things less readable. 
 
 TILE_HEIGHT = Building.TILE_HEIGHT
-TILES_PER_ROOM = 3
+TILES_PER_ROOM = 5
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
 
@@ -47,7 +48,7 @@ class Map():
 	def __init__(self, camera:Camera, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance
 		self.camera = camera
-		self.render_area:Rect = Rect(0, 0, camera.rect.width, camera.rect.height + REND_BUFF_DIST)
+		self.render_area:Rect = Rect(0, 0, camera.rect.width, camera.rect.height + 2 * TILE_HEIGHT)
 		
 		# Total number of rooms that have been generated
 		self.__room_gen_count:int = 0
@@ -149,7 +150,7 @@ class Map():
 		for list in self.render_lists:
 			list.clear()
 
-		self.render_area.centery = self.camera.target.rect.centery
+		self.render_area.centery = self.camera.target.rect.centery + TILE_HEIGHT
 		if (self.render_area.bottom > 0):
 			self.render_area.bottom = 0
 
@@ -242,8 +243,8 @@ class Room():
 
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.rect.top + TILE_HEIGHT > moving_object.rect.top \
-				or tile.rect.bottom - TILE_HEIGHT > moving_object.rect.bottom:
+			if tile.rect.top - TILE_HEIGHT < moving_object.rect.top \
+				or tile.rect.bottom + TILE_HEIGHT > moving_object.rect.bottom:
 				move = tile.collide_stop(moving_object, move)
 		return move
 
@@ -257,8 +258,8 @@ class Tile():
 		self.rect = Rect(0, top_y, WIDTH, TILE_HEIGHT)
 		self.obj_list:list[Obj] = []
 
-		self.building_left = Building(self.rect, 0, True)
-		self.building_right = Building(self.rect, 0, False)
+		self.building_left = Building(self.rect, random.randint(0, Building.TYPE_COUNT-1), True)
+		self.building_right = Building(self.rect, random.randint(0, Building.TYPE_COUNT-1), False)
 	
 	def addObj(self, obj:Obj):
 		if obj.rect.colliderect(self.rect):

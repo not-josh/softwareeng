@@ -36,6 +36,7 @@ camera = Camera(player, screen_width, screen_height)
 # Render distance should be set to (screen height / 2) normally
 map = Map(camera, screen_height // 2 + 10, 4, 60)
 map.setStartPosOf(player)
+
 player.map = map
 
 i = PRINT_RATE
@@ -51,19 +52,7 @@ while running:
 			if event.key == pygame.K_1:
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
-
-	"""
-	# Update logic
-	keys = pygame.key.get_pressed()
-	if keys[pygame.K_LEFT]:
-		player.rect.centerx -= 5
-	if keys[pygame.K_RIGHT]:
-		player.rect.centerx += 5
-	if keys[pygame.K_UP]:
-		player.rect.centery -= 5
-	if keys[pygame.K_DOWN]:
-		player.rect.centery += 5
-	"""
+	
 	player.update()
 
 	#just functions for player values and stuff

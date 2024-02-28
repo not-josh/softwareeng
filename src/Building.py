@@ -7,12 +7,15 @@ from pygame import Surface
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
 # proper "Render Group" and rendering functionality. 
 
-TILE_HEIGHT = 160 # Will depend on height of building assets later
+TILE_HEIGHT = 260 # Will depend on height of building assets later
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
-	"Generic_1/"
+	"Generic_1/",
+	"Pawn_Shop/"
 ]
+
+
 
 
 def initializeSurfaces(file_list:list[str], list_fright:list[list], list_fleft:list[list]):
@@ -43,6 +46,7 @@ class Building(Renderable):
 	blank_surface = Surface((0,0), pygame.SRCALPHA)
 	TILE_HEIGHT = TILE_HEIGHT
 	isInitialized = False
+	TYPE_COUNT = -1
 
 
 	def __init__(self, tile_rect:Rect, type:int, facing_right:bool) -> None:
@@ -84,12 +88,11 @@ class Building(Renderable):
 		initializeSurfaces(["main_base.png", "main_roof.png"], 
 					Building.surfaces_face_right, Building.surfaces_face_left)
 		Building.isInitialized = True
-		print("Initialized building: %d building types" % (len(Building.surfaces_face_left)))
 
 	def addRenderObjects(self, render_lists:list[list[Renderable]]):
 		if (not self.isEmpty):
 			render_lists[2].append(self)
-			render_lists[2].append(self.roof)
+			render_lists[4].append(self.roof)
 			self.porch.addRenderObjects(render_lists)
 		pass
 
@@ -139,3 +142,5 @@ class Porch(Renderable):
 			render_lists[4].append(self.roof)
 			
 		pass
+
+Building.TYPE_COUNT = len(BUILDING_VARIENTS)
