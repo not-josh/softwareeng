@@ -110,7 +110,7 @@ while running:
 	
 	if i < 1:
 		#print(map.getStats())
-		#print()
+		print("Player Health =", player.health)
 		i = PRINT_RATE
 
 	current_frame += 1
