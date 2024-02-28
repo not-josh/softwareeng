@@ -87,7 +87,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             self.increase_health(5)
             print(self.health)
         if (pygame.key.get_pressed()[pygame.K_h]):
-            self.lower_health(5)
+            self.lower_health(1)
             print(self.health)
 
         if (pygame.key.get_pressed()[pygame.K_b]):
