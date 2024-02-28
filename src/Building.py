@@ -89,6 +89,13 @@ class Building(Renderable):
 					Building.surfaces_face_right, Building.surfaces_face_left)
 		Building.isInitialized = True
 
+	def playerCheck(self, player_rect:Rect):
+		if not self.isEmpty:
+			if self.porch.rect.colliderect(player_rect):
+				self.porch.hideRoof()
+			else:
+				self.porch.showRoof()
+
 	def addRenderObjects(self, render_lists:list[list[Renderable]]):
 		if (not self.isEmpty):
 			render_lists[2].append(self)
@@ -109,6 +116,7 @@ class Porch(Renderable):
 		super().__init__()
 		self.facing_right = facing_right
 		self.isEmpty = (type < 0)
+		self.type = type
 
 		# Assign surface and create rect
 		if (self.isEmpty):
@@ -142,5 +150,15 @@ class Porch(Renderable):
 			render_lists[4].append(self.roof)
 			
 		pass
+
+	def hideRoof(self):
+		self.roof.surface = Porch.blank_surface
+	
+	def showRoof(self):
+		if self.isEmpty: return
+		if self.facing_right:
+			self.roof.surface = Porch.surfaces_face_right[self.type][1]
+		else:
+			self.roof.surface = Porch.surfaces_face_left[self.type][1]
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)

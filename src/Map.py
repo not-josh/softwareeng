@@ -179,6 +179,14 @@ class Map():
 			room = self.__room_list[i]
 			move = room.collide_stop(moving_object, move)
 		return move
+	
+	def playerCheck(self, player_rect:Rect):
+		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+			room = self.__room_list[i]
+			if room.rect.top - TILE_HEIGHT < player_rect.top \
+				or room.rect.bottom + TILE_HEIGHT > player_rect.bottom:
+				room.playerCheck(player_rect)
+		pass
 
 	# String conversion used for debugging when rendering can't be done
 	def __str__(self) -> str:
@@ -240,6 +248,12 @@ class Room():
 			if render_area.colliderect(tile.rect):
 				render_lists[0].append(tile)
 				tile.addRenderObjects(render_lists)
+	
+	def playerCheck(self, player_rect:Rect):
+		for tile in self.tile_list:
+			if tile.rect.top - TILE_HEIGHT < player_rect.top \
+				or tile.rect.bottom + TILE_HEIGHT > player_rect.bottom:
+				tile.playerCheck(player_rect)
 
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
@@ -278,6 +292,10 @@ class Tile():
 		
 		self.building_left.addRenderObjects(render_lists)
 		self.building_right.addRenderObjects(render_lists)
+	
+	def playerCheck(self, player_rect:Rect):
+		self.building_left.playerCheck(player_rect)
+		self.building_right.playerCheck(player_rect)
 	
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		move = Collision.collision_stop(self.building_left.rect, moving_object.rect, move)

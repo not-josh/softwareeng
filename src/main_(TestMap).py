@@ -59,6 +59,7 @@ while running:
 	player.button_functions()
 
 	screen.fill(BLACK)
+	map.playerCheck(player.rect)
 	map.tick()
 	camera.update()
 
