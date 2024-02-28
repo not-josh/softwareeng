@@ -201,7 +201,7 @@ class Map(StaticCollidable):
 		return string
 
 
-class Room():
+class Room(StaticCollidable):
 	surface = pygame.Surface((WIDTH, 1))
 	surface.fill((200,200,200))
 
@@ -265,7 +265,7 @@ class Room():
 		return move
 
 
-class Tile():
+class Tile(StaticCollidable):
 	surface = pygame.Surface((WIDTH, TILE_HEIGHT))
 	surface.fill((100, 50, 10))
 	pygame.draw.line(surface, (0,0,0), surface.get_rect().topleft, surface.get_rect().topright)
@@ -300,6 +300,6 @@ class Tile():
 		self.building_right.playerCheck(player_rect)
 	
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
-		move = Collision.collision_stop(self.building_left.rect, moving_object.rect, move)
-		move = Collision.collision_stop(self.building_right.rect, moving_object.rect, move)
+		move = self.building_left.collide_stop(moving_object, move)
+		move = self.building_right.collide_stop(moving_object, move)
 		return move

@@ -3,6 +3,7 @@ from Renderable import Renderable
 from pygame import Rect
 from pygame import Surface
 import random
+import Collision
 
 #	Current risk: Buildings and porches require multiple surfaces, which may make rendering a 
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
@@ -40,7 +41,7 @@ def initializeSurfaces(file_list:list[str], list_fright:list[list], list_fleft:l
 		list_fleft.append(fleft_entry)
 
 
-class Building(Renderable):
+class Building(Renderable, Collision.StaticCollidable):
 	# Lists for building surfaces facing left & right: [(main_base, main_roof), (...)...]
 	surfaces_face_right:list[list[Surface]] = []
 	surfaces_face_left:list[list[Surface]] = []
@@ -104,6 +105,11 @@ class Building(Renderable):
 			self.porch.addRenderObjects(render_lists)
 		pass
 
+	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+		move = Collision.collision_stop(self.rect, object.rect, move)
+		if self.porch.burn_state > 1:
+			move = Collision.collision_stop(self.porch.rect, object.rect, move)
+		return move
 
 
 class Porch(Renderable):

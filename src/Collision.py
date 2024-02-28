@@ -56,7 +56,5 @@ def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
 # Class for non-moving objects that are collidable
 # Needed to prevent circular imports between Player and Map
 class StaticCollidable():
-    rect = pygame.Rect(0,0,0,0)
-    
-    def collide_stop(self, object:Renderable):
+    def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
         pass
