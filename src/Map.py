@@ -3,8 +3,10 @@ from pygame import Rect
 from Building import Building
 from Renderable import Renderable
 import Collision
+from Collision import StaticCollidable
 from Camera import Camera
 import random
+import Player
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -43,7 +45,7 @@ class Obj():
 		return "*"
 
 
-class Map():
+class Map(StaticCollidable):
 	# Takes parameters: player, active area, inactive (but loaded) area
 	def __init__(self, camera:Camera, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
 		self.RENDER_DIST = render_distance

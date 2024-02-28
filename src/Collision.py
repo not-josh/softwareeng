@@ -51,3 +51,12 @@ def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
     #if (mask1.overlap(mask2, (x_diff + movement[0], y_diff + movement[1]))):
     #    movement = (0,0)
     return movement
+
+
+# Class for non-moving objects that are collidable
+# Needed to prevent circular imports between Player and Map
+class StaticCollidable():
+    rect = pygame.Rect(0,0,0,0)
+    
+    def collide_stop(self, object:Renderable):
+        pass

@@ -3,7 +3,7 @@ import Entity
 import Inventory
 import math
 import Collision
-from Map import Map
+from Collision import StaticCollidable
 
 class Player(Entity.Entity):# pygame.sprite.Sprite):
     def __init__(self, texture:str, map = 0):
@@ -11,7 +11,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         #                   ^ img file  ^ size      ^start pos  ^health ^speed
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
-        self.map:Map = map
+        self.map:StaticCollidable = map
         self.build = 0
     
     def add_points(self, amount:int):
