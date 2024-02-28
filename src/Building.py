@@ -2,6 +2,7 @@ import pygame
 from Renderable import Renderable
 from pygame import Rect
 from pygame import Surface
+import random
 
 #	Current risk: Buildings and porches require multiple surfaces, which may make rendering a 
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
@@ -11,8 +12,8 @@ TILE_HEIGHT = 260 # Will depend on height of building assets later
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
-	"Generic_1/",
-	"Pawn_Shop/"
+	"Generic_1/"
+	# "Pawn_Shop/"
 ]
 
 
@@ -117,6 +118,7 @@ class Porch(Renderable):
 		self.facing_right = facing_right
 		self.isEmpty = (type < 0)
 		self.type = type
+		self.burn_state = random.randint(0,2)
 
 		# Assign surface and create rect
 		if (self.isEmpty):
@@ -126,10 +128,10 @@ class Porch(Renderable):
 			self.roof:Renderable = Renderable()
 			if facing_right:
 				self.surface = Porch.surfaces_face_right[type][0]
-				self.roof.surface = Porch.surfaces_face_right[type][1]
+				self.roof.surface = Porch.surfaces_face_right[type][1+self.burn_state]
 			else:
 				self.surface = Porch.surfaces_face_left[type][0]
-				self.roof.surface = Porch.surfaces_face_left[type][1]
+				self.roof.surface = Porch.surfaces_face_left[type][1+self.burn_state]
 			self.rect = self.surface.get_rect()
 			self.roof.rect = self.roof.surface.get_rect()
 		
@@ -141,7 +143,7 @@ class Porch(Renderable):
 			self.roof.rect.bottomright = self.rect.bottomright
 	
 	def initialize():
-		initializeSurfaces(["porch_base.png", "porch_roof.png"], 
+		initializeSurfaces(["porch_base.png", "porch_roof.png", "porch_roof_charred.png", "porch_roof_burnt.png"], 
 					Porch.surfaces_face_right, Porch.surfaces_face_left)
 
 	def addRenderObjects(self, render_lists:list[list[Renderable]]):
@@ -157,8 +159,8 @@ class Porch(Renderable):
 	def showRoof(self):
 		if self.isEmpty: return
 		if self.facing_right:
-			self.roof.surface = Porch.surfaces_face_right[self.type][1]
+			self.roof.surface = Porch.surfaces_face_right[self.type][1+self.burn_state]
 		else:
-			self.roof.surface = Porch.surfaces_face_left[self.type][1]
+			self.roof.surface = Porch.surfaces_face_left[self.type][1+self.burn_state]
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)
