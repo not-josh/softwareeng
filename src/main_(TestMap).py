@@ -58,7 +58,7 @@ while running:
 
 	# Rendering preperations
 	screen.fill(BG_COLOR) # Clear screen
-	map.playerCheck(player.rect)
+	map.playerCheck(player)
 	camera.update()
 
 	# Rendering

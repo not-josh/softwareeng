@@ -5,20 +5,31 @@ from pygame import Rect
 from pygame import Surface
 import random
 import Collision
+from Player import Player
+
+TILE_HEIGHT = 200
 
 #	Current risk: Buildings and porches require multiple surfaces, which may make rendering a 
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
 # proper "Render Group" and rendering functionality. 
 
-TILE_HEIGHT = 200 # Will depend on height of building assets later
+# Create building assets in {BUILDINGS_DIRECTORY + [Buiding Name]} folder
+# Building assets needed for a building: 
+# 	- main_base.png - Should be the size of the building's footprint
+# 	- main_roof.png	- The area above the main building's footprint
+#	- porch_base.png - The porch that the player can stand on
+#	- porch_roof.png - The roof of the porch
+#	- porch_roof_charred.png - Slighting damaged varient of porch_roof.png
+#	- porch_roof_burnt.png - Broken variant of porch_roof.png
 
 BUILDINGS_DIRECTORY = "assets/sprites/buildings/"
 BUILDING_VARIENTS = [
 	"Generic_1/",
 	"Pawn_Shop/"
 ]
+BUILD_VAR_CNT = len(BUILDING_VARIENTS)
 
-ROOF_ALPHA = 128
+ROOF_ALPHA = 128 # Alpha of roofs when the player is underneath them (0~255)
 
 
 # Loads all building image files into surfaces. Buildings assets and draw facing right. 
@@ -73,6 +84,8 @@ class Building(Renderable, Collision.StaticCollidable):
 			Building.initialize()
 
 		self.isEmpty = (type < 0)
+		if type >= BUILD_VAR_CNT: 
+			raise IndexError("Type %d exceeds building-type range [0~%d]" % (type, BUILD_VAR_CNT-1))
 		
 		# Assign surface and create rect
 		if (self.isEmpty):
@@ -102,9 +115,9 @@ class Building(Renderable, Collision.StaticCollidable):
 		self.porch = Porch(self.rect, type, facing_right)
 
 	# Checks player-related things like roof visibility
-	def playerCheck(self, player_rect:Rect):
+	def playerCheck(self, player:Player):
 		if not self.isEmpty:
-			if self.porch.rect.colliderect(player_rect):
+			if self.porch.rect.colliderect(player.rect):
 				self.porch.hideRoof()
 			else:
 				self.porch.showRoof()
@@ -116,7 +129,7 @@ class Building(Renderable, Collision.StaticCollidable):
 			render_group.appendRoof(self.roof)
 			self.porch.fillRenderGroup(render_group)
 
-	# Checks colision between self and player
+	# Checks colision between self and another object
 	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		if self.isEmpty: return move
 
@@ -130,14 +143,17 @@ class Building(Renderable, Collision.StaticCollidable):
 		initializeSurfacesFR(["main_base.png", "main_roof.png"], 
 					Building.surfaces_face_right)
 		copyFlipped(Building.surfaces_face_right, Building.surfaces_face_left)
+		
 		Porch.initialize()
 		Building.isInitialized = True
+		if len(Building.surfaces_face_right) < BUILD_VAR_CNT: 
+			raise IndexError("Only %d of %d building types loaded" % (len(Building.surfaces_face_left), BUILD_VAR_CNT-1))
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)
 
 
 class Porch(Renderable):
-	# Lists for building surfaces facing left & right: [(porch_base, porch_roof), (...)...]
+	# Lists for building surfaces facing left & right: [(porch_base, porch_roof, porch_roof_charred...), (...), ...]
 	surfaces_face_right:list[list[Surface]] = []
 	surfaces_face_left:list[list[Surface]] = []
 	blank_surface = Surface((0,0), pygame.SRCALPHA)

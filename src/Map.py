@@ -5,11 +5,10 @@ from Building import Building
 from Renderable import Renderable
 from Rendergroup import Rendergroup
 
-import Collision
 from Collision import StaticCollidable
 from Camera import Camera
 import random
-import Player
+from Player import Player
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -151,12 +150,12 @@ class Map(StaticCollidable):
 		return move
 	
 	# Checks player-related things. For now, just hiding roofs if the player is under them
-	def playerCheck(self, player_rect:Rect):
+	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			if room.rect.top - TILE_HEIGHT < player_rect.top \
-				or room.rect.bottom + TILE_HEIGHT > player_rect.bottom:
-				room.playerCheck(player_rect)
+			if room.rect.top - TILE_HEIGHT < player.rect.top \
+				or room.rect.bottom + TILE_HEIGHT > player.rect.bottom:
+				room.playerCheck(player)
 
 	# String conversion used for debugging when rendering can't be done
 	def __str__(self) -> str:
@@ -223,11 +222,11 @@ class Room(StaticCollidable):
 		render_group.appendGround(self)
 	
 	# Checks player-related things like roof visibility
-	def playerCheck(self, player_rect:Rect):
+	def playerCheck(self, player:Player):
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT < player_rect.top \
-				or tile.rect.bottom + TILE_HEIGHT > player_rect.bottom:
-				tile.playerCheck(player_rect)
+			if tile.rect.top - TILE_HEIGHT < player.rect.top \
+				or tile.rect.bottom + TILE_HEIGHT > player.rect.bottom:
+				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
@@ -263,9 +262,9 @@ class Tile(StaticCollidable):
 		self.building_right.fillRenderGroup(render_group)
 
 	# Checks palyer-related things like roof visibility
-	def playerCheck(self, player_rect:Rect):
-		self.building_left.playerCheck(player_rect)
-		self.building_right.playerCheck(player_rect)
+	def playerCheck(self, player:Player):
+		self.building_left.playerCheck(player)
+		self.building_right.playerCheck(player)
 
 	# Checks collisions between player and tile objects
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
