@@ -18,28 +18,42 @@ BUILDING_VARIENTS = [
 	"Pawn_Shop/"
 ]
 
+ROOF_ALPHA = 128
 
 
-
-def initializeSurfaces(file_list:list[str], list_fright:list[list], list_fleft:list[list]):
+# Loads all building image files into surfaces. Buildings assets and draw facing right. 
+def initializeSurfacesFR(file_list:list[str], list_fright:list[list[Surface]]):
 	list_fright.clear()
-	list_fleft.clear()
 
 	for subdir in BUILDING_VARIENTS:
 		fulldir = BUILDINGS_DIRECTORY + subdir
 		fright_entry = []
-		fleft_entry = []
 
 		for file in file_list:
 			surface_fright = pygame.image.load(fulldir + file)
 			surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
 			surface_fright = surface_fright.convert_alpha()
-
 			fright_entry.append(surface_fright)
-			fleft_entry.append(pygame.transform.flip(surface_fright, True, False))
-		
+
 		list_fright.append(fright_entry)
-		list_fleft.append(fleft_entry)
+
+# Create transparent copies of some surfaces (meant for roofs)
+def appendTransparentDuplicates(surface_list:list[list[Surface]], start_index:int, alpha:int = 50):
+	for entry in surface_list:
+		for i in range(start_index, len(entry)):
+			new_surface = entry[i].copy()
+			new_surface.set_alpha(alpha)
+			entry.append(new_surface)
+
+# Create flipped copies of building surfaces and put them into the "facing_left" list
+def copyFlipped(list_fright:list[list[Surface]], list_fleft:list[list[Surface]]):
+	list_fleft.clear()
+	for entry_fright in list_fright:
+		entry_fleft = []
+		for surf_fright in entry_fright:
+			entry_fleft.append(pygame.transform.flip(surf_fright, True, False))
+		list_fleft.append(entry_fleft)
+
 
 
 class Building(Renderable, Collision.StaticCollidable):
@@ -87,13 +101,7 @@ class Building(Renderable, Collision.StaticCollidable):
 
 		self.porch = Porch(self.rect, type, facing_right)
 
-
-	def initialize():
-		Porch.initialize()
-		initializeSurfaces(["main_base.png", "main_roof.png"], 
-					Building.surfaces_face_right, Building.surfaces_face_left)
-		Building.isInitialized = True
-
+	# Checks player-related things like roof visibility
 	def playerCheck(self, player_rect:Rect):
 		if not self.isEmpty:
 			if self.porch.rect.colliderect(player_rect):
@@ -101,12 +109,14 @@ class Building(Renderable, Collision.StaticCollidable):
 			else:
 				self.porch.showRoof()
 
+	# Fills the given render group with all building objects
 	def fillRenderGroup(self, render_group:Rendergroup):
 		if (not self.isEmpty):
 			render_group.appendOnGround(self)
 			render_group.appendRoof(self.roof)
 			self.porch.fillRenderGroup(render_group)
 
+	# Checks colision between self and player
 	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		if self.isEmpty: return move
 
@@ -114,6 +124,14 @@ class Building(Renderable, Collision.StaticCollidable):
 		if self.porch.burn_state > 1:
 			move = Collision.collision_stop(self.porch.rect, object.rect, move)
 		return move
+
+	# Initializes building and roof surfaces
+	def initialize():
+		initializeSurfacesFR(["main_base.png", "main_roof.png"], 
+					Building.surfaces_face_right)
+		copyFlipped(Building.surfaces_face_right, Building.surfaces_face_left)
+		Porch.initialize()
+		Building.isInitialized = True
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)
 
@@ -131,22 +149,24 @@ class Porch(Renderable):
 		self.isEmpty = (type < 0)
 		self.type = type
 		self.burn_state = random.randint(0,2)
+		self.updateBurnState()
 
 		# Assign surface and create rect
 		if (self.isEmpty):
 			self.surface = Porch.blank_surface
-			self.rect = Rect(0,0,50,TILE_HEIGHT)
+			self.rect = Rect(0,0,50,TILE_HEIGHT) # Defualt (empty) rect
 		else:
 			self.roof:Renderable = Renderable()
 			if facing_right:
 				self.surface = Porch.surfaces_face_right[type][0]
-				self.roof.surface = Porch.surfaces_face_right[type][1+self.burn_state]
+				self.roof.surface = Porch.surfaces_face_right[type][self.roof_state]
 			else:
 				self.surface = Porch.surfaces_face_left[type][0]
-				self.roof.surface = Porch.surfaces_face_left[type][1+self.burn_state]
+				self.roof.surface = Porch.surfaces_face_left[type][self.roof_state]
 			self.rect = self.surface.get_rect()
 			self.roof.rect = self.roof.surface.get_rect()
 		
+		# Allign rects
 		if facing_right:
 			self.rect.bottomleft = building_rect.bottomright
 			if not self.isEmpty:
@@ -155,29 +175,37 @@ class Porch(Renderable):
 			self.rect.bottomright = building_rect.bottomleft
 			if not self.isEmpty:
 				self.roof.rect.bottomright = self.rect.bottomright
-	
-	def initialize():
-		initializeSurfaces(["porch_base.png", "porch_roof.png", "porch_roof_charred.png", "porch_roof_burnt.png"], 
-					Porch.surfaces_face_right, Porch.surfaces_face_left)
 
-	def addRenderObjects(self, render_lists:list[list[Renderable]]):
-		if not self.isEmpty:
-			render_lists[2].append(self)
-			render_lists[4].append(self.roof)
-
+	# Fills the given render group with porch objects
 	def fillRenderGroup(self, render_group:Rendergroup):
 		if not self.isEmpty:
 			render_group.appendOnGround(self)
 			render_group.appendRoof(self.roof)
 
+	# Updates roof state based on how burnt down it is
+	def updateBurnState(self):
+		self.roof_state = 1+self.burn_state
+		self.roof_state_trans = self.roof_state+3
 
+	# Makes roof transparent
 	def hideRoof(self):
 		if not self.isEmpty:
-			self.roof.surface = Porch.blank_surface
+			if self.facing_right:
+				self.roof.surface = Porch.surfaces_face_right[self.type][self.roof_state_trans]
+			else:
+				self.roof.surface = Porch.surfaces_face_left[self.type][self.roof_state_trans]
 	
+	# Makes roof opaque
 	def showRoof(self):
 		if not self.isEmpty: 
 			if self.facing_right:
-				self.roof.surface = Porch.surfaces_face_right[self.type][1+self.burn_state]
+				self.roof.surface = Porch.surfaces_face_right[self.type][self.roof_state]
 			else:
-				self.roof.surface = Porch.surfaces_face_left[self.type][1+self.burn_state]
+				self.roof.surface = Porch.surfaces_face_left[self.type][self.roof_state]
+	
+	# Initialize all porch surfaces
+	def initialize():
+		initializeSurfacesFR(["porch_base.png", "porch_roof.png", "porch_roof_charred.png", "porch_roof_burnt.png"],
+					   Porch.surfaces_face_right)
+		appendTransparentDuplicates(Porch.surfaces_face_right, 1, ROOF_ALPHA)
+		copyFlipped(Porch.surfaces_face_right, Porch.surfaces_face_left)

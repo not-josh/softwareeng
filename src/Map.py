@@ -143,12 +143,14 @@ class Map(StaticCollidable):
 			if room.rect.colliderect(self.render_area):
 				room.fillRenderGroup(render_group, self.render_area)
 	
+	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
 			move = room.collide_stop(moving_object, move)
 		return move
 	
+	# Checks player-related things. For now, just hiding roofs if the player is under them
 	def playerCheck(self, player_rect:Rect):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
@@ -166,6 +168,7 @@ class Map(StaticCollidable):
 		string += "Player in %d (%d, %d)" % (self.getCameraRoomIndex(), player_pos.centerx, player_pos.centery)
 		return string
 
+	# Returns some stats about the map
 	def getStats(self) -> str:
 		string = ""
 		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getCameraRoomIndex())
@@ -211,6 +214,7 @@ class Room(StaticCollidable):
 		if (index > len(self.tile_list)): return len(self.tile_list)-1
 		return index
 	
+	# Fills the given render group with all objects in the room
 	def fillRenderGroup(self, render_group:Rendergroup, render_area:Rect):
 		for i in range(len(self.tile_list)-1, -1, -1):
 			tile = self.tile_list[i]
@@ -218,12 +222,14 @@ class Room(StaticCollidable):
 				tile.fillRenderGroup(render_group)
 		render_group.appendGround(self)
 	
+	# Checks player-related things like roof visibility
 	def playerCheck(self, player_rect:Rect):
 		for tile in self.tile_list:
 			if tile.rect.top - TILE_HEIGHT < player_rect.top \
 				or tile.rect.bottom + TILE_HEIGHT > player_rect.bottom:
 				tile.playerCheck(player_rect)
 
+	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
 			if tile.rect.top - TILE_HEIGHT < moving_object.rect.top \
@@ -231,6 +237,7 @@ class Room(StaticCollidable):
 				move = tile.collide_stop(moving_object, move)
 		return move
 
+	# Returns string with info about the room
 	def __str__(self) -> str:
 		string = "ID: %d (y : %d ~ %d)" % (self.ID, self.rect.bottom, self.rect.top)
 		for tile in self.tile_list:
@@ -248,22 +255,26 @@ class Tile(StaticCollidable):
 
 		self.building_left = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), True)
 		self.building_right = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), False)
-	
-	def __str__(self) -> str:
-		string = "(y : %d ~ %d) [" % (self.rect.bottom, self.rect.top)
-		string += "]"
-		return string
 
+	# Fills render group with all tile objects
 	def fillRenderGroup(self, render_group:Rendergroup):
 		render_group.appendGround(self)
 		self.building_left.fillRenderGroup(render_group)
 		self.building_right.fillRenderGroup(render_group)
-	
+
+	# Checks palyer-related things like roof visibility
 	def playerCheck(self, player_rect:Rect):
 		self.building_left.playerCheck(player_rect)
 		self.building_right.playerCheck(player_rect)
-	
+
+	# Checks collisions between player and tile objects
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		move = self.building_left.collide_stop(moving_object, move)
 		move = self.building_right.collide_stop(moving_object, move)
 		return move
+
+	# Returns string with information about the tile
+	def __str__(self) -> str:
+		string = "(y : %d ~ %d) [" % (self.rect.bottom, self.rect.top)
+		string += "]"
+		return string

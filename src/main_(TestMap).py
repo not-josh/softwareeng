@@ -6,7 +6,7 @@ from Camera import Camera
 import Player
 from Rendergroup import Rendergroup
 
-FRAME_RATE = 60
+FRAME_RATE = 120
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
