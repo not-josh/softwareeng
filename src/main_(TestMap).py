@@ -2,13 +2,12 @@ import pygame
 import sys
 
 from Map import Map
-from Map import Obj
 from Camera import Camera
 import Player
 from Rendergroup import Rendergroup
 
 FRAME_RATE = 60
-PRINT_RATE = FRAME_RATE
+PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
 # DRAW_OFFSET = (200, 500)
@@ -51,30 +50,27 @@ while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_1:
-				obj = Obj("*")
-				map.spawnObjAtPlayer(obj)
 	
+
 	player.update()
+	player.button_functions() # Functions for player values
+	map.tick() # Update map
 
-	#just functions for player values and stuff
-	player.button_functions()
-
-	screen.fill(BG_COLOR)
+	# Rendering preperations
+	screen.fill(BG_COLOR) # Clear screen
 	map.playerCheck(player.rect)
-	map.tick()
 	camera.update()
 
+	# Rendering
 	map.fillRendergroup(render_group)
 	render_group.appendTo(player, 3)
 	render_group.render(screen, camera)
 
-	# screen.blit(player.surface, camera.apply(player.rect))
-	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
-
 	# Refresh the display
 	pygame.display.flip()
+
+	# Renderng cleanup
+	render_group.clearAll()
 	
 	i -= 1
 	if i < 1:

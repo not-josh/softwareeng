@@ -101,13 +101,6 @@ class Building(Renderable, Collision.StaticCollidable):
 			else:
 				self.porch.showRoof()
 
-	def addRenderObjects(self, render_lists:list[list[Renderable]]):
-		if (not self.isEmpty):
-			render_lists[2].append(self)
-			render_lists[4].append(self.roof)
-			self.porch.addRenderObjects(render_lists)
-		pass
-
 	def fillRenderGroup(self, render_group:Rendergroup):
 		if (not self.isEmpty):
 			render_group.appendOnGround(self)
@@ -123,7 +116,6 @@ class Building(Renderable, Collision.StaticCollidable):
 		return move
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)
-
 
 
 class Porch(Renderable):
