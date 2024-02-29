@@ -8,7 +8,7 @@ class Camera:
         self.height = height
         self.rect = pygame.Rect(0, 0, width, height)
 
-    def apply(self, target_rect):
+    def apply(self, target_rect) -> pygame.Rect:
         return target_rect.move(self.rect.topleft)
 
     def update(self):

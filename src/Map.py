@@ -1,7 +1,10 @@
 import pygame
 from pygame import Rect
 from Building import Building
+
 from Renderable import Renderable
+from Rendergroup import Rendergroup
+
 import Collision
 from Collision import StaticCollidable
 from Camera import Camera
@@ -47,8 +50,8 @@ class Obj():
 
 class Map(StaticCollidable):
 	# Takes parameters: player, active area, inactive (but loaded) area
-	def __init__(self, camera:Camera, render_distance:int = 500, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
-		self.RENDER_DIST = render_distance
+	def __init__(self, camera:Camera, render_group:Rendergroup, max_active_rooms:int = 4, max_inactive_rooms:int = 12) -> None:
+		self.render_group = render_group
 		self.camera = camera
 		self.render_area:Rect = Rect(0, 0, camera.rect.width, camera.rect.height + 2 * TILE_HEIGHT)
 		
@@ -163,6 +166,20 @@ class Map(StaticCollidable):
 				room.addRenderObjects(self.render_lists, self.render_area)
 		return self.render_lists
 
+	def fillRendergroup(self, render_group:Rendergroup = 0):
+		if render_group == 0: render_group = self.render_group
+		
+		render_group.clearAll()
+
+		self.render_area.centery = self.camera.target.rect.centery + TILE_HEIGHT
+		if (self.render_area.bottom > 0):
+			self.render_area.bottom = 0
+
+		for i in range(self.__active_start_index+self.__ACTIVE_ROOM_COUNT-1, self.__active_start_index-1, -1):
+			room = self.__room_list[i]
+			if room.rect.colliderect(self.render_area):
+				room.fillRenderGroup(render_group, self.render_area)
+
 	def getStats(self) -> str:
 		string = ""
 		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getPlayerRoomIndex())
@@ -251,6 +268,13 @@ class Room(StaticCollidable):
 				render_lists[0].append(tile)
 				tile.addRenderObjects(render_lists)
 	
+	def fillRenderGroup(self, render_group:Rendergroup, render_area:Rect):
+		for i in range(len(self.tile_list)-1, -1, -1):
+			tile = self.tile_list[i]
+			if render_area.colliderect(tile.rect):
+				tile.fillRenderGroup(render_group)
+		render_group.appendGround(self)
+	
 	def playerCheck(self, player_rect:Rect):
 		for tile in self.tile_list:
 			if tile.rect.top - TILE_HEIGHT < player_rect.top \
@@ -294,6 +318,14 @@ class Tile(StaticCollidable):
 		
 		self.building_left.addRenderObjects(render_lists)
 		self.building_right.addRenderObjects(render_lists)
+
+	def fillRenderGroup(self, render_group:Rendergroup):
+		render_group.appendGround(self)
+		for obj in self.obj_list:
+			render_group.appendObject(obj)
+		
+		self.building_left.fillRenderGroup(render_group)
+		self.building_right.fillRenderGroup(render_group)
 	
 	def playerCheck(self, player_rect:Rect):
 		self.building_left.playerCheck(player_rect)

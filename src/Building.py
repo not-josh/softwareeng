@@ -1,5 +1,6 @@
 import pygame
 from Renderable import Renderable
+from Rendergroup import Rendergroup
 from pygame import Rect
 from pygame import Surface
 import random
@@ -107,6 +108,12 @@ class Building(Renderable, Collision.StaticCollidable):
 			self.porch.addRenderObjects(render_lists)
 		pass
 
+	def fillRenderGroup(self, render_group:Rendergroup):
+		if (not self.isEmpty):
+			render_group.appendOnGround(self)
+			render_group.appendRoof(self.roof)
+			self.porch.fillRenderGroup(render_group)
+
 	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		if self.isEmpty: return move
 
@@ -165,6 +172,11 @@ class Porch(Renderable):
 		if not self.isEmpty:
 			render_lists[2].append(self)
 			render_lists[4].append(self.roof)
+
+	def fillRenderGroup(self, render_group:Rendergroup):
+		if not self.isEmpty:
+			render_group.appendOnGround(self)
+			render_group.appendRoof(self.roof)
 
 
 	def hideRoof(self):

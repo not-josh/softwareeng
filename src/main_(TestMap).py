@@ -5,6 +5,7 @@ from Map import Map
 from Map import Obj
 from Camera import Camera
 import Player
+from Rendergroup import Rendergroup
 
 FRAME_RATE = 60
 PRINT_RATE = FRAME_RATE
@@ -32,9 +33,11 @@ clock = pygame.time.Clock()
 # Set up the camera
 camera = Camera(player, screen_width, screen_height)
 
+render_group = Rendergroup()
+
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
-map = Map(camera, screen_height // 2 + 10, 4, 60)
+map = Map(camera, render_group, 4, 60)
 map.setStartPosOf(player)
 
 player.map = map
@@ -63,13 +66,9 @@ while running:
 	map.tick()
 	camera.update()
 
-	# Draw everything
-	render_lists = map.getRenderObjects()
-	render_lists[3].append(player)
-
-	for lst in render_lists:
-		for obj in lst:
-			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
+	map.fillRendergroup(render_group)
+	render_group.appendTo(player, 3)
+	render_group.render(screen, camera)
 
 	# screen.blit(player.surface, camera.apply(player.rect))
 	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
@@ -80,7 +79,7 @@ while running:
 	i -= 1
 	if i < 1:
 		# print(map.getStats())
-		if FRAME_RATE: print(clock.get_fps())
+		print(clock.get_fps())
 		i = PRINT_RATE
 
 	# Cap the frame rate
