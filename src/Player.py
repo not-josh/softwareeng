@@ -51,6 +51,9 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
             move[0] = math.ceil(adjusted_speed * horizontal_direction)
             move[1] = math.ceil(adjusted_speed * vertical_direction)
+            adjusted_speed = math.sqrt((self.speed*self.speed)/2)
+            move[0] = adjusted_speed * horizontal_direction
+            move[1] = adjusted_speed * vertical_direction
         #   ^^ "normalizes" the movement "vector" ^^
         match(horizontal_direction):
             case(-1):
@@ -70,10 +73,18 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
         #       maybe require a reference to the map or collision masks to be sent here?
 
+
+
+
+
+
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):
             self.add_points(10)
-
+            print(self.points)
+        if (pygame.key.get_pressed()[pygame.K_x]):
+            self.remove_points(10)
+            print(self.points)
         if (pygame.key.get_pressed()[pygame.K_c]):
             self.inventory.add_item("Chocolate")
             print(self.inventory.items["Chocolate"])
