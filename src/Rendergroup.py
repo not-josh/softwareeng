@@ -5,7 +5,7 @@ from Camera import Camera
 class Rendergroup():
 	def __init__(self):
 		self.layers:list[list[Renderable]] = []
-		for i in range(0,5): self.layers.append([])
+		for i in range(0,6): self.layers.append([])
 	
 	def appendTo(self, item:Renderable, index:int):
 		while index >= len(self.layers):
@@ -17,6 +17,7 @@ class Rendergroup():
 	def appendObject(self, item): self.appendTo(item, 2)	
 	def appendEntity(self, item): self.appendTo(item, 3)
 	def appendRoof(self, item): self.appendTo(item, 4)
+	def appendSky(self, item): self.appendTo(item, 5)
 	
 	def render(self, surface:pygame.Surface, camera:Camera):
 		for layer in self.layers:
@@ -34,6 +35,7 @@ class Rendergroup():
 	def clearObjects(self): self.layers[2].clear()
 	def clearEntities(self): self.layers[3].clear()
 	def clearRoofs(self): self.layers[4].clear()
+	def clearSky(self): self.layers[5].clear()
 	def clearMapObjects(self):
 		self.layers[0].clear()
 		self.layers[1].clear()

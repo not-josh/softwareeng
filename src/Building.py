@@ -165,7 +165,8 @@ class Porch(Renderable):
 		self.isEmpty = (type < 0)
 		self.type = type
 		self.burn_state = random.randint(0,2)
-		self.updateBurnState()
+		self.roof_state = 1+self.burn_state
+		self.roof_state_trans = self.roof_state+3
 
 		# Assign surface and create rect
 		if (self.isEmpty):
@@ -198,10 +199,15 @@ class Porch(Renderable):
 			render_group.appendOnGround(self)
 			render_group.appendRoof(self.roof)
 
-	# Updates roof state based on how burnt down it is
-	def updateBurnState(self):
-		self.roof_state = 1+self.burn_state
-		self.roof_state_trans = self.roof_state+3
+	# Damages roof due to lighting strike - Returns true if lighting damages
+	def lightingStrike(self, strike_hb:Rect) -> bool:
+		if self.burn_state < 2 and self.rect.colliderect(strike_hb):
+			self.burn_state += 1
+			self.roof_state = 1+self.burn_state
+			self.roof_state_trans = self.roof_state+3 # Can probably just increment all 3 instead, but eh
+			return True
+		else:
+			return False
 
 	# Makes roof transparent
 	def hideRoof(self):

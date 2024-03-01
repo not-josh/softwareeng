@@ -47,7 +47,7 @@ player.map = map
 
 Lightning.setMap(map)
 
-lightning_bolt_list = []
+lightning_bolt_list:list[Lightning.Lightning] = []
 
 l_pressed = False
 
@@ -62,18 +62,6 @@ while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
-	
-
-	player.update()
-	player.button_functions() # Functions for player values
-	map.tick() # Update map
-
-	# Rendering preperations
-	
-
-
-	#just functions for player values and stuff
-	player.button_functions()
 
 	if (pygame.key.get_pressed()[pygame.K_l]):
 		if (l_pressed == False):
@@ -83,14 +71,32 @@ while running:
 	else:
 		l_pressed = False
 
-	if (current_frame==0):					# once per second:
+	# Spawn new lightning bolts
+	current_frame += 1
+	if (current_frame == FRAME_RATE):	
+		current_frame = 0				# once per second:
 		newr = random.randrange(0,10,1)		# 20% random chance to
-		print(newr)
 		if (newr == 0):						# spawn new lightning (with 5 second duration)
 			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
 			lightning_bolt_list.append(newl)
+	
+
+	# Object updates
+	player.update()
+	player.button_functions() # Functions for player values
+	map.tick() # Update map	
+	player.button_functions() #just functions for player values and stuff
+
+	# Update lighting bolts and add them to the render group
+	for l in lightning_bolt_list:
+		l.update(player)
+		if (l.alive):
+			render_group.appendSky(l)
+		else:
+			lightning_bolt_list.remove(l)
 
 
+	# Rendering prep
 	screen.fill(BG_COLOR)
 	map.playerCheck(player)
 	camera.update()
@@ -98,39 +104,7 @@ while running:
 	# Rendering
 	map.fillRendergroup(render_group)
 	render_group.appendTo(player, 3)
-	render_group.render(screen, camera)
-
-
-
-	# Draw everything
-	#render_lists = map.getRenderObjects()
-
-	#render_lists
-
-	#for lst in render_lists:
-		#for obj in lst:
-			#screen.blit(obj.surface, camera.apply(obj.rect).topleft)
-
-	screen.blit(player.surface, camera.apply(player.rect))
-	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
-
-
-
-	for l in lightning_bolt_list:
-		l.update(player)
-		if (l.alive):
-			"""
-			temproom = map.getRoom(map.getRectRoomIndex(l.rect))
-			temptile = temproom.tile_list[temproom.getTileIndexAtLoc(l.rect)]
-			for r in range (0, len(render_group.layers[4])):
-				if not (temptile.building_left.porch.isEmpty):
-					l.damage_roof(temptile.building_left.porch)
-				if not (temptile.building_right.porch.isEmpty):
-					l.damage_roof(temptile.building_right.porch)
-			"""
-			screen.blit(l.surface, camera.apply(l.rect))
-		else:
-			lightning_bolt_list.remove(l)
+	render_group.render(screen, camera) # Render everything within the render group
 
 	# Refresh the display
 	pygame.display.flip()
@@ -142,17 +116,13 @@ while running:
 	
 	if i < 1:
 		# print(map.getStats())
-		#print(clock.get_fps())
+		print(clock.get_fps())
 		#print(map.getStats())
-		#print("Player Health =", player.health)
+		# print("Player Health =", player.health)
 		i = PRINT_RATE
 
-	current_frame += 1
-
-	if (current_frame == FRAME_RATE):
-		current_frame = 0
 	
-
+	
 	# Cap the frame rate
 	clock.tick(FRAME_RATE)
 
