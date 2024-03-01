@@ -31,7 +31,7 @@ class Lightning(Entity.Entity):
 
     def damage_roof(self,porch:Building.Porch):
         if self.rect.colliderect(porch.roof.rect):
-            print("fdsnhjflds")
+            print("lightning is colliding with roof")
             porch.updateBurnState()
 
 
