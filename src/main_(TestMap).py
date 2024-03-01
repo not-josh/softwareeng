@@ -45,6 +45,8 @@ map.setStartPosOf(player)
 
 player.map = map
 
+Lightning.setMap(map)
+
 lightning_bolt_list = []
 
 l_pressed = False
@@ -98,13 +100,6 @@ while running:
 	render_group.appendTo(player, 3)
 	render_group.render(screen, camera)
 
-	g:int = 0
-
-	for i in range (0, len(render_group.layers[4])):
-		g += 1
-
-	print(g)
-
 
 
 	# Draw everything
@@ -124,12 +119,15 @@ while running:
 	for l in lightning_bolt_list:
 		l.update(player)
 		if (l.alive):
+			"""
 			temproom = map.getRoom(map.getRectRoomIndex(l.rect))
 			temptile = temproom.tile_list[temproom.getTileIndexAtLoc(l.rect)]
 			for r in range (0, len(render_group.layers[4])):
 				if not (temptile.building_left.porch.isEmpty):
 					l.damage_roof(temptile.building_left.porch)
-				#l.damage_roof(temptile.building_right.porch.roof.rect)
+				if not (temptile.building_right.porch.isEmpty):
+					l.damage_roof(temptile.building_right.porch)
+			"""
 			screen.blit(l.surface, camera.apply(l.rect))
 		else:
 			lightning_bolt_list.remove(l)

@@ -3,7 +3,17 @@ import Entity
 import math
 import Collision
 import Building
+import Map
+
+MAP = None
+
+def setMap(the_map:Map.Map):
+    global MAP
+    MAP = the_map
+
 class Lightning(Entity.Entity):
+    #MAP = None
+
     def __init__(self, folder:str, pos:tuple[int,int], time):
         self.size = (100,100)
         super().__init__(   folder+"target.png",    (100,100),  pos,        100,    3)
@@ -20,9 +30,22 @@ class Lightning(Entity.Entity):
         if (self.time > 0):
             self.move(player.rect.center)
 
+
+
     def strike(self, player) -> None:
-        if (self.rect.colliderect(player.rect)):
-            player.lower_health(20)
+        do_player_damage = True
+        temproom = MAP.getRoom(MAP.getRectRoomIndex(self.rect))
+        temptile = temproom.tile_list[temproom.getTileIndexAtLoc(self.rect)]
+		#for r in range (0, len(render_group.layers[4])):
+        if (not (temptile.building_left.porch.isEmpty)) and (temptile.building_left.porch.burn_state <= 1):
+            self.damage_roof(temptile.building_left.porch)
+            do_player_damage = False
+        if (not (temptile.building_right.porch.isEmpty)) and (temptile.building_right.porch.burn_state <= 1):
+            self.damage_roof(temptile.building_right.porch)
+            do_player_damage = False
+        if (do_player_damage):
+            if (self.rect.colliderect(player.rect)):
+                player.lower_health(20)
         x = self.rect.centerx
         self.surface = pygame.transform.scale(pygame.image.load(self.folder + "bolt.png"),(500,500))
         self.rect.size = (500,500)
@@ -31,8 +54,11 @@ class Lightning(Entity.Entity):
 
     def damage_roof(self,porch:Building.Porch):
         if self.rect.colliderect(porch.roof.rect):
-            print("lightning is colliding with roof")
-            porch.updateBurnState()
+            if (porch.burn_state <= 1):
+                print("lightning is colliding with roof")
+                porch.burn_state += 1
+                porch.updateBurnState()
+
 
 
 
