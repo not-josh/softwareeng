@@ -69,10 +69,7 @@ while running:
 	# Rendering preperations
 	
 
-	# Rendering
-	map.fillRendergroup(render_group)
-	render_group.appendTo(player, 3)
-	render_group.render(screen, camera)
+
 	#just functions for player values and stuff
 	player.button_functions()
 
@@ -91,26 +88,48 @@ while running:
 			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
 			lightning_bolt_list.append(newl)
 
+
 	screen.fill(BG_COLOR)
 	map.playerCheck(player)
-	map.tick()
 	camera.update()
 
+	# Rendering
+	map.fillRendergroup(render_group)
+	render_group.appendTo(player, 3)
+	render_group.render(screen, camera)
+
+	g:int = 0
+
+	for i in range (0, len(render_group.layers[4])):
+		g += 1
+
+	print(g)
+
+
+
 	# Draw everything
-	render_lists = map.getRenderObjects()
+	#render_lists = map.getRenderObjects()
 
-	render_lists
+	#render_lists
 
-	for lst in render_lists:
-		for obj in lst:
-			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
+	#for lst in render_lists:
+		#for obj in lst:
+			#screen.blit(obj.surface, camera.apply(obj.rect).topleft)
 
 	screen.blit(player.surface, camera.apply(player.rect))
 	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
 
+
+
 	for l in lightning_bolt_list:
 		l.update(player)
 		if (l.alive):
+			temproom = map.getRoom(map.getRectRoomIndex(l.rect))
+			temptile = temproom.tile_list[temproom.getTileIndexAtLoc(l.rect)]
+			for r in range (0, len(render_group.layers[4])):
+				if not (temptile.building_left.porch.isEmpty):
+					l.damage_roof(temptile.building_left.porch)
+				#l.damage_roof(temptile.building_right.porch.roof.rect)
 			screen.blit(l.surface, camera.apply(l.rect))
 		else:
 			lightning_bolt_list.remove(l)

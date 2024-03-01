@@ -78,6 +78,10 @@ class Map(StaticCollidable):
 			self.__room_list.pop(0)
 			self.__active_start_index -= 1
 
+	def getRoom(self, index:int):
+		return self.__room_list[index]
+
+
 	# Tick functions are run every frame and have no parameters
 	def tick(self) -> None:
 		self.updateActiveRange()
@@ -107,6 +111,14 @@ class Map(StaticCollidable):
 	def getCameraRoomIndex(self) -> int:
 		first_room_start_y = self.__room_list[0].rect.bottom
 		index = (first_room_start_y-self.camera.target.rect.centery) // ROOM_HEIGHT
+		if (index < 0): return 0
+		if (index > len(self.__room_list)): return len(self.__room_list) - 1
+		return index
+	
+		# Returns the index of the room that the player is in
+	def getRectRoomIndex(self, rect:pygame.Rect) -> int:
+		first_room_start_y = self.__room_list[0].rect.bottom
+		index = (first_room_start_y-rect.centery) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
 		return index

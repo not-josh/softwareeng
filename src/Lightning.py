@@ -2,6 +2,7 @@ import pygame
 import Entity
 import math
 import Collision
+import Building
 class Lightning(Entity.Entity):
     def __init__(self, folder:str, pos:tuple[int,int], time):
         self.size = (100,100)
@@ -27,6 +28,12 @@ class Lightning(Entity.Entity):
         self.rect.size = (500,500)
         self.rect.bottom = self.rect.top + (self.size[0]/2)
         self.rect.centerx = x
+
+    def damage_roof(self,porch:Building.Porch):
+        if self.rect.colliderect(porch.roof.rect):
+            print("fdsnhjflds")
+            porch.updateBurnState()
+
 
 
     def move(self, player_pos:tuple[int,int]):  #CENTER of player rect
