@@ -43,6 +43,9 @@ class Lightning(Entity.Entity):
                             or porch_left.lightingStrike(self.rect))
 
         print("Damage player =", do_player_damage)
+        if (do_player_damage):
+            if (self.rect.colliderect(player.rect)):
+                player.lower_health(20)
         x = self.rect.centerx
         self.surface = pygame.transform.scale(pygame.image.load(self.folder + "bolt.png"),(500,500))
         self.rect.size = (500,500)

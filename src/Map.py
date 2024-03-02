@@ -161,6 +161,9 @@ class Map(StaticCollidable):
 			move = room.collide_stop(moving_object, move)
 		return move
 	
+	def getWidth(self):
+		return WIDTH
+	
 	# Checks player-related things. For now, just hiding roofs if the player is under them
 	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):

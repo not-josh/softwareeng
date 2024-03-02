@@ -164,7 +164,7 @@ class Porch(Renderable):
 		self.facing_right = facing_right
 		self.isEmpty = (type < 0)
 		self.type = type
-		self.burn_state = random.randint(0,2)
+		self.burn_state = 0 #random.randint(0,2)
 		self.roof_state = 1+self.burn_state
 		self.roof_state_trans = self.roof_state+3
 
