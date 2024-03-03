@@ -37,6 +37,7 @@ textsurface_logo = logo_font.render("Lightning Bolt Town", True, (255, 255, 255)
 play_button = Button(275, 300, img_button, "Play", menu_button_font)
 options_button = Button(50, 475, img_button, "Options", menu_button_font)
 quit_button = Button(505, 475, img_button, "Quit", menu_button_font)
+back_button = Button(280, 400, img_button, "Back", menu_button_font)
 
 buttons = [play_button, options_button, quit_button]
 
@@ -59,13 +60,23 @@ def options():
     # Insert our main branch options configurations once ready
     # Rendering
     while True:
+
+        # Getting mouse data
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_buttons = pygame.mouse.get_pressed()
+
         screen.fill(black)
+        back_button.draw(screen, mouse_pos)
         pygame.display.flip()
         # Check for clicking
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Cycle through the buttons that can be clicked -> perform their action
+                if back_button.is_clicked(mouse_pos):
+                    main_menu()
         clock.tick(60)
 
 def quit():
