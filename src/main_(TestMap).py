@@ -5,6 +5,7 @@ from Map import Map
 #from Map import Player
 from Map import Obj
 from Camera import Camera
+from MusicManager import MusicManager
 import Player
 
 PRINT_RATE = 30
@@ -32,6 +33,14 @@ clock = pygame.time.Clock()
 # Set up the camera
 camera = Camera(player, screen_width, screen_height)
 
+# Set up the music manager
+music_manager = MusicManager()
+# Songs
+maingame = 'assets/music/Maingame.mp3'
+menu = 'assets/music/Menu.mp3'
+menuclick = 'assets/sounds/menuselect.mp3'
+music_manager.play_song(menu, False, .1)
+
 # Pass in reference to player object, as well as the vertical render distance 
 # Render distance should be set to (screen height / 2) normally
 map = Map(player, screen_height // 2 + 10, 4, 60)
@@ -47,8 +56,12 @@ while running:
 			running = False
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_1:
+				# Testing of changing song and sound fx
+				music_manager.play_song(maingame, True, 0.1)
+				music_manager.play_soundfx(menuclick, 0.01)
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
+
 
 	"""
 	# Update logic
