@@ -3,13 +3,18 @@ import Entity
 import Inventory
 import math
 import Collision
+from Collision import StaticCollidable
+import SETTINGS
 
 class Player(Entity.Entity):# pygame.sprite.Sprite):
-    def __init__(self, texture:str):
-        super().__init__(   texture,    (100,100),  (400,400),  100,    5)
+    def __init__(self, texture:str, map = 0):
+        super().__init__(   texture+"down.png",    (100,100),  (400,400),  100,    5)
         #                   ^ img file  ^ size      ^start pos  ^health ^speed
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
+        self.map:StaticCollidable = map
+        self.build = 0
+        self.texture_folder = texture
     
     def add_points(self, amount:int):
         if (amount < 0):
@@ -45,6 +50,9 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             vertical_direction += 1
 
         if (move[0] != 0) and (move[1] != 0):
+            adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
+            move[0] = math.ceil(adjusted_speed * horizontal_direction)
+            move[1] = math.ceil(adjusted_speed * vertical_direction)
             adjusted_speed = math.sqrt((self.speed*self.speed)/2)
             move[0] = adjusted_speed * horizontal_direction
             move[1] = adjusted_speed * vertical_direction
@@ -59,13 +67,20 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "up.png"),self.size)
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
+        
+        if self.map:
+            move = self.map.collide_stop(self, move)
 
-        move = Collision.collision_oob(self, (800, 720), move)
+        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGTH), move)
 
-        self.rect.left += move[0]
-        self.rect.top += move[1]
+        self.rect = self.rect.move(move)
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
         #       maybe require a reference to the map or collision masks to be sent here?
+
+
+
+
+
 
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):

@@ -31,8 +31,10 @@ def collision_stop(obj1:Renderable.Renderable, obj2:Renderable.Renderable,
 #Block going out of bounds, send in player, screen size, and player's desired movement
 def collision_oob(obj1:Renderable.Renderable, screen_size:tuple[int,int],
                    movement:tuple[int,int]):
-    if ((obj1.rect.left + movement[0] < 0) or (obj1.rect.right + movement[0] >= screen_size[0])):
-        movement[0] = 0
+    if (obj1.rect.left + movement[0] < 0):
+        movement[0] = -obj1.rect.left
+    elif (obj1.rect.right + movement[0] >= screen_size[0]):
+        movement[0] = screen_size[0] - obj1.rect.right
     if (obj1.rect.bottom + movement[1] > 0):
         movement[1] = 0
     #if (obj1.rect.bottom + movement[1] >= screen_size[1]):
@@ -42,12 +44,19 @@ def collision_oob(obj1:Renderable.Renderable, screen_size:tuple[int,int],
 #Rect version of collision
 def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
                    movement:tuple[int,int]):
-    if (rect1.overlap(rect2.move(movement[0],0))):
+    if (rect1.colliderect(rect2.move(movement[0],0))):
         movement[0] = 0
-    if (rect1.overlap(rect2.move(0,movement[1]))):
+    if (rect1.colliderect(rect2.move(0,movement[1]))):
         movement[1] = 0
     #if (mask1.overlap(mask2, (x_diff, y_diff + movement[1]))):
     #    movement[1] = 0
     #if (mask1.overlap(mask2, (x_diff + movement[0], y_diff + movement[1]))):
     #    movement = (0,0)
     return movement
+
+
+# Class for non-moving objects that are collidable
+# Needed to prevent circular imports between Player and Map
+class StaticCollidable():
+    def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+        pass

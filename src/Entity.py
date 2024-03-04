@@ -3,13 +3,15 @@ import Renderable
 
 class Entity(Renderable.Renderable):
     def __init__(self, texture, size, pos, health, speed):
-        super().__init__(   texture + "/idle.png",      (100,100),  (400,400))
+        super().__init__(   texture,      size,  pos)
         #                   ^ img file                  ^ size      ^start pos
-        self.texture_folder = texture
+        #self.texture_folder = folder
         self.speed = speed
         self.health:int = health
         self.max_health = health
         self.alive = True
+        self.floatx:float = pos[0]
+        self.floaty:float = pos[1]
 
     def lower_health(self, value:int):
         self.health -= value
@@ -32,3 +34,7 @@ class Entity(Renderable.Renderable):
         self.max_health += increase
         if (old_max_health != 0):
             self.health = int(self.health * (self.max_health / old_max_health))
+    def kill(self):
+        self.health = 0
+        self.alive = False
+        

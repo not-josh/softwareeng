@@ -1,14 +1,14 @@
 import pygame
-import Player
+from Renderable import Renderable
 
 class Camera:
-    def __init__(self, target:Player.Player, width, height):
+    def __init__(self, target:Renderable, width, height):
         self.target = target
         self.width = width
         self.height = height
         self.rect = pygame.Rect(0, 0, width, height)
 
-    def apply(self, target_rect):
+    def apply(self, target_rect) -> pygame.Rect:
         return target_rect.move(self.rect.topleft)
 
     def update(self):
