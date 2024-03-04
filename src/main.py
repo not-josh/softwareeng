@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 
+import SETTINGS
 from Map import Map
 from Camera import Camera
 import Player
@@ -11,7 +12,7 @@ import Lightning
 FRAME_RATE = 120
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
 
-FRAME_RATE = 60
+FRAME_RATE = SETTINGS.FRAMERATE
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
 # DRAW_OFFSET = (200, 500)
@@ -75,9 +76,15 @@ while running:
 	current_frame += 1
 	if (current_frame == FRAME_RATE):	
 		current_frame = 0				# once per second:
-		newr = random.randrange(0,10,1)		# 20% random chance to
+		newr = random.randrange(0,5,1)		# 20% random chance to
 		if (newr == 0):						# spawn new lightning (with 5 second duration)
-			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
+			l_x = random.randrange(-100,SETTINGS.WIDTH+100, 1)
+			if (random.randrange(2)):
+				l_y = player.rect.centery-SETTINGS.HEIGHT
+			else:
+				l_y = player.rect.centery+SETTINGS.HEIGHT
+			newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/",
+							   (l_x, l_y), FRAME_RATE * 5)
 			lightning_bolt_list.append(newl)
 	
 

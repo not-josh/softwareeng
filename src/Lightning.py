@@ -4,6 +4,7 @@ import math
 import Collision
 import Building
 import Map
+import SETTINGS
 
 MAP = None
 
@@ -25,7 +26,7 @@ class Lightning(Entity.Entity):
         self.time -= 1
         if (self.time == 0):
             self.strike(player)
-        elif (self.time == -50):
+        elif (self.time == -SETTINGS.FRAMERATE):
             self.kill()
         if (self.time > 0):
             self.move(player.rect.center)

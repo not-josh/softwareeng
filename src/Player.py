@@ -71,7 +71,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         if self.map:
             move = self.map.collide_stop(self, move)
 
-        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGTH), move)
+        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGHT), move)
 
         self.rect = self.rect.move(move)
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
