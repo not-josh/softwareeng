@@ -113,7 +113,6 @@ while running:
 	render_group.clearAll()
 	
 	i -= 1
-	
 	if i < 1:
 		# print(map.getStats())
 		print(clock.get_fps())

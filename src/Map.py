@@ -30,7 +30,7 @@ from Player import Player
 #		Works identically to the aformentioned function, but checks collisions with all sub-components too
 
 TILE_HEIGHT = Building.TILE_HEIGHT
-TILES_PER_ROOM = 5
+TILES_PER_ROOM = 8
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
 WIDTH = 800
 
@@ -91,7 +91,7 @@ class Map(StaticCollidable):
 	
 	# Updates self.__active_start_index, which determines the range of rooms considered active
 	def updateActiveRange(self) -> None:
-		p_room_index = self.getCameraRoomIndex()
+		p_room_index = self.getPlayerRoomIndex()
 		active_center = self.__active_start_index + self.__ACTIVE_CENTER_OFFSET
 
 		# If player is below the active center, shift active range down
@@ -108,20 +108,16 @@ class Map(StaticCollidable):
 				self.__addARoom()
 	
 	# Returns the index of the room that the player is in
-	def getCameraRoomIndex(self) -> int:
-		first_room_start_y = self.__room_list[0].rect.bottom
-		index = (first_room_start_y-self.camera.target.rect.centery) // ROOM_HEIGHT
-		if (index < 0): return 0
-		if (index > len(self.__room_list)): return len(self.__room_list) - 1
-		return index
-	
-		# Returns the index of the room that the player is in
 	def getRectRoomIndex(self, rect:pygame.Rect) -> int:
 		first_room_start_y = self.__room_list[0].rect.bottom
 		index = (first_room_start_y-rect.centery) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
 		return index
+	
+	# Returns the index of the room that the player is in
+	def getPlayerRoomIndex(self) -> int:
+		return self.getRectRoomIndex(self.camera.target.rect)
 
 	# Returns a rect that contains the entire active area of the map
 	def getActiveArea(self) -> Rect:
@@ -179,19 +175,19 @@ class Map(StaticCollidable):
 			room = self.__room_list[i]
 			string += room.__str__() + "\n"
 		player_pos = self.camera.target.rect
-		string += "Player in %d (%d, %d)" % (self.getCameraRoomIndex(), player_pos.centerx, player_pos.centery)
+		string += "Player in %d (%d, %d)" % (self.getPlayerRoomIndex(), player_pos.centerx, player_pos.centery)
 		return string
 
 	# Returns some stats about the map
 	def getStats(self) -> str:
 		string = ""
-		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getCameraRoomIndex())
+		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getPlayerRoomIndex())
 		topleft = self.__room_list[len(self.__room_list) - 1].rect.topleft
 		bottomright = self.__room_list[0].rect.bottomright
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
 		player_pos = self.camera.target.rect
-		string += "Camera position (x,y) = (%d,%d)\n" % (player_pos.centerx, player_pos.centery)
+		string += "Player position (x,y) = (%d,%d)\n" % (player_pos.centerx, player_pos.centery)
 		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
@@ -261,7 +257,7 @@ class Room(StaticCollidable):
 
 class Tile(StaticCollidable):
 	surface = pygame.Surface((WIDTH, TILE_HEIGHT))
-	surface.fill((100, 50, 10))
+	surface.fill((200, 140, 90))
 	pygame.draw.line(surface, (0,0,0), surface.get_rect().topleft, surface.get_rect().topright)
 
 	def __init__(self, top_y:int):

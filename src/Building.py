@@ -36,10 +36,12 @@ ROOF_ALPHA = 128 # Alpha of roofs when the player is underneath them (0~255)
 def initializeSurfacesFR(file_list:list[str], list_fright:list[list[Surface]]):
 	list_fright.clear()
 
+	# For each building varient
 	for subdir in BUILDING_VARIENTS:
 		fulldir = BUILDINGS_DIRECTORY + subdir
 		fright_entry = []
 
+		# For each asset of a building being initialized
 		for file in file_list:
 			surface_fright = pygame.image.load(fulldir + file)
 			surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
@@ -50,7 +52,9 @@ def initializeSurfacesFR(file_list:list[str], list_fright:list[list[Surface]]):
 
 # Create transparent copies of some surfaces (meant for roofs)
 def appendTransparentDuplicates(surface_list:list[list[Surface]], start_index:int, alpha:int = 50):
+	# For each building varient in the list
 	for entry in surface_list:
+		# For each surface/asset that needs a transparent duplciate
 		for i in range(start_index, len(entry)):
 			new_surface = entry[i].copy()
 			new_surface.set_alpha(alpha)
@@ -74,7 +78,7 @@ class Building(Renderable, Collision.StaticCollidable):
 	blank_surface = Surface((0,0), pygame.SRCALPHA)
 	TILE_HEIGHT = TILE_HEIGHT
 	isInitialized = False
-	TYPE_COUNT = -1
+	TYPE_COUNT = -1 # Number ofbuilding varients initialized. -1 means not initialized. 
 
 
 	def __init__(self, tile_rect:Rect, type:int, facing_right:bool) -> None:
@@ -145,9 +149,9 @@ class Building(Renderable, Collision.StaticCollidable):
 		copyFlipped(Building.surfaces_face_right, Building.surfaces_face_left)
 		
 		Porch.initialize()
-		Building.isInitialized = True
 		if len(Building.surfaces_face_right) < BUILD_VAR_CNT: 
 			raise IndexError("Only %d of %d building types loaded" % (len(Building.surfaces_face_left), BUILD_VAR_CNT-1))
+		Building.isInitialized = True
 
 Building.TYPE_COUNT = len(BUILDING_VARIENTS)
 
@@ -164,7 +168,7 @@ class Porch(Renderable):
 		self.facing_right = facing_right
 		self.isEmpty = (type < 0)
 		self.type = type
-		self.burn_state = 0 #random.randint(0,2)
+		self.burn_state = 0
 		self.roof_state = 1+self.burn_state
 		self.roof_state_trans = self.roof_state+3
 
