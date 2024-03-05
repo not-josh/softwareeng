@@ -15,6 +15,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         self.map:StaticCollidable = map
         self.build = 0
         self.texture_folder = texture
+        self.direction_y = "down"
     
     def add_points(self, amount:int):
         if (amount < 0):
@@ -72,8 +73,10 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
         match(vertical_direction):
             case(-1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "up.png"),self.size)
+                self.direction_y = "up"
             case(1):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
+                self.direction_y = "down"
         
         if self.map:
             move = self.map.collide_stop(self, move)
