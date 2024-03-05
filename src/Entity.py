@@ -25,7 +25,7 @@ class Entity(Renderable.Renderable):
 
     def lower_max_health(self, decrease:int):
         self.max_health -= decrease
-        self.max_health = max(0, self.max_health)
+        self.max_health = max(1, self.max_health)
         if (self.max_health < self.health):
             self.lower_health(self.health-self.max_health)
 

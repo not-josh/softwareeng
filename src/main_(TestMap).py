@@ -7,6 +7,7 @@ from Map import Obj
 from Camera import Camera
 from MusicManager import MusicManager
 import Player
+from ui import UI
 
 PRINT_RATE = 30
 
@@ -16,6 +17,10 @@ PRINT_RATE = 30
 # Initialize Pygame
 pygame.init()
 
+# Initialize font(s)
+pygame.font.init()
+ui_font = pygame.font.Font(None, 24)
+
 # Set up the screen
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -23,9 +28,13 @@ pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos"
 
 # Set up colors
 BLACK = (20,20,20)
+WHITE = (255, 255, 255)
 
 # Set up the player
 player = Player.Player("assets/sprites/entities/players/cowboy/")
+
+# Create UI
+ui = UI(player)
 
 # Set up clock
 clock = pygame.time.Clock()
@@ -92,7 +101,9 @@ while running:
 			screen.blit(obj.surface, camera.apply(obj.rect).topleft)
 
 	screen.blit(player.surface, camera.apply(player.rect))
-	#pygame.draw.rect(screen, (0, 0, 255), camera.apply(player.rect))
+
+	# Drawing the UI last
+	ui.draw(screen, ui_font, WHITE)
 
 	# Refresh the display
 	pygame.display.flip()
