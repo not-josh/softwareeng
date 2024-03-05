@@ -90,6 +90,7 @@ while running:
 
 	# Object updates
 	player.update()
+	player.set_points_increase_only(-player.rect.centery)
 	player.button_functions() # Functions for player values
 	map.tick() # Update map	
 	player.button_functions() #just functions for player values and stuff

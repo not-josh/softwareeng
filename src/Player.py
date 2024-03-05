@@ -27,6 +27,13 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             raise Exception("Tried to remove a negative amount of points. Input a positive number of points to be removed.")
         else:
             self.points -= amount
+
+    def set_points(self, points:int):
+        self.points = points
+
+    def set_points_increase_only(self, points:int):
+        if (points > self.points):
+            self.points = points
     
     def update(self):
         if (self.alive):
