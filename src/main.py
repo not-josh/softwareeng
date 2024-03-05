@@ -9,6 +9,7 @@ import Player
 from Rendergroup import Rendergroup
 import Lightning
 from MusicManager import MusicManager
+from ui import UI
 
 FRAME_RATE = 120
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
@@ -21,6 +22,10 @@ FRAME_RATE = SETTINGS.FRAMERATE
 # Initialize Pygame
 pygame.init()
 
+# Initialize font(s)
+pygame.font.init()
+ui_font = pygame.font.Font(None, 24)
+
 # Set up the screen
 screen_width, screen_height = 800, 720
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -28,9 +33,13 @@ pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos"
 
 # Set up colors
 BG_COLOR = (255, 63, 127)
+WHITE = (255, 255, 255)
 
 # Set up the player
 player = Player.Player("assets/sprites/entities/players/cowboy/")
+
+# Create UI
+ui = UI(player)
 
 # Set up clock
 clock = pygame.time.Clock()
@@ -122,6 +131,9 @@ while running:
 	map.fillRendergroup(render_group)
 	render_group.appendTo(player, 3)
 	render_group.render(screen, camera) # Render everything within the render group
+
+	# Drawing the UI last
+	ui.draw(screen, ui_font, WHITE)
 
 	# Refresh the display
 	pygame.display.flip()
