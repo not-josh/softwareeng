@@ -15,6 +15,7 @@ class MusicManager:
             self.current_song = song
             self.repeat = repeat
             self.set_volume(volume)
+            self.standard_volume = volume
             pygame.mixer.music.stop()
             pygame.mixer.music.load(song)
 
@@ -32,3 +33,12 @@ class MusicManager:
     # Set volume
     def set_volume(self, volume):
         pygame.mixer.music.set_volume(volume)
+
+    # Volume check
+    def volume_check(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.standard_volume += .1
+            elif event.key == pygame.K_DOWN:
+                self.standard_volume -= .1
+        self.set_volume(self.standard_volume)

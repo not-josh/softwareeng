@@ -113,6 +113,7 @@ def play():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            music_manager.volume_check(event)
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
