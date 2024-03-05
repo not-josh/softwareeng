@@ -8,6 +8,7 @@ from Camera import Camera
 import Player
 from Rendergroup import Rendergroup
 import Lightning
+from MusicManager import MusicManager
 
 FRAME_RATE = 120
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
@@ -36,6 +37,14 @@ clock = pygame.time.Clock()
 
 # Set up the camera
 camera = Camera(player, screen_width, screen_height)
+
+# Set up the music manager
+music_manager = MusicManager()
+# Songs
+maingame = 'assets/music/Maingame.mp3'
+menu = 'assets/music/Menu.mp3'
+menuclick = 'assets/sounds/menuselect.mp3'
+music_manager.play_song(menu, False, .1)
 
 render_group = Rendergroup()
 
