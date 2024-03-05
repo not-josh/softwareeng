@@ -57,6 +57,11 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
             move[1] += self.speed
             vertical_direction += 1
 
+        #if self.map:
+        move = self.map.collide_stop(self, move)
+
+        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGHT), move)
+
         if (move[0] != 0) and (move[1] != 0):
             adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
             move[0] = math.ceil(adjusted_speed * horizontal_direction)
@@ -78,10 +83,7 @@ class Player(Entity.Entity):# pygame.sprite.Sprite):
                 self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
                 self.direction_y = "down"
         
-        if self.map:
-            move = self.map.collide_stop(self, move)
 
-        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGHT), move)
 
         self.rect = self.rect.move(move)
         #   ^^ this part can basically just be sent and cleaned into a collision function in the future, but that would
