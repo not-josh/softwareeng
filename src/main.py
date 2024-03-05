@@ -117,7 +117,7 @@ def play():
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
-                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-100), FRAME_RATE * 5)
+                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
                 lightning_bolt_list.append(newl)
             l_pressed = True
         else:
@@ -130,7 +130,7 @@ def play():
             newr = random.randrange(0,5,1)		# 20% random chance to
             if (newr == 0):						# spawn new lightning (with 5 second duration)
                 l_x = random.randrange(-100,SETTINGS.WIDTH+100, 1)
-                if (random.randrange(2)):
+                if (player.direction_y == "up"):
                     l_y = player.rect.centery-SETTINGS.HEIGHT
                 else:
                     l_y = player.rect.centery+SETTINGS.HEIGHT
