@@ -11,6 +11,7 @@ import Lightning
 from MusicManager import MusicManager
 from ui import UI
 from Button import Button
+import Loot
 
 FRAME_RATE = 120
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
@@ -99,8 +100,10 @@ def play():
     Lightning.setMap(map)
 
     lightning_bolt_list:list[Lightning.Lightning] = []
+    loot_list:list[Loot.Loot] = []
 
     l_pressed = False
+    o_pressed = False
 
     i = PRINT_RATE
 
@@ -122,6 +125,14 @@ def play():
             l_pressed = True
         else:
             l_pressed = False
+
+        if (pygame.key.get_pressed()[pygame.K_o]):
+            if (o_pressed == False):
+                newc = Loot.Loot((player.rect.centerx, player.rect.top-100), 10)
+                loot_list.append(newc)
+            o_pressed = True
+        else:
+            o_pressed = False
 
         # Spawn new lightning bolts
         current_frame += 1
@@ -153,6 +164,10 @@ def play():
                 render_group.appendSky(l)
             else:
                 lightning_bolt_list.remove(l)
+        for lo in loot_list:
+            render_group.appendSky(lo)
+            if (lo.update(player)) == True:
+                loot_list.remove(lo)
 
 
         # Rendering prep
