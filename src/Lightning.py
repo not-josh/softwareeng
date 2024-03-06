@@ -5,6 +5,7 @@ import Collision
 import Building
 import Map
 import SETTINGS
+import StaticMusicManager
 
 MAP = None
 
@@ -34,6 +35,7 @@ class Lightning(Entity.Entity):
 
 
     def strike(self, player) -> None:
+
         temproom = MAP.getRoom(MAP.getRectRoomIndex(self.rect))
         temptile = temproom.tile_list[temproom.getTileIndexAtLoc(self.rect)]
         porch_right = temptile.building_right.porch
@@ -44,9 +46,12 @@ class Lightning(Entity.Entity):
                             or porch_left.lightingStrike(self.rect))
 
         print("Damage player =", do_player_damage)
-        if (do_player_damage):
-            if (self.rect.colliderect(player.rect)):
-                player.lower_health(20)
+        if (do_player_damage and self.rect.colliderect(player.rect)):
+            player.lower_health(20)
+            StaticMusicManager.play_soundfx("assets/sounds/entities/enemies/lightning/weird_zap_damage.wav")
+        else:
+            StaticMusicManager.play_soundfx("assets/sounds/entities/enemies/lightning/static_zap.wav")
+                
         x = self.rect.centerx
         self.surface = pygame.transform.scale(pygame.image.load(self.folder + "bolt.png"),(500,500))
         self.rect.size = (500,500)
