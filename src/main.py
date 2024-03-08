@@ -12,10 +12,8 @@ from MusicManager import MusicManager
 from ui import UI
 from Button import Button
 
-FRAME_RATE = 120
-PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
-
 FRAME_RATE = SETTINGS.FRAMERATE
+PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
 
 # Only used to display stuff without a camera class. Should be (0,0) when camera is used. 
 # DRAW_OFFSET = (200, 500)
@@ -92,9 +90,7 @@ def play():
     # Pass in reference to player object, as well as the vertical render distance 
     # Render distance should be set to (screen height / 2) normally
     map = Map(camera, render_group, 4, 60)
-    print(player.pos)
     map.setStartPosOf(player)
-    print(player.pos)
 
     player.map = map
 

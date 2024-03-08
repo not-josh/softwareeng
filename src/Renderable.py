@@ -40,8 +40,8 @@ class Renderable(pygame.sprite.Sprite):
 	# Properties and settings allow you to direction modify attributes and have it recompute related ones
 	# E.g. "obj.x += 5.3" will increment obj.x and recompute the location of obj.__rect
 	#	Get/set center positon:	(*.pos, *.x/y, *.center[pos but rounded])
-	#	Get/set edge:			(*.left, *.bottom...)
-	#	Get/set corner: 		(*.topleft, *.topright...)
+	#	Get/set edge:			(*.left, *.right, *.top, *.bottom)
+	#	Get/set corner: 		(*.topleft, *.topright, *.bottomleft, *.topleft)
 	#	Get/set size: 			(*.size) - Keeps the rect centered on player's x/y
 			
 	@property
