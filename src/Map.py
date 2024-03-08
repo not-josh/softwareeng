@@ -109,7 +109,7 @@ class Map(StaticCollidable):
 	
 	# Returns the index of the room that the player is in
 	def getCameraRoomIndex(self) -> int:
-		first_room_start_y = self.__room_list[0].rect.bottom
+		first_room_start_y = self.__room_list[0].bottom
 		index = (first_room_start_y-self.camera.target.y) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
@@ -117,7 +117,7 @@ class Map(StaticCollidable):
 	
 		# Returns the index of the room that the player is in
 	def getRectRoomIndex(self, rect:pygame.Rect) -> int:
-		first_room_start_y = self.__room_list[0].rect.bottom
+		first_room_start_y = self.__room_list[0].bottom
 		index = (first_room_start_y-rect.centery) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
@@ -129,15 +129,15 @@ class Map(StaticCollidable):
 		highest_room = self.__room_list[self.__active_start_index + self.__ACTIVE_ROOM_COUNT + 1]
 		
 		left = 0
-		top = highest_room.rect.top
+		top = highest_room.top
 		width = WIDTH
-		height = top - lowest_room.rect.bottom
+		height = top - lowest_room.bottom
 		return Rect(left, top, width, height)
 
 	# Returns the rect of the room the player is approaching
 	def getApproachingArea(self) -> Rect:
 		approaching_room = self.__room_list[self.__active_start_index + self.__ACTIVE_ROOM_COUNT + 1]
-		return approaching_room.rect
+		return approaching_room.get_rect()
 
 	# Fills the given render group with all map objects
 	def fillRendergroup(self, render_group:Rendergroup = 0):
@@ -151,7 +151,7 @@ class Map(StaticCollidable):
 
 		for i in range(self.__active_start_index+self.__ACTIVE_ROOM_COUNT-1, self.__active_start_index-1, -1):
 			room = self.__room_list[i]
-			if room.rect.colliderect(self.render_area):
+			if room.get_rect().colliderect(self.render_area):
 				room.fillRenderGroup(render_group, self.render_area)
 	
 	# Checks collision with all relevant map objects and returns new movement vector
@@ -168,8 +168,8 @@ class Map(StaticCollidable):
 	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			if room.rect.top - TILE_HEIGHT < player.top \
-				or room.rect.bottom + TILE_HEIGHT > player.bottom:
+			if room.top - TILE_HEIGHT < player.top \
+				or room.bottom + TILE_HEIGHT > player.bottom:
 				room.playerCheck(player)
 
 	# String conversion used for debugging when rendering can't be done
@@ -186,8 +186,8 @@ class Map(StaticCollidable):
 	def getStats(self) -> str:
 		string = ""
 		player_room_number = self.__room_gen_count - (len(self.__room_list) - self.getCameraRoomIndex())
-		topleft = self.__room_list[len(self.__room_list) - 1].rect.topleft
-		bottomright = self.__room_list[0].rect.bottomright
+		topleft = self.__room_list[len(self.__room_list) - 1].topleft
+		bottomright = self.__room_list[0].bottomright
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
 		player = self.camera.target
@@ -199,7 +199,7 @@ class Map(StaticCollidable):
 		return string
 
 
-class Room(StaticCollidable):
+class Room(Renderable, StaticCollidable):
 	surface = pygame.Surface((WIDTH, 1))
 	surface.fill((200,200,200))
 
@@ -208,11 +208,11 @@ class Room(StaticCollidable):
 		self.ID = id # Mostly used for debugging
 		
 		# Define position and size of room
-		self.rect = Rect(0, top_y, WIDTH, tile_height * tile_count)
+		self.set_rect(Rect(0, top_y, WIDTH, tile_height * tile_count))
 
 		self.tile_list:list[Tile] = []
 
-		tile_y = self.rect.bottom
+		tile_y = self.bottom
 		for i in range(0, tile_count):
 			tile_y -= TILE_HEIGHT
 			tile = Tile(tile_y)
@@ -225,7 +225,7 @@ class Room(StaticCollidable):
 
 	# Returns the tile that collides with the center of the given rectangle
 	def getTileIndexAtLoc(self, rect:Rect):
-		index = (self.rect.bottom-rect.centery) // TILE_HEIGHT
+		index = (self.bottom-rect.centery) // TILE_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.tile_list)): return len(self.tile_list)-1
 		return index
@@ -234,47 +234,47 @@ class Room(StaticCollidable):
 	def fillRenderGroup(self, render_group:Rendergroup, render_area:Rect):
 		for i in range(len(self.tile_list)-1, -1, -1):
 			tile = self.tile_list[i]
-			if render_area.colliderect(tile.rect):
+			if render_area.colliderect(tile.get_rect()):
 				tile.fillRenderGroup(render_group)
-		# render_group.appendGround(self)
+		render_group.appendGround(self)
 	
 	# Checks player-related things like roof visibility
 	def playerCheck(self, player:Player):
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT < player.top \
-				or tile.rect.bottom + TILE_HEIGHT > player.bottom:
+			if tile.top - TILE_HEIGHT < player.top \
+				or tile.bottom + TILE_HEIGHT > player.bottom:
 				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT < moving_object.top \
-				or tile.rect.bottom + TILE_HEIGHT > moving_object.bottom:
+			if tile.top - TILE_HEIGHT < moving_object.top \
+				or tile.bottom + TILE_HEIGHT > moving_object.bottom:
 				move = tile.collide_stop(moving_object, move)
 		return move
 
 	# Returns string with info about the room
 	def __str__(self) -> str:
-		string = "ID: %d (y : %d ~ %d)" % (self.ID, self.rect.bottom, self.rect.top)
+		string = "ID: %d (y : %d ~ %d)" % (self.ID, self.bottom, self.top)
 		for tile in self.tile_list:
 			string += "\n\t" + tile.__str__()
 		return string
 
 
-class Tile(StaticCollidable):
+class Tile(Renderable, StaticCollidable):
 	surface = pygame.Surface((WIDTH, TILE_HEIGHT))
 	surface.fill((100, 50, 10))
 	pygame.draw.line(surface, (0,0,0), surface.get_rect().topleft, surface.get_rect().topright)
 
 	def __init__(self, top_y:int):
-		self.rect = Rect(0, top_y, WIDTH, TILE_HEIGHT)
+		self.set_rect(Rect(0, top_y, WIDTH, TILE_HEIGHT))
 
-		self.building_left = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), True)
-		self.building_right = Building(self.rect, random.randint(-1, Building.TYPE_COUNT-1), False)
+		self.building_left = Building(self.get_rect(), random.randint(-1, Building.TYPE_COUNT-1), True)
+		self.building_right = Building(self.get_rect(), random.randint(-1, Building.TYPE_COUNT-1), False)
 
 	# Fills render group with all tile objects
 	def fillRenderGroup(self, render_group:Rendergroup):
-		# render_group.appendGround(self)
+		render_group.appendGround(self)
 		self.building_left.fillRenderGroup(render_group)
 		self.building_right.fillRenderGroup(render_group)
 
@@ -291,6 +291,6 @@ class Tile(StaticCollidable):
 
 	# Returns string with information about the tile
 	def __str__(self) -> str:
-		string = "(y : %d ~ %d) [" % (self.rect.bottom, self.rect.top)
+		string = "(y : %d ~ %d) [" % (self.bottom, self.top)
 		string += "]"
 		return string
