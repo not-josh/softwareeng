@@ -92,7 +92,9 @@ def play():
     # Pass in reference to player object, as well as the vertical render distance 
     # Render distance should be set to (screen height / 2) normally
     map = Map(camera, render_group, 4, 60)
+    print(player.pos)
     map.setStartPosOf(player)
+    print(player.pos)
 
     player.map = map
 
@@ -117,7 +119,7 @@ def play():
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
-                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
+                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.x, player.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
                 lightning_bolt_list.append(newl)
             l_pressed = True
         else:
@@ -131,9 +133,9 @@ def play():
             if (newr == 0):						# spawn new lightning (with 5 second duration)
                 l_x = random.randrange(-100,SETTINGS.WIDTH+100, 1)
                 if (player.direction_y == "up"):
-                    l_y = player.rect.centery-SETTINGS.HEIGHT
+                    l_y = player.y-SETTINGS.HEIGHT
                 else:
-                    l_y = player.rect.centery+SETTINGS.HEIGHT
+                    l_y = player.y+SETTINGS.HEIGHT
                 newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/",
                                 (l_x, l_y), FRAME_RATE * 5)
                 lightning_bolt_list.append(newl)
@@ -141,7 +143,7 @@ def play():
 
         # Object updates
         player.update()
-        player.set_points_increase_only(-player.rect.centery)
+        player.set_points_increase_only(-player.y)
         player.button_functions() # Functions for player values
         map.tick() # Update map	
         player.button_functions() #just functions for player values and stuff
@@ -178,8 +180,7 @@ def play():
         
         if i < 1:
             # print(map.getStats())
-            print(clock.get_fps())
-            #print(map.getStats())
+            # print(clock.get_fps())
             # print("Player Health =", player.health)
             i = PRINT_RATE
 

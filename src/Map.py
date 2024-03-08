@@ -66,7 +66,7 @@ class Map(StaticCollidable):
 			self.__addARoom()
 
 	# Sets the position of the object to the map's start pos
-	def setStartPosOf(self, object:Renderable): object.rect.center = self.start_pos
+	def setStartPosOf(self, object:Renderable): object.pos = self.start_pos
 
 	# Adds a room to self.__room_list, removes a room if the limit is reached
 	def __addARoom(self) -> None:
@@ -110,7 +110,7 @@ class Map(StaticCollidable):
 	# Returns the index of the room that the player is in
 	def getCameraRoomIndex(self) -> int:
 		first_room_start_y = self.__room_list[0].rect.bottom
-		index = (first_room_start_y-self.camera.target.rect.centery) // ROOM_HEIGHT
+		index = (first_room_start_y-self.camera.target.y) // ROOM_HEIGHT
 		if (index < 0): return 0
 		if (index > len(self.__room_list)): return len(self.__room_list) - 1
 		return index
@@ -145,7 +145,7 @@ class Map(StaticCollidable):
 		
 		render_group.clearMapObjects()
 
-		self.render_area.centery = self.camera.target.rect.centery + TILE_HEIGHT
+		self.render_area.centery = self.camera.target.y + TILE_HEIGHT
 		if (self.render_area.bottom > 0):
 			self.render_area.bottom = 0
 
@@ -168,8 +168,8 @@ class Map(StaticCollidable):
 	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			if room.rect.top - TILE_HEIGHT < player.rect.top \
-				or room.rect.bottom + TILE_HEIGHT > player.rect.bottom:
+			if room.rect.top - TILE_HEIGHT < player.top \
+				or room.rect.bottom + TILE_HEIGHT > player.bottom:
 				room.playerCheck(player)
 
 	# String conversion used for debugging when rendering can't be done
@@ -178,7 +178,7 @@ class Map(StaticCollidable):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
 			string += room.__str__() + "\n"
-		player_pos = self.camera.target.rect
+		player_pos = self.camera.target.get_rect()
 		string += "Player in %d (%d, %d)" % (self.getCameraRoomIndex(), player_pos.centerx, player_pos.centery)
 		return string
 
@@ -190,8 +190,10 @@ class Map(StaticCollidable):
 		bottomright = self.__room_list[0].rect.bottomright
 		string += "Player room number = %d\n" % (player_room_number)
 		string += "Total rooms generated = %d\n" % (self.__room_gen_count)
-		player_pos = self.camera.target.rect
-		string += "Camera position (x,y) = (%d,%d)\n" % (player_pos.centerx, player_pos.centery)
+		player = self.camera.target
+		string += "Player position (x,y) = (%d,%d)\n" % (player.get_rect().centerx, player.get_rect().centery)
+		camera_pos = self.camera.rect
+		string += "Camera position (x,y) = (%d,%d)\n" % (camera_pos.centerx, camera_pos.centery)
 		string += "Map coordniate range (topleft) ~ (bottomright) = (%d,%d) ~ (%d,%d)"\
 			% (topleft[0], topleft[1], bottomright[0], bottomright[1])
 		return string
@@ -234,20 +236,20 @@ class Room(StaticCollidable):
 			tile = self.tile_list[i]
 			if render_area.colliderect(tile.rect):
 				tile.fillRenderGroup(render_group)
-		render_group.appendGround(self)
+		# render_group.appendGround(self)
 	
 	# Checks player-related things like roof visibility
 	def playerCheck(self, player:Player):
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT < player.rect.top \
-				or tile.rect.bottom + TILE_HEIGHT > player.rect.bottom:
+			if tile.rect.top - TILE_HEIGHT < player.top \
+				or tile.rect.bottom + TILE_HEIGHT > player.bottom:
 				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.rect.top - TILE_HEIGHT < moving_object.rect.top \
-				or tile.rect.bottom + TILE_HEIGHT > moving_object.rect.bottom:
+			if tile.rect.top - TILE_HEIGHT < moving_object.top \
+				or tile.rect.bottom + TILE_HEIGHT > moving_object.bottom:
 				move = tile.collide_stop(moving_object, move)
 		return move
 
@@ -272,7 +274,7 @@ class Tile(StaticCollidable):
 
 	# Fills render group with all tile objects
 	def fillRenderGroup(self, render_group:Rendergroup):
-		render_group.appendGround(self)
+		# render_group.appendGround(self)
 		self.building_left.fillRenderGroup(render_group)
 		self.building_right.fillRenderGroup(render_group)
 

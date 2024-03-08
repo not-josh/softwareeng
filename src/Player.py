@@ -2,6 +2,7 @@ import pygame
 import Entity
 import Inventory
 import SETTINGS
+import math
 
 class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
     def __init__(self, texture_folder:str, map = 0):
@@ -28,7 +29,7 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
 
     def set_points_increase_only(self, points:int):
         if (points > self.points):
-            self.points = points
+            self.points = math.floor(points)
     
     def update(self):
         if (self.alive):
