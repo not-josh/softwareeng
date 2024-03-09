@@ -159,8 +159,7 @@ class Map(StaticCollidable):
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			move = room.collide_stop(moving_object, move)
-		return move
+			room.collide_stop(moving_object, move)
 	
 	def getWidth(self):
 		return WIDTH
@@ -169,9 +168,7 @@ class Map(StaticCollidable):
 	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			if room.top - TILE_HEIGHT < player.top \
-				or room.bottom + TILE_HEIGHT > player.bottom:
-				room.playerCheck(player)
+			room.playerCheck(player)
 
 	# String conversion used for debugging when rendering can't be done
 	def __str__(self) -> str:
@@ -243,17 +240,18 @@ class Room(Renderable, StaticCollidable):
 	# Checks player-related things like roof visibility
 	def playerCheck(self, player:Player):
 		for tile in self.tile_list:
-			if tile.bottom - TILE_HEIGHT < player.top \
-				or tile.top + TILE_HEIGHT > player.bottom:
+			# REMEBER: rect.top < rect.bottom because higher ==> more negative
+			if tile.bottom + TILE_HEIGHT > player.bottom \
+				or tile.top - TILE_HEIGHT < player.bottom:
 				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.bottom - TILE_HEIGHT < moving_object.top \
-				or tile.top + TILE_HEIGHT > moving_object.bottom:
-				move = tile.collide_stop(moving_object, move)
-		return move
+			# REMEBER: rect.top < rect.bottom because higher ==> more negative
+			if tile.bottom + TILE_HEIGHT > moving_object.bottom \
+				or tile.top - TILE_HEIGHT < moving_object.bottom:
+				tile.collide_stop(moving_object, move)
 
 	# Returns string with info about the room
 	def __str__(self) -> str:
@@ -288,9 +286,8 @@ class Tile(Renderable, StaticCollidable):
 
 	# Checks collisions between player and tile objects
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
-		move = self.building_left.collide_stop(moving_object, move)
-		move = self.building_right.collide_stop(moving_object, move)
-		return move
+		self.building_left.collide_stop(moving_object, move)
+		self.building_right.collide_stop(moving_object, move)
 
 	# Returns string with information about the tile
 	def __str__(self) -> str:

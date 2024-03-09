@@ -1,6 +1,6 @@
 import pygame
 
-class Renderable(pygame.sprite.Sprite):
+class Renderable():
 	surface = pygame.Surface((50,50))
 	surface.fill((255,100,100))
 	

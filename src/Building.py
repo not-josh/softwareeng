@@ -134,8 +134,7 @@ class Building(Renderable, Collision.StaticCollidable):
 	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		if self.isEmpty: return move
 
-		move = Collision.collision_stop(self.get_rect(), object.get_rect(), move)
-		return move
+		Collision.collision_snap(self, object, move)
 
 	# Initializes building and roof surfaces
 	def initialize():

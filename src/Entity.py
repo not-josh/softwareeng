@@ -58,32 +58,35 @@ class GroundEntity(Entity):
         if not (move_dir[0] or move_dir[1]): return
 
         move = [self.speed * move_dir[0], self.speed * move_dir[1]]
-
-        #if self.map:
-        move = self.map.collide_stop(self, move)
-
-        move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGHT), move)
-
-        if (move[0] != 0) and (move[1] != 0):
-            adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
-            move[0] = adjusted_speed * move_dir[0]
-            move[1] = adjusted_speed * move_dir[1]
-            adjusted_speed = math.sqrt((self.speed*self.speed)/2)
-            move[0] = adjusted_speed * move_dir[0]
-            move[1] = adjusted_speed * move_dir[1]
-        #   ^^ "normalizes" the movement "vector" ^^
-        match(move_dir[0]):
-            case(-1):
-                self.surface = pygame.image.load(self.texture_folder + "left.png")
-            case(1):
-                self.surface = pygame.image.load(self.texture_folder + "right.png")
-        match(move_dir[1]):
-            case(-1):
-                self.surface = pygame.image.load(self.texture_folder + "up.png")
-                self.direction_y = "up"
-            case(1):
-                self.surface = pygame.image.load(self.texture_folder + "down.png")
-                self.direction_y = "down"
+        ini_rect = self.get_rect().copy()
 
         super().move(move)
+
+        #if self.map:
+        self.map.collide_stop(self, ini_rect)
+
+        # move = Collision.collision_oob(self, (SETTINGS.WIDTH, SETTINGS.HEIGHT), move)
+
+        # if (move[0] != 0) and (move[1] != 0):
+        #     adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
+        #     move[0] = adjusted_speed * move_dir[0]
+        #     move[1] = adjusted_speed * move_dir[1]
+        #     adjusted_speed = math.sqrt((self.speed*self.speed)/2)
+        #     move[0] = adjusted_speed * move_dir[0]
+        #     move[1] = adjusted_speed * move_dir[1]
+        # #   ^^ "normalizes" the movement "vector" ^^
+        # match(move_dir[0]):
+        #     case(-1):
+        #         self.surface = pygame.image.load(self.texture_folder + "left.png")
+        #     case(1):
+        #         self.surface = pygame.image.load(self.texture_folder + "right.png")
+        # match(move_dir[1]):
+        #     case(-1):
+        #         self.surface = pygame.image.load(self.texture_folder + "up.png")
+        #         self.direction_y = "up"
+        #     case(1):
+        #         self.surface = pygame.image.load(self.texture_folder + "down.png")
+        #         self.direction_y = "down"
+
+        
           
