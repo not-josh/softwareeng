@@ -5,8 +5,9 @@ class Renderable(pygame.sprite.Sprite):
 	surface.fill((255,100,100))
 	
 	def __init__(self, texture = 0, size = 0, pos = 0):
+		self.tex_offset = (0,0) # Offset between the topleft coords of the rect/hitbox and the texture
 		if texture != 0:
-			self.surface = pygame.transform.scale(pygame.image.load(texture),size)
+			self.surface = pygame.image.load(texture)
 			self.__rect = self.surface.get_rect()
 			# vv Note that the rectangle's TOP LEFT is set at the given coords. It's possible this
 			# vv												   could need to be changed later.
@@ -19,7 +20,6 @@ class Renderable(pygame.sprite.Sprite):
 			#   We could end up not needing the mask, or the mask might be better off created in the subclasses
 			self.mask = pygame.mask.from_surface(self.surface)
 		else:
-			self.surface = Renderable.surface
 			self._x, self._y = 0, 0
 			self.__rect = pygame.Rect(0,0,0,0)
 
@@ -39,7 +39,7 @@ class Renderable(pygame.sprite.Sprite):
 			
 	# Properties and settings allow you to direction modify attributes and have it recompute related ones
 	# E.g. "obj.x += 5.3" will increment obj.x and recompute the location of obj.__rect
-	#	Get/set center positon:	(*.pos, *.x/y, *.center[pos but rounded])
+	#	Get/set center positon:	(*.pos, *.x, *.y) - i varients for integers
 	#	Get/set edge:			(*.left, *.right, *.top, *.bottom)
 	#	Get/set corner: 		(*.topleft, *.topright, *.bottomleft, *.topleft)
 	#	Get/set size: 			(*.size) - Keeps the rect centered on player's x/y
@@ -50,11 +50,6 @@ class Renderable(pygame.sprite.Sprite):
 	def pos(self, set:tuple[float,float]):
 		self._x, self._y = set[0], set[1]
 		self.__rect.center = (round(set[0]), round(set[1]))
-			
-	@property
-	def center(self): return (self.__rect.centerx, self.__rect.centery)
-	@center.setter
-	def center(self, set:tuple[int,int]): self.pos(set)
 	
 	@property
 	def x(self): return self._x
@@ -69,6 +64,21 @@ class Renderable(pygame.sprite.Sprite):
 	def y(self, set):
 		self._y = set
 		self.__rect.centery = round(set)
+			
+	@property
+	def posi(self): return self.__rect.center
+	@posi.setter
+	def posi(self, set:tuple[int,int]): self.pos(set)
+			
+	@property
+	def xi(self): return self.__rect.centerx
+	@xi.setter
+	def xi(self, set:tuple[int,int]): self.pos(set)
+			
+	@property
+	def yi(self): return self.__rect.centery
+	@yi.setter
+	def yi(self, set:tuple[int,int]): self.pos(set)
 	
 	@property
 	def size(self): return self.__rect.size

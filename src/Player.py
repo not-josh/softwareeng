@@ -6,7 +6,7 @@ import math
 
 class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
     def __init__(self, texture_folder:str, map = 0):
-        super().__init__(   texture_folder, map,    (100,100),  (400,400),  100,    5)
+        super().__init__(   texture_folder, map,    (16,16),  (400,400),  100,    0.8)
         
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
@@ -47,7 +47,7 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
         if (pygame.key.get_pressed()[pygame.K_s]):
             vertical_direction += 1
         
-        super().move([horizontal_direction, vertical_direction])
+        super().move([horizontal_direction, vertical_direction]) # Calls GroundEntity.move(), which checks collisions
 
 
     def button_functions(self):

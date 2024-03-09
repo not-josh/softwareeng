@@ -17,9 +17,9 @@ class Lightning(Entity.Entity):
     #MAP = None
 
     def __init__(self, folder:str, pos:tuple[int,int], time):
-        super().__init__(   folder+"target.png",    (100,100),  pos,        100,    3)
+        super().__init__(   folder+"target_cropped.png",    (13,13),  pos,        100,    0.8)
         #                   ^ img file              ^ size      ^start pos  ^health ^speed
-        self.size = (100,100)
+        self.surface.set_alpha(196)
         self.folder = folder
         self.time = time
 
@@ -30,7 +30,7 @@ class Lightning(Entity.Entity):
         elif (self.time == -SETTINGS.FRAMERATE):
             self.kill()
         if (self.time > 0):
-            self.move(player.center)
+            self.move(player.posi)
 
 
 
@@ -48,8 +48,8 @@ class Lightning(Entity.Entity):
             if (self.get_rect().colliderect(player.get_rect())):
                 player.lower_health(20)
         
-        self.surface = pygame.transform.scale(pygame.image.load(self.folder + "bolt.png"),(500,500))
-        self.size = (500,500)
+        self.surface = pygame.image.load(self.folder + "bolt.png")
+        self.size = (124,128)
         self.bottom = self.y
         # print("Base from Player: (%d, %d)" % (self.x-player.x, self.bottom-player.y))
         # print("From Player: (%d, %d)" % (self.x-player.x, self.y-player.y))

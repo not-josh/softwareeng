@@ -45,7 +45,7 @@ ui = UI(player)
 clock = pygame.time.Clock()
 
 # Set up the camera
-camera = Camera(player, screen_width, screen_height)
+camera = Camera(player, SETTINGS.WR_WIDTH, SETTINGS.WR_HEIGHT)
 
 # Set up the music manager
 music_manager = MusicManager()
@@ -104,6 +104,8 @@ def play():
 
     current_frame = 0
 
+    pre_screen = pygame.Surface((SETTINGS.WR_WIDTH, SETTINGS.WR_HEIGHT))
+
     # Game loop1
     running = True
     while running:
@@ -115,7 +117,7 @@ def play():
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
-                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.x, player.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
+                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.x, player.top-SETTINGS.WR_HEIGHT), FRAME_RATE * 5)
                 lightning_bolt_list.append(newl)
             l_pressed = True
         else:
@@ -161,7 +163,9 @@ def play():
         # Rendering
         map.fillRendergroup(render_group)
         render_group.appendTo(player, 3)
-        render_group.render(screen, camera) # Render everything within the render group
+        render_group.render(pre_screen, camera) # Render everything within the render group
+
+        pygame.transform.scale(pre_screen, (screen_width, screen_height), screen)
 
         # Drawing the UI last
         ui.draw(screen, ui_font, WHITE)

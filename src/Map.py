@@ -1,4 +1,5 @@
 import pygame
+import SETTINGS
 from pygame import Rect
 from Building import Building
 
@@ -29,10 +30,10 @@ from Player import Player
 #		Checks collisions using Collision.collision_stop()
 #		Works identically to the aformentioned function, but checks collisions with all sub-components too
 
-TILE_HEIGHT = Building.TILE_HEIGHT
-TILES_PER_ROOM = 5
+TILE_HEIGHT = SETTINGS.WR_TILE_HEIGHT
+TILES_PER_ROOM = SETTINGS.WR_TILE_COUNT
 ROOM_HEIGHT = TILE_HEIGHT * TILES_PER_ROOM
-WIDTH = 800
+WIDTH = SETTINGS.WR_WIDTH
 
 
 
@@ -205,6 +206,7 @@ class Room(Renderable, StaticCollidable):
 
 	# Parameters: room width, position (top y-value), tile count, tile height
 	def __init__(self, top_y:int, id:int, tile_count:int = TILES_PER_ROOM, tile_height:int = TILE_HEIGHT) -> None:
+		super().__init__()
 		self.ID = id # Mostly used for debugging
 		
 		# Define position and size of room
@@ -267,6 +269,7 @@ class Tile(Renderable, StaticCollidable):
 	pygame.draw.line(surface, (0,0,0), surface.get_rect().topleft, surface.get_rect().topright)
 
 	def __init__(self, top_y:int):
+		super().__init__()
 		self.set_rect(Rect(0, top_y, WIDTH, TILE_HEIGHT))
 
 		self.building_left = Building(self.get_rect(), random.randint(-1, Building.TYPE_COUNT-1), True)
