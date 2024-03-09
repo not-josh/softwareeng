@@ -243,15 +243,15 @@ class Room(Renderable, StaticCollidable):
 	# Checks player-related things like roof visibility
 	def playerCheck(self, player:Player):
 		for tile in self.tile_list:
-			if tile.top - TILE_HEIGHT < player.top \
-				or tile.bottom + TILE_HEIGHT > player.bottom:
+			if tile.bottom - TILE_HEIGHT < player.top \
+				or tile.top + TILE_HEIGHT > player.bottom:
 				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
 	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
 		for tile in self.tile_list:
-			if tile.top - TILE_HEIGHT < moving_object.top \
-				or tile.bottom + TILE_HEIGHT > moving_object.bottom:
+			if tile.bottom - TILE_HEIGHT < moving_object.top \
+				or tile.top + TILE_HEIGHT > moving_object.bottom:
 				move = tile.collide_stop(moving_object, move)
 		return move
 
