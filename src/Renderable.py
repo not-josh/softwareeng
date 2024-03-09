@@ -30,7 +30,7 @@ class Renderable():
 		self.__rect.center = (round(self._x), round(self._y))
 
 	# If you need the get the entire rect, use *.get_rect(), but you won't be able to modify this rect
-	def get_rect(self): return self.__rect
+	def get_rect(self): return self.__rect.copy()
 	def set_rect(self, new:pygame.Rect):
 		self.__rect = new
 		self._x, self._y  =  new.centerx, new.centery 

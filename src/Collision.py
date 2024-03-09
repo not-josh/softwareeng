@@ -60,8 +60,8 @@ def collision_snap(static:Renderable, moving:Renderable, initial:pygame.Rect):
     move = (new_pos[0] - initial.centerx, new_pos[1] - initial.centery)
 
     # If the objects' Y bounds overlap
-    if static.top <= moving.top <= static.bottom \
-        or static.top <= moving.bottom <= static.bottom:
+    if static.top < initial.top < static.bottom \
+        or static.top < initial.bottom < static.bottom:
         
         if move[0]:
             # Moving left
@@ -76,11 +76,10 @@ def collision_snap(static:Renderable, moving:Renderable, initial:pygame.Rect):
                 if (initial.right <= static.left and \
                     moving.get_rect().right >= static.left):
                     moving.right = static.left
-        # return # X-bound do not overlap at this point, so you're free to move along Y. No more checks needed. 
     
     # If the objects' X bound overlap
-    if static.left <= moving.left <= static.right \
-        or static.left <= moving.left <= static.right:
+    if static.left < moving.left < static.right \
+        or static.left < moving.right < static.right:
         # If moving
         if move[1]:
             # Moving up

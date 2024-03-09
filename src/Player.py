@@ -6,7 +6,7 @@ import math
 
 class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
     def __init__(self, texture_folder:str, map = 0):
-        super().__init__(   texture_folder, map,    (16,16),  (400,400),  100,    0.8)
+        super().__init__(   texture_folder, map,    (16,16),  (400,400),  100,    3)
         
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
