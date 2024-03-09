@@ -74,15 +74,15 @@ class GroundEntity(Entity):
         #   ^^ "normalizes" the movement "vector" ^^
         match(move_dir[0]):
             case(-1):
-                self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "left.png"),self.size)
+                self.surface = pygame.image.load(self.texture_folder + "left.png")
             case(1):
-                self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "right.png"),self.size)
+                self.surface = pygame.image.load(self.texture_folder + "right.png")
         match(move_dir[1]):
             case(-1):
-                self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "up.png"),self.size)
+                self.surface = pygame.image.load(self.texture_folder + "up.png")
                 self.direction_y = "up"
             case(1):
-                self.surface = pygame.transform.scale(pygame.image.load(self.texture_folder + "down.png"),self.size)
+                self.surface = pygame.image.load(self.texture_folder + "down.png")
                 self.direction_y = "down"
 
         super().move(move)

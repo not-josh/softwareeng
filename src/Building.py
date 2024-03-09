@@ -1,4 +1,5 @@
 import pygame
+import SETTINGS
 from Renderable import Renderable
 from Rendergroup import Rendergroup
 from pygame import Rect
@@ -7,7 +8,7 @@ import random
 import Collision
 from Player import Player
 
-TILE_HEIGHT = 200
+TILE_HEIGHT = SETTINGS.WR_TILE_HEIGHT
 
 #	Current risk: Buildings and porches require multiple surfaces, which may make rendering a 
 # bit more complicated. Shouldn't affect hitbox-related things like collisions. Will likely need a 
@@ -42,7 +43,7 @@ def initializeSurfacesFR(file_list:list[str], list_fright:list[list[Surface]]):
 
 		for file in file_list:
 			surface_fright = pygame.image.load(fulldir + file)
-			surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
+			# surface_fright = pygame.transform.scale_by(surface_fright, 5) # TEMPORARY
 			surface_fright = surface_fright.convert_alpha()
 			fright_entry.append(surface_fright)
 
