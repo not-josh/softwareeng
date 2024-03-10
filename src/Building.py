@@ -68,7 +68,7 @@ def copyFlipped(list_fright:list[list[Surface]], list_fleft:list[list[Surface]])
 
 
 
-class Building(Renderable, Collision.StaticCollidable):
+class Building(Collision.StaticCollidable):
 	# Lists for building surfaces facing left & right: [(main_base, main_roof), (...)...]
 	surfaces_face_right:list[list[Surface]] = []
 	surfaces_face_left:list[list[Surface]] = []
@@ -131,10 +131,10 @@ class Building(Renderable, Collision.StaticCollidable):
 			self.porch.fillRenderGroup(render_group)
 
 	# Checks colision between self and another object
-	def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
-		if self.isEmpty: return move
+	def collide_stop(self, object:Renderable, inital_pos:Rect):
+		if self.isEmpty: return
 
-		Collision.collision_snap(self, object, move)
+		Collision.collision_snap(self, object, inital_pos)
 
 	# Initializes building and roof surfaces
 	def initialize():

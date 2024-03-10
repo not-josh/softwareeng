@@ -41,6 +41,14 @@ def collision_oob(obj1:Renderable, screen_size:tuple[int,int],
     #    movement[1] = 0
     return movement
 
+def collision_oob_snap(moving:Renderable, screen_size:tuple[int,int]):
+    if (moving.left < 0):
+        moving.left = 0
+    if (moving.right >= screen_size[0]):
+        moving.right = screen_size[0]
+    if (moving.bottom > 0):
+        moving.bottom = 0
+
 #Rect version of collision
 def collision_stop(rect1:pygame.rect.Rect, rect2:pygame.rect.Rect,
                    movement:tuple[int,int]):
@@ -98,6 +106,6 @@ def collision_snap(static:Renderable, moving:Renderable, initial:pygame.Rect):
 
 # Class for non-moving objects that are collidable
 # Needed to prevent circular imports between Player and Map
-class StaticCollidable():
+class StaticCollidable(Renderable):
     def collide_stop(self, object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
         pass

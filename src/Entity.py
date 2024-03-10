@@ -65,20 +65,27 @@ class GroundEntity(Entity):
         super().move(move)
 
         # Check movement and snap positon back as needed
+        Collision.collision_oob_snap(self, (SETTINGS.WR_WIDTH, SETTINGS.WR_WIDTH))
         self.map.collide_stop(self, ini_rect)
 
+
         checked_move = (self.x-ini_pos[0], self.y-ini_pos[1])
-
-
         if (checked_move[0] and checked_move[1]):
-            checked_dist = math.sqrt(checked_move[0]*checked_move[0]
+            # If distances are similar, just shorten the distance equally
+            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.25:
+                checked_dist = math.sqrt(checked_move[0]*checked_move[0]
                                      + checked_move[1]*checked_move[1])
-            # Subtract any movement that exceeds the maximum speed while moving in the correct direction
-            scalar_undo:float = min(self.speed / checked_dist, 1) - 1
-            super().move((
-                checked_move[0] * scalar_undo,
-                checked_move[1] * scalar_undo
-            ))
+                scalar_undo:float = min(self.speed / checked_dist, 1) - 1
+                super().move((
+                    checked_move[0] * scalar_undo,
+                    checked_move[1] * scalar_undo
+                ))
+            # If X-movement is greater, adjust X-movement only
+            elif abs(checked_move[1]) < abs(checked_move[0]):
+                self.y += get_undo_move(checked_move[0], checked_move[1], self.speed)
+            # If Y-movement is greater, adjust Y-movement only
+            else:
+                self.x += get_undo_move(checked_move[1], checked_move[0], self.speed)
             
 
 
@@ -106,4 +113,9 @@ class GroundEntity(Entity):
                 self.direction_y = "down"
 
         
-          
+def get_undo_move(low:float, high:float, max_dist:float) -> float:
+    dist = abs(math.pow(max_dist, 2) - math.pow(low, 2))
+    new_move = min(math.sqrt(dist),
+                high*math.copysign(1,high)) * math.copysign(1,high)
+    return new_move - high
+    

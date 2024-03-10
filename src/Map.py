@@ -156,10 +156,10 @@ class Map(StaticCollidable):
 				room.fillRenderGroup(render_group, self.render_area)
 	
 	# Checks collision with all relevant map objects and returns new movement vector
-	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+	def collide_stop(self, moving_object:Renderable, initial_pos:Rect) -> tuple[int,int]:
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
 			room = self.__room_list[i]
-			room.collide_stop(moving_object, move)
+			room.collide_stop(moving_object, initial_pos)
 	
 	def getWidth(self):
 		return WIDTH
@@ -197,7 +197,7 @@ class Map(StaticCollidable):
 		return string
 
 
-class Room(Renderable, StaticCollidable):
+class Room(StaticCollidable):
 	surface = pygame.Surface((WIDTH, 1))
 	surface.fill((200,200,200))
 
@@ -246,12 +246,12 @@ class Room(Renderable, StaticCollidable):
 				tile.playerCheck(player)
 
 	# Checks collision with all relevant map objects and returns new movement vector
-	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
+	def collide_stop(self, moving_object:Renderable, initial_pos:Rect) -> tuple[int,int]:
 		for tile in self.tile_list:
 			# REMEBER: rect.top < rect.bottom because higher ==> more negative
 			if tile.bottom + TILE_HEIGHT > moving_object.bottom \
 				or tile.top - TILE_HEIGHT < moving_object.bottom:
-				tile.collide_stop(moving_object, move)
+				tile.collide_stop(moving_object, initial_pos)
 
 	# Returns string with info about the room
 	def __str__(self) -> str:
@@ -261,7 +261,7 @@ class Room(Renderable, StaticCollidable):
 		return string
 
 
-class Tile(Renderable, StaticCollidable):
+class Tile(StaticCollidable):
 	surface = pygame.Surface((WIDTH, TILE_HEIGHT))
 	surface.fill((100, 50, 10))
 	pygame.draw.line(surface, (0,0,0), surface.get_rect().topleft, surface.get_rect().topright)
@@ -285,9 +285,9 @@ class Tile(Renderable, StaticCollidable):
 		self.building_right.playerCheck(player)
 
 	# Checks collisions between player and tile objects
-	def collide_stop(self, moving_object:Renderable, move:tuple[int,int]) -> tuple[int,int]:
-		self.building_left.collide_stop(moving_object, move)
-		self.building_right.collide_stop(moving_object, move)
+	def collide_stop(self, moving_object:Renderable, initial_pos:Rect) -> tuple[int,int]:
+		self.building_left.collide_stop(moving_object, initial_pos)
+		self.building_right.collide_stop(moving_object, initial_pos)
 
 	# Returns string with information about the tile
 	def __str__(self) -> str:
