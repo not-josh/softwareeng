@@ -57,10 +57,12 @@ while running:
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_1:
 				# Testing of changing song and sound fx
-				music_manager.play_song(maingame, True, 0.1)
-				music_manager.play_soundfx(menuclick, 0.01)
 				obj = Obj("*")
 				map.spawnObjAtPlayer(obj)
+			if event.key == pygame.K_p:
+				music_manager.play_soundfx(menuclick, 1)
+			if event.key == pygame.K_o:
+				music_manager.play_song(maingame, True, 0.1)
 
 
 	"""
