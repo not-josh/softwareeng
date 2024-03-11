@@ -55,6 +55,7 @@ music_manager = MusicManager()
 maingame = 'assets/music/Maingame.mp3'
 menu = 'assets/music/Menu.mp3'
 menuclick = 'assets/sounds/menuselect.mp3'
+testsound = 'assets/sounds/testsound.mp3'
 
 # Button setup
 menu_button_font = pygame.font.Font(None, 48)
@@ -115,6 +116,11 @@ def play():
             if event.type == pygame.QUIT:
                 running = False
             music_manager.volume_check(event)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+				    music_manager.play_soundfx(testsound, 1)
+                if event.key == pygame.K_o:
+                    music_manager.play_song(maingame, True, 0.1)
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
@@ -123,7 +129,7 @@ def play():
             l_pressed = True
         else:
             l_pressed = False
-
+        
         # Spawn new lightning bolts
         current_frame += 1
         if (current_frame == FRAME_RATE):	
