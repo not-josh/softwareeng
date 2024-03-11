@@ -21,6 +21,8 @@ class Projectile(Entity.Entity):
                 self.currently_damaging = True
                 if (self.piercing == False):
                     self.kill()
+        else:
+            self.currently_damaging = False
         if (self.alive):
             self.move()
 

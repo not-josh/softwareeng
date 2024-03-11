@@ -130,7 +130,7 @@ def play():
         
         if (pygame.key.get_pressed()[pygame.K_p]):
             if (p_pressed == False):
-                newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), (player.xi + 10, player.top-SETTINGS.WR_HEIGHT), 1, 5, 20, 90)
+                newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 1, 1, 20, random.randint(0,359))
                 enemy_projectile_list.append(newp)
             p_pressed = True
         else:
