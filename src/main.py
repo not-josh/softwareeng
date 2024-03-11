@@ -80,7 +80,7 @@ play_button = Button(275, 300, img_button, "Play", menu_button_font)
 options_button = Button(50, 475, img_button, "Options", menu_button_font)
 quit_button = Button(505, 475, img_button, "Quit", menu_button_font)
 back_button = Button(280, 400, img_button, "Back", menu_button_font)
-scoreboard_button = Button(280, 350 img_button, "Scoreboard", menu_button_font)
+scoreboard_button = Button(280, 600, img_button, "Scoreboard", menu_button_font)
 
 buttons = [play_button, options_button, quit_button, scoreboard_button]
 
