@@ -12,6 +12,7 @@ class Projectile(Entity.Entity):
         self.angle:float = angle
         self.piercing = True
         self.currently_damaging = False
+        self.starting_image:pygame.Surface = self.surface
 
     def update(self, player:Player.Player):
         if player.get_rect().colliderect(self.get_rect()):
@@ -24,5 +25,6 @@ class Projectile(Entity.Entity):
             self.move()
 
     def move(self):
+        self.surface = pygame.transform.rotate(self.starting_image, -self.angle)
         self.left += self.speed * math.cos(math.radians(self.angle))
         self.top += self.speed * math.sin(math.radians(self.angle))
