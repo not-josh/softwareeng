@@ -118,9 +118,11 @@ def play():
             music_manager.volume_check(event)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-				    music_manager.play_soundfx(testsound, 1)
+                    music_manager.play_soundfx(testsound, 1)
                 if event.key == pygame.K_o:
-                    music_manager.play_song(maingame, True, 0.1)
+                    music_manager.play_song(menu, True, 0.5)
+                if event.key == pygame.K_i:
+                    music_manager.play_song(maingame, True, 0.5)
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
