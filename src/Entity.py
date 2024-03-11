@@ -40,6 +40,9 @@ class Entity(Renderable.Renderable):
     def kill(self):
         self.health = 0
         self.alive = False
+        
+    def move(self, move):
+        super().move(move)
 
 
 

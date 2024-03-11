@@ -11,6 +11,8 @@ import Lightning
 from MusicManager import MusicManager
 from ui import UI
 from Button import Button
+import Enemy
+import Projectile
 
 FRAME_RATE = SETTINGS.FRAMERATE
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
@@ -97,8 +99,11 @@ def play():
     Lightning.setMap(map)
 
     lightning_bolt_list:list[Lightning.Lightning] = []
+    enemy_list:list[Enemy.Enemy] = []
+    enemy_projectile_list:list[Projectile.Projectile] = []
 
     l_pressed = False
+    p_pressed = False
 
     i = PRINT_RATE
 
@@ -122,6 +127,14 @@ def play():
             l_pressed = True
         else:
             l_pressed = False
+        
+        if (pygame.key.get_pressed()[pygame.K_p]):
+            if (p_pressed == False):
+                newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), (player.xi + 10, player.top-SETTINGS.WR_HEIGHT), 1, 5, 20, 90)
+                enemy_projectile_list.append(newp)
+            p_pressed = True
+        else:
+            p_pressed = False
 
         # Spawn new lightning bolts
         current_frame += 1
@@ -153,6 +166,21 @@ def play():
                 render_group.appendSky(l)
             else:
                 lightning_bolt_list.remove(l)
+                # Update lighting bolts and add them to the render group
+
+        for e in enemy_list:
+            e.update(player)
+            if (e.alive):
+                render_group.appendOnGround(e)
+            else:
+                enemy_list.remove(e)
+
+        for ep in enemy_projectile_list:
+            ep.update(player)
+            if (ep.alive):
+                render_group.appendSky(ep)
+            else:
+                enemy_projectile_list.remove(ep)
 
 
         # Rendering prep
