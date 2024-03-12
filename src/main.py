@@ -104,6 +104,7 @@ def play():
 
     l_pressed = False
     p_pressed = False
+    k_pressed = False
 
     i = PRINT_RATE
 
@@ -135,6 +136,14 @@ def play():
             p_pressed = True
         else:
             p_pressed = False
+
+        if (pygame.key.get_pressed()[pygame.K_k]):
+            if (k_pressed == False):
+                newe = Enemy.Enemy("assets/sprites/entities/enemies/zombie/", map, (100,100), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 1, 20)
+                enemy_list.append(newe)
+            k_pressed = True
+        else:
+            k_pressed = False
 
         # Spawn new lightning bolts
         current_frame += 1
