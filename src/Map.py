@@ -9,6 +9,8 @@ from Collision import StaticCollidable
 from Camera import Camera
 import random
 from Player import Player
+import Loot
+import SETTINGS
 
 #	Lower indecies for a tile or room list will always mean "earlier" components.
 # I.e. if the player is moving forward, they will enter room[0], then room[1], etc.
@@ -164,6 +166,15 @@ class Map(StaticCollidable):
 	def getWidth(self):
 		return WIDTH
 	
+	def collide_loot(self, player:Player):
+		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
+			room = self.__room_list[i]
+			for l in room.loot_list:
+				if player.rect.colliderect(l.rect):
+					player.add_points(l.value)
+					room.loot_list.remove(l)
+			
+	
 	# Checks player-related things. For now, just hiding roofs if the player is under them
 	def playerCheck(self, player:Player):
 		for i in range(self.__active_start_index, self.__active_start_index + self.__ACTIVE_ROOM_COUNT):
@@ -217,6 +228,28 @@ class Room(StaticCollidable):
 			self.tile_list.append(tile)
 			pass
 	
+		self.loot_list:list[Loot.Loot] = []
+
+		i:int = 0
+		while (i < 5):
+		#for i in range(0, 5):#random.randint(0,SETTINGS.MAX_LOOT_PER_ROOM)):
+			pos:tuple[int,int] = [random.randint(self.rect.left, self.rect.right), random.randint(self.rect.top, self.rect.bottom)]
+			long_val = random.randint(1,100)
+			if (long_val <= 10):
+				val = 1000
+			elif (long_val <= 50):
+				val = 100
+			else:
+				val = 10
+			# Note: loot value must currently be 10, 100, or 1000
+			l = Loot.Loot(pos, val)
+			if (self.collision_boolean(l)):
+				pass
+			else:
+				self.loot_list.append(l)
+				i += 1
+
+	
 	# Tick functions are run every frame and have no parameters
 	def tick(self):
 		pass
@@ -234,6 +267,8 @@ class Room(StaticCollidable):
 			tile = self.tile_list[i]
 			if render_area.colliderect(tile.rect):
 				tile.fillRenderGroup(render_group)
+		for l in self.loot_list:
+			render_group.appendSky(l)
 		render_group.appendGround(self)
 	
 	# Checks player-related things like roof visibility
@@ -250,6 +285,14 @@ class Room(StaticCollidable):
 				or tile.rect.bottom + TILE_HEIGHT > moving_object.rect.bottom:
 				move = tile.collide_stop(moving_object, move)
 		return move
+	
+	def collision_boolean(self, moving_object:Renderable) -> bool:
+		col:bool = False
+		for tile in self.tile_list:
+			if tile.rect.top - TILE_HEIGHT < moving_object.rect.top \
+				or tile.rect.bottom + TILE_HEIGHT > moving_object.rect.bottom:
+				col = col or tile.collision_boolean(moving_object)
+		return col
 
 	# Returns string with info about the room
 	def __str__(self) -> str:
@@ -286,6 +329,11 @@ class Tile(StaticCollidable):
 		move = self.building_left.collide_stop(moving_object, move)
 		move = self.building_right.collide_stop(moving_object, move)
 		return move
+	
+	def collision_boolean(self, moving_object:Renderable) -> bool:
+		col1 = self.building_left.collision_boolean(moving_object)
+		col2 = col1 or self.building_right.collision_boolean(moving_object)
+		return col2
 
 	# Returns string with information about the tile
 	def __str__(self) -> str:

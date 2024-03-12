@@ -19,7 +19,7 @@ class Loot(Renderable.Renderable):
                 self.filepath += "Gold_Ingot.png"
             case(1000):
                 self.filepath += "BlocK_Of_Gold.png"
-        super().__init__(self.filepath, (100,100), pos)
+        super().__init__(self.filepath, (100, 100), pos)
 
     def update(self, player:Player.Player) -> bool:
         if (self.rect.colliderect(player.rect)):

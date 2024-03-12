@@ -137,6 +137,14 @@ class Building(Renderable, Collision.StaticCollidable):
 		#if self.porch.burn_state > 1:
 			#move = Collision.collision_stop(self.porch.rect, object.rect, move)
 		return move
+	
+	def collision_boolean(self, object:Renderable) -> bool:
+		if self.isEmpty: return False
+
+		col = (self.rect.colliderect(object.rect))
+		#if self.porch.burn_state > 1:
+			#move = Collision.collision_stop(self.porch.rect, object.rect, move)
+		return col
 
 	# Initializes building and roof surfaces
 	def initialize():
