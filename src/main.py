@@ -186,7 +186,7 @@ def play():
 
         for ep in enemy_projectile_list:
             ep.update(player)
-            if (ep.alive):
+            if (ep.alive) and camera.render_area.colliderect(ep.get_rect()):
                 render_group.appendSky(ep)
             else:
                 enemy_projectile_list.remove(ep)
