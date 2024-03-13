@@ -139,7 +139,7 @@ def play():
 
         if (pygame.key.get_pressed()[pygame.K_k]):
             if (k_pressed == False):
-                newe = Enemy.Enemy("assets/sprites/entities/enemies/zombie/", map, (100,100), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 1, 20)
+                newe = Enemy.Enemy("assets/sprites/entities/enemies/zombie/", map, (16,16), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 1, 20)
                 enemy_list.append(newe)
             k_pressed = True
         else:
@@ -180,7 +180,7 @@ def play():
         for e in enemy_list:
             e.update(player)
             if (e.alive):
-                render_group.appendSky(e)
+                render_group.appendOnGround(e)
             else:
                 enemy_list.remove(e)
 
