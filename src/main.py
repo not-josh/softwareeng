@@ -36,6 +36,7 @@ pygame.display.set_caption("WASD to move, press 1 to spawn object at player pos"
 BG_COLOR = (255, 63, 127)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (245, 18, 2)
 
 # Set up the player
 player = Player.Player("assets/sprites/entities/players/cowboy/")
@@ -56,6 +57,7 @@ maingame = 'assets/music/Maingame.mp3'
 menu = 'assets/music/Menu.mp3'
 menuclick = 'assets/sounds/menuselect.mp3'
 testsound = 'assets/sounds/testsound.mp3'
+music_gameover = 'assets/music/GameOver.mp3'
 
 # Button setup
 menu_button_font = pygame.font.Font(None, 48)
@@ -87,7 +89,7 @@ buttons = [play_button, options_button, quit_button, scoreboard_button]
 
 def play():
 
-    music_manager.play_song(maingame, True, .2)
+    music_manager.play_song(maingame, True, .5)
 
     render_group = Rendergroup()
 
@@ -154,6 +156,10 @@ def play():
         player.button_functions() # Functions for player values
         map.tick() # Update map	
         player.button_functions() #just functions for player values and stuff
+
+        # Check for game over
+        if player.health <= 0:
+            game_over()
 
         # Update lighting bolts and add them to the render group
         for l in lightning_bolt_list:
@@ -235,7 +241,7 @@ def scoreboard():
 
 def main_menu():
 
-    music_manager.play_song(menu, True, .2)
+    music_manager.play_song(menu, True, 1)
 
     # Game loop
     while True:
@@ -279,5 +285,44 @@ def main_menu():
         pygame.display.flip()
         clock.tick(60)
 
+def game_over():
+    gameover_font = pygame.font.SysFont("mvboli", 120)
+    gameover_alpha = 0
+    alpha_increase = .75
+    # Game over text
+    textsurface_gameover = gameover_font.render("Game Over", True, RED)
+    textsurface_gameover.set_alpha(gameover_alpha)
+    gameover_font_rect = textsurface_gameover.get_rect(center=(screen_width/2, screen_height/4))
+    music_manager.play_song(music_gameover, False, .5)
+    running = True
+    # Game loop for game over screen
+    while running:
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN and gameover_alpha >= 200:
+                # Start decreasing opacity
+                alpha_increase *= -1
+
+        screen.fill(BLACK)
+        if gameover_alpha <= 200 or alpha_increase < 0:
+            gameover_alpha += alpha_increase
+            textsurface_gameover.set_alpha(gameover_alpha)
+        if gameover_alpha <= 0:
+            main_menu()
+            # Go to the main title screen
+            
+        screen.blit(textsurface_gameover, gameover_font_rect)
+
+        # Refresh the display
+        pygame.display.flip()
+
+        # Cap the frame rate
+        clock.tick(60)
+
+    # Quit Pygame
+    pygame.quit()
+    sys.exit()
 
 main_menu()
