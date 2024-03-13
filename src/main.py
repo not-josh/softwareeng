@@ -115,95 +115,107 @@ def play():
     # Game loop1
     running = True
     while running:
-        # Event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            music_manager.volume_check(event)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    music_manager.play_soundfx(testsound, 1)
-                if event.key == pygame.K_o:
-                    music_manager.play_song(menu, True, 0.5)
-                if event.key == pygame.K_i:
-                    music_manager.play_song(maingame, True, 0.5)
-
-        if (pygame.key.get_pressed()[pygame.K_l]):
-            if (l_pressed == False):
-                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
-                lightning_bolt_list.append(newl)
-            l_pressed = True
-        else:
-            l_pressed = False
-        
-        # Spawn new lightning bolts
-        current_frame += 1
-        if (current_frame == FRAME_RATE):	
-            current_frame = 0				# once per second:
-            newr = random.randrange(0,5,1)		# 20% random chance to
-            if (newr == 0):						# spawn new lightning (with 5 second duration)
-                l_x = random.randrange(-100,SETTINGS.WIDTH+100, 1)
-                if (player.direction_y == "up"):
-                    l_y = player.rect.centery-SETTINGS.HEIGHT
-                else:
-                    l_y = player.rect.centery+SETTINGS.HEIGHT
-                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/",
-                                (l_x, l_y), FRAME_RATE * 5)
-                lightning_bolt_list.append(newl)
-        
-
-        # Object updates
-        player.update()
-        player.set_points_increase_only(-player.rect.centery)
-        player.button_functions() # Functions for player values
-        map.tick() # Update map	
-        player.button_functions() #just functions for player values and stuff
 
         # Check for game over
         if player.health <= 0:
-            game_over()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            screen.fill(BLACK)
+            render_group.appendTo(player, 3)
+            render_group.render(screen, camera)
+            # Refresh the display
+            pygame.display.flip()
+            clock.tick(FRAME_RATE)
+            # game_over()
+        else:
 
-        # Update lighting bolts and add them to the render group
-        for l in lightning_bolt_list:
-            l.update(player)
-            if (l.alive):
-                render_group.appendSky(l)
+
+            # Event handling
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                music_manager.volume_check(event)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        music_manager.play_soundfx(testsound, 1)
+                    if event.key == pygame.K_o:
+                        music_manager.play_song(menu, True, 0.5)
+                    if event.key == pygame.K_i:
+                        music_manager.play_song(maingame, True, 0.5)
+
+            if (pygame.key.get_pressed()[pygame.K_l]):
+                if (l_pressed == False):
+                    newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/", (player.rect.centerx, player.rect.top-SETTINGS.HEIGHT), FRAME_RATE * 5)
+                    lightning_bolt_list.append(newl)
+                l_pressed = True
             else:
-                lightning_bolt_list.remove(l)
+                l_pressed = False
+            
+            # Spawn new lightning bolts
+            current_frame += 1
+            if (current_frame == FRAME_RATE):	
+                current_frame = 0				# once per second:
+                newr = random.randrange(0,5,1)		# 20% random chance to
+                if (newr == 0):						# spawn new lightning (with 5 second duration)
+                    l_x = random.randrange(-100,SETTINGS.WIDTH+100, 1)
+                    if (player.direction_y == "up"):
+                        l_y = player.rect.centery-SETTINGS.HEIGHT
+                    else:
+                        l_y = player.rect.centery+SETTINGS.HEIGHT
+                    newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/",
+                                    (l_x, l_y), FRAME_RATE * 5)
+                    lightning_bolt_list.append(newl)
+            
+
+            # Object updates
+            player.update()
+            player.set_points_increase_only(-player.rect.centery)
+            player.button_functions() # Functions for player values
+            map.tick() # Update map	
+            player.button_functions() #just functions for player values and stuff
+
+            # Update lighting bolts and add them to the render group
+            for l in lightning_bolt_list:
+                l.update(player)
+                if (l.alive):
+                    render_group.appendSky(l)
+                else:
+                    lightning_bolt_list.remove(l)
 
 
-        # Rendering prep
-        screen.fill(BG_COLOR)
-        map.playerCheck(player)
-        camera.update()
+            # Rendering prep
+            screen.fill(BG_COLOR)
+            map.playerCheck(player)
+            camera.update()
 
-        # Rendering
-        map.fillRendergroup(render_group)
-        render_group.appendTo(player, 3)
-        render_group.render(screen, camera) # Render everything within the render group
+            # Rendering
+            map.fillRendergroup(render_group)
+            render_group.appendTo(player, 3)
+            render_group.render(screen, camera) # Render everything within the render group
 
-        # Drawing the UI last
-        ui.draw(screen, ui_font, WHITE)
+            # Drawing the UI last
+            ui.draw(screen, ui_font, WHITE)
 
-        # Refresh the display
-        pygame.display.flip()
+            # Refresh the display
+            pygame.display.flip()
 
-        # Renderng cleanup
-        render_group.clearAll()
-        
-        i -= 1
-        
-        if i < 1:
-            # print(map.getStats())
-            print(clock.get_fps())
-            #print(map.getStats())
-            # print("Player Health =", player.health)
-            i = PRINT_RATE
+            # Rendering cleanup
+            render_group.clearAll()
+            
+            i -= 1
+            
+            if i < 1:
+                # print(map.getStats())
+                print(clock.get_fps())
+                #print(map.getStats())
+                # print("Player Health =", player.health)
+                i = PRINT_RATE
 
-        
-        
-        # Cap the frame rate
-        clock.tick(FRAME_RATE)
+            
+            
+            # Cap the frame rate
+            clock.tick(FRAME_RATE)
 
     # Quit Pygame
     pygame.quit()
@@ -232,7 +244,7 @@ def options():
                 if back_button.is_clicked(mouse_pos):
                     music_manager.play_soundfx(menuclick, .5)
                     main_menu()
-        clock.tick(60)
+        clock.tick(FRAME_RATE)
 
 def quit():
     pygame.quit()
@@ -285,7 +297,7 @@ def main_menu():
                 
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(FRAME_RATE)
 
 def game_over():
     gameover_font = pygame.font.SysFont("mvboli", 120)
@@ -321,7 +333,7 @@ def game_over():
         pygame.display.flip()
 
         # Cap the frame rate
-        clock.tick(60)
+        clock.tick(FRAME_RATE)
 
     # Quit Pygame
     pygame.quit()
