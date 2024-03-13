@@ -38,17 +38,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (245, 18, 2)
 
-# Set up the player
-player = Player.Player("assets/sprites/entities/players/cowboy/")
-
-# Create UI
-ui = UI(player)
 
 # Set up clock
 clock = pygame.time.Clock()
-
-# Set up the camera
-camera = Camera(player, screen_width, screen_height)
 
 # Set up the music manager
 music_manager = MusicManager()
@@ -88,6 +80,16 @@ buttons = [play_button, options_button, quit_button, scoreboard_button]
 
 
 def play():
+
+    
+    # Set up the player
+    player = Player.Player("assets/sprites/entities/players/cowboy/")
+
+    # Create UI
+    ui = UI(player)
+
+    # Set up the camera
+    camera = Camera(player, screen_width, screen_height)
 
     music_manager.play_song(maingame, True, .5)
 
