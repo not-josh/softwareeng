@@ -26,7 +26,7 @@ class Renderable():
 
 
 	# Moves without any checks of any kind. Increments x/y, recomputes rect.center
-	def move(self, move:tuple[int,int]):
+	def move(self, move:tuple[float,float]):
 		self.__x += move[0]
 		self.__y += move[1]
 		self.__rect.center = (round(self.__x), round(self.__y))
