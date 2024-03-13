@@ -23,4 +23,4 @@ class Camera:
         self.rect = pygame.Rect(x, y, self.width, self.height)
 
         self.render_area = self.rect.copy()
-        self.render_area.centery = -y
+        self.render_area.centery = -y + (self.rect.height/2)
