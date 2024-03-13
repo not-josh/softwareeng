@@ -180,7 +180,7 @@ def play():
         for e in enemy_list:
             e.update(player)
             if (e.alive):
-                render_group.appendOnGround(e)
+                render_group.appendSky(e)
             else:
                 enemy_list.remove(e)
 
