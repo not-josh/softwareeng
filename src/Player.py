@@ -3,10 +3,11 @@ import Entity
 import Inventory
 import SETTINGS
 import math
+import Collision
 
 class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
     def __init__(self, texture_folder:str, map = 0):
-        super().__init__(   texture_folder, map,    (10,10),  (400,400),  100,    0.8)
+        super().__init__(   texture_folder, map,    (10,10),  (400,400),  100,    1.6)
         
         self.points = 0 #probably best to store points/money directly, rather than in inventory
         self.inventory = Inventory.Inventory()
@@ -48,8 +49,26 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
         if (pygame.key.get_pressed()[pygame.K_s]):
             vertical_direction += 1
         
-        super().move([horizontal_direction, vertical_direction]) # Calls GroundEntity.move(), which checks collisions
+        move_dir = (horizontal_direction, vertical_direction)
+        
+        if not (move_dir[0] or move_dir[1]): return
 
+        move = [self.speed * move_dir[0], self.speed * move_dir[1]]
+
+        # Move without checks
+        checked_move = super().move(move)
+
+
+        if (checked_move[0] and checked_move[1]):
+            # If distances are similar, just shorten the distance equally
+            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.25:
+                self.normalizeMove(checked_move)
+            # If X-movement is greater, adjust X-movement only
+            elif abs(checked_move[1]) < abs(checked_move[0]):
+                self.y += get_undo_move(checked_move[0], checked_move[1], self.speed)
+            # If Y-movement is greater, adjust Y-movement only
+            else:
+                self.x += get_undo_move(checked_move[1], checked_move[0], self.speed)
 
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):
@@ -90,3 +109,10 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
             print("Items:")
             for item in self.inventory.items:
                 print(item , ": " , str(self.inventory.items[item]))
+
+
+def get_undo_move(low:float, high:float, max_dist:float) -> float:
+    dist = abs(math.pow(max_dist, 2) - math.pow(low, 2))
+    new_move = min(math.sqrt(dist),
+                high*math.copysign(1,high)) * math.copysign(1,high)
+    return new_move - high

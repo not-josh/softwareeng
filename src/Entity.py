@@ -40,9 +40,14 @@ class Entity(Renderable.Renderable):
     def kill(self):
         self.health = 0
         self.alive = False
-        
-    def move(self, move):
-        super().move(move)
+
+    # Normalizes a movement vector based on the entity's speed. No change in direction.   
+    def normalizeMove(self, move):
+        dist = max(1.0, math.sqrt(move[0]*move[0] + move[1]*move[1]))
+        super().move((
+            self.speed * move[0] / dist - move[0],
+            self.speed * move[1] / dist - move[1]
+        ))
 
 
 
@@ -52,116 +57,34 @@ class Entity(Renderable.Renderable):
 class GroundEntity(Entity):
     def __init__(self, texture_folder, map, size, pos, health, speed):
         super().__init__(texture_folder+"down.png", size, pos, health, speed)
-        self.map:StaticCollidable = map
         self.texture_folder = texture_folder
+        self.map:StaticCollidable = map
         self.direction_y = "down"
     
-    # Checks collisions, moves, and sets animations
-    def move(self, move_dir):
-        if not (move_dir[0] or move_dir[1]): return
-
-        move = [self.speed * move_dir[0], self.speed * move_dir[1]]
+    # Checks collisions, moves, and returns the movement vector. Does not check that speed limit is not exceeded
+    def move(self, move) -> tuple[float, float]:
+        # Get initial position
         ini_rect = self.get_rect()
         ini_pos = (self.x, self.y)
 
         # Move without checks
         super().move(move)
 
-        # Check movement and snap positon back as needed
-        Collision.collision_oob_snap(self, (SETTINGS.WR_WIDTH, SETTINGS.WR_WIDTH))
-        self.map.collide_stop(self, ini_rect)
-
-
-        checked_move = (self.x-ini_pos[0], self.y-ini_pos[1])
-        if (checked_move[0] and checked_move[1]):
-            # If distances are similar, just shorten the distance equally
-            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.25:
-                checked_dist = math.sqrt(checked_move[0]*checked_move[0]
-                                     + checked_move[1]*checked_move[1])
-                scalar_undo:float = min(self.speed / checked_dist, 1) - 1
-                super().move((
-                    checked_move[0] * scalar_undo,
-                    checked_move[1] * scalar_undo
-                ))
-            # If X-movement is greater, adjust X-movement only
-            elif abs(checked_move[1]) < abs(checked_move[0]):
-                self.y += get_undo_move(checked_move[0], checked_move[1], self.speed)
-            # If Y-movement is greater, adjust Y-movement only
-            else:
-                self.x += get_undo_move(checked_move[1], checked_move[0], self.speed)
-            
-
-
-        # if (move[0] != 0) and (move[1] != 0):
-        #     adjusted_speed = math.sqrt((self.speed*self.speed)/2) - 1
-        #     move[0] = adjusted_speed * move_dir[0]
-        #     move[1] = adjusted_speed * move_dir[1]
-        #     adjusted_speed = math.sqrt((self.speed*self.speed)/2)
-        #     move[0] = adjusted_speed * move_dir[0]
-        #     move[1] = adjusted_speed * move_dir[1]
-        #   ^^ "normalizes" the movement "vector" ^^
-        
-        
-        match(move_dir[0]):
-            case(-1):
-                self.surface = pygame.image.load(self.texture_folder + "left.png")
-            case(1):
-                self.surface = pygame.image.load(self.texture_folder + "right.png")
-        match(move_dir[1]):
-            case(-1):
-                self.surface = pygame.image.load(self.texture_folder + "up.png")
-                self.direction_y = "up"
-            case(1):
+        # If vertical movement is more than horizontal
+        if (abs(move[1]) > abs(move[0])):
+            if move[1] > 0:
                 self.surface = pygame.image.load(self.texture_folder + "down.png")
-                self.direction_y = "down"
-
-    # Checks collisions, moves, and sets animations
-    def enemy_move(self, movement:tuple[float,float]):
-        if (movement[0] == 0 and movement[1] == 0): return
-        ini_rect = self.get_rect()
-        ini_pos = (self.x, self.y)
-
-        # Move without checks
-        super().move(movement)
+            else:
+                self.surface = pygame.image.load(self.texture_folder + "up.png")
+        else:
+            if move[0] > 0:
+                self.surface = pygame.image.load(self.texture_folder + "right.png")
+            else:
+                self.surface = pygame.image.load(self.texture_folder + "left.png")
 
         # Check movement and snap positon back as needed
         Collision.collision_oob_snap(self, (SETTINGS.WR_WIDTH, SETTINGS.WR_WIDTH))
         self.map.collide_stop(self, ini_rect)
 
-
-        checked_move = (self.x-ini_pos[0], self.y-ini_pos[1])
-        if (checked_move[0] and checked_move[1]):
-            # If distances are similar, just shorten the distance equally
-            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.25:
-                checked_dist = math.sqrt(checked_move[0]*checked_move[0]
-                                     + checked_move[1]*checked_move[1])
-                scalar_undo:float = min(self.speed / checked_dist, 1) - 1
-                super().move((
-                    checked_move[0] * scalar_undo,
-                    checked_move[1] * scalar_undo
-                ))
-            # If X-movement is greater, adjust X-movement only
-            elif abs(checked_move[1]) < abs(checked_move[0]):
-                self.y += get_undo_move(checked_move[0], checked_move[1], self.speed)
-            # If Y-movement is greater, adjust Y-movement only
-            else:
-                self.x += get_undo_move(checked_move[1], checked_move[0], self.speed) 
-        
-        if (movement[0] < 0):
-            self.surface = pygame.image.load(self.texture_folder + "left.png")
-        elif (movement[0] > 1):
-            self.surface = pygame.image.load(self.texture_folder + "right.png")
-        if (movement[1] < 0):
-            self.surface = pygame.image.load(self.texture_folder + "up.png")
-            self.direction_y = "up"
-        elif (movement[1] > 0):
-            self.surface = pygame.image.load(self.texture_folder + "down.png")
-            self.direction_y = "down"
-
-        
-def get_undo_move(low:float, high:float, max_dist:float) -> float:
-    dist = abs(math.pow(max_dist, 2) - math.pow(low, 2))
-    new_move = min(math.sqrt(dist),
-                high*math.copysign(1,high)) * math.copysign(1,high)
-    return new_move - high
+        return (self.x-ini_pos[0], self.y-ini_pos[1])
     

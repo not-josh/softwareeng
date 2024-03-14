@@ -28,4 +28,6 @@ class Enemy(Entity.GroundEntity):
         dx = player_pos[0] - self.get_rect().centerx
         dy = player_pos[1] - self.get_rect().centery
         distance = math.sqrt(dx * dx + dy * dy)
-        super().enemy_move((dx/distance * self.speed, dy/distance * self.speed))
+        move = (dx/distance * self.speed, dy/distance * self.speed)
+        checked_mvoe = super().move(move)
+        self.normalizeMove(checked_mvoe)
