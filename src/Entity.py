@@ -44,7 +44,7 @@ class Entity(Renderable.Renderable):
     # Normalizes a movement vector based on the entity's speed. No change in direction.   
     def normalizeMove(self, move):
         dist = max(1.0, math.sqrt(move[0]*move[0] + move[1]*move[1]))
-        super().move((
+        self.raw_move((
             self.speed * move[0] / dist - move[0],
             self.speed * move[1] / dist - move[1]
         ))
@@ -61,14 +61,15 @@ class GroundEntity(Entity):
         self.map:StaticCollidable = map
         self.direction_y = "down"
     
-    # Checks collisions, moves, and returns the movement vector. Does not check that speed limit is not exceeded
+    # Checks collisions, moves, and returns the movement vector
+    # UNNORMALIZED - Does not check if the movement vector exceeds the max speed
     def move(self, move) -> tuple[float, float]:
         # Get initial position
         ini_rect = self.get_rect()
         ini_pos = (self.x, self.y)
 
         # Move without checks
-        super().move(move)
+        self.raw_move(move)
 
         # If vertical movement is more than horizontal
         if (abs(move[1]) > abs(move[0])):

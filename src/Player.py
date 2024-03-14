@@ -3,7 +3,6 @@ import Entity
 import Inventory
 import SETTINGS
 import math
-import Collision
 
 class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
     def __init__(self, texture_folder:str, map = 0):
@@ -55,7 +54,7 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
 
         move = [self.speed * move_dir[0], self.speed * move_dir[1]]
 
-        # Move without checks
+        # Move with collision checks, return actual movement vector
         checked_move = super().move(move)
 
 
