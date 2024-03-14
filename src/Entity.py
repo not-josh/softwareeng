@@ -41,9 +41,12 @@ class Entity(Renderable.Renderable):
         self.health = 0
         self.alive = False
 
-    # Normalizes a movement vector based on the entity's speed. No change in direction.   
+    # If an entity has moved too much, undo part of that move so that the entity hasn't gone past its max speed
+    # I.e. normalizes movement vector to the entity's length 
     def normalizeMove(self, move):
-        dist = max(1.0, math.sqrt(move[0]*move[0] + move[1]*move[1]))
+        dist = math.sqrt(move[0]*move[0] + move[1]*move[1])
+        if dist <= 1: return
+
         self.raw_move((
             self.speed * move[0] / dist - move[0],
             self.speed * move[1] / dist - move[1]
@@ -72,7 +75,7 @@ class GroundEntity(Entity):
         self.raw_move(move)
 
         # If vertical movement is more than horizontal
-        if (abs(move[1]) > abs(move[0])):
+        if (abs(move[1]) > abs(move[0])+0.25): # +0.25 is to prevent spazzing when moving perfectly diagonal
             if move[1] > 0:
                 self.surface = pygame.image.load(self.texture_folder + "down.png")
             else:
@@ -87,5 +90,6 @@ class GroundEntity(Entity):
         Collision.collision_oob_snap(self, (SETTINGS.WR_WIDTH, SETTINGS.WR_WIDTH))
         self.map.collide_stop(self, ini_rect)
 
+        # Return movement vector
         return (self.x-ini_pos[0], self.y-ini_pos[1])
     

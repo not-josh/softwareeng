@@ -57,17 +57,17 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
         # Move with collision checks, return actual movement vector
         checked_move = super().move(move)
 
-
+        # If the entity is moving
         if (checked_move[0] and checked_move[1]):
             # If distances are similar, just shorten the distance equally
-            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.25:
+            if abs(abs(checked_move[0]) - abs(checked_move[1])) < 0.125:
                 self.normalizeMove(checked_move)
             # If X-movement is greater, adjust X-movement only
             elif abs(checked_move[1]) < abs(checked_move[0]):
-                self.y += get_undo_move(checked_move[0], checked_move[1], self.speed)
+                self.y += undoAxis(checked_move[1], checked_move[0], self.speed)
             # If Y-movement is greater, adjust Y-movement only
             else:
-                self.x += get_undo_move(checked_move[1], checked_move[0], self.speed)
+                self.x += undoAxis(checked_move[0], checked_move[1], self.speed)
 
     def button_functions(self):
         if (pygame.key.get_pressed()[pygame.K_z]):
@@ -110,8 +110,8 @@ class Player(Entity.GroundEntity):# pygame.sprite.Sprite):
                 print(item , ": " , str(self.inventory.items[item]))
 
 
-def get_undo_move(low:float, high:float, max_dist:float) -> float:
-    dist = abs(math.pow(max_dist, 2) - math.pow(low, 2))
+def undoAxis(undo_axis:float, other_axis:float, max_dist:float) -> float:
+    dist = abs(math.pow(max_dist, 2) - math.pow(other_axis, 2))
     new_move = min(math.sqrt(dist),
-                high*math.copysign(1,high)) * math.copysign(1,high)
-    return new_move - high
+                undo_axis*math.copysign(1,undo_axis)) * math.copysign(1,undo_axis)
+    return new_move - undo_axis
