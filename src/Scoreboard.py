@@ -16,9 +16,11 @@ SB_DIR = "Scores/"
 SB_FILE = "Scores.sb"
 ARCHIVE_DIR = SB_DIR + "Archive/"
 
+
 DT_FORMAT = "%Y/%m/%d-%H:%M:%S"
 
 USR_CHAR_COUNT = 3
+SCORE_DIGIT_COUNT = 12
 NAME_FORM = re.compile("^[A-Z]{%d}$" % USR_CHAR_COUNT)
 
 
@@ -81,12 +83,80 @@ def sortUser(obj:Score): return (obj.username, obj.score, obj.date)
 #		- 
 class Scoreboard(Renderable):
 
-	def __init__(self, size:tuple[int,int], min_font_size = 12, row_spacing = 4, col_spacing = 8) -> None:
+	def __init__(self, size:tuple[int,int], color = (255,255,255), font = -1, row_spacing = 4, min_col_spacing = 8) -> None:
 		super().__init__()
 		if not Scoreboard.scores_loaded: Scoreboard.loadScores()
+
+		self.color = color
+		self.min_col_spacing = min_col_spacing
+		self.row_spacing = row_spacing
 		
-		
-		pass
+		if font != -1:
+			self.font:pygame.font.Font = font
+		else:
+			self.font:pygame.font.Font = pygame.font.Font(None, 24)
+
+		self.index = 0
+		self.rect = pygame.Rect((0,0), size)
+
+	@property
+	def size(self): return (self.rect.width, self.rect.height)
+	@size.setter
+	def size(self, set:tuple[int,int]):
+		center = self.rect.center
+		self.rect.size = set
+		self.rect.center = center
+		self.redraw()
+
+	# Two opposing corners of the area of the rect
+	@property
+	def span(self): return (self.rect.topleft, self.rect.topright)
+	@span.setter
+	def span(self, set:tuple[tuple[int,int], tuple[int,int]]):
+		top = min(set[0][1], set[1][1])
+		left = min(set[0][0], set[1][0])
+		width = abs(set[0][0] - set[1][0])
+		height = abs(set[0][1] - set[1][1])
+		self.rect = pygame.Rect(top, left, width, height)
+		self.redraw()
+	
+	def redraw(self):
+		surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+		pygame.draw.line(surface, self.color, (0, 0), (0, self.rect.height))
+		pygame.draw.line(surface, self.color, (self.rect.width-1, 0), (self.rect.width-1, self.rect.height))
+		h = 0
+
+		char_size = self.font.size('_')
+		char_x = char_size[0]
+		char_y = char_size[1]
+
+		score_header = "Score"
+		user_header = "Username"
+		date_header = "Date"
+
+		score_w = max(char_x*SCORE_DIGIT_COUNT, char_x*len(score_header))
+		user_w = max(char_x*USR_CHAR_COUNT, char_x*len("Username"))
+		date_w = max(char_x*len("YYYY/DD/MM"), char_x*len(date_header))
+
+		col_spacing = max(self.min_col_spacing, (self.rect.width - (score_w+user_w+date_w)) // 2)
+		half_spacing = col_spacing // 2
+
+		score_x = 0
+		user_x = score_x + score_w + col_spacing
+		su_border = user_x - half_spacing
+		date_x = user_x + user_w + col_spacing
+		ud_border = date_x - half_spacing
+
+		print(col_spacing * 2 + (score_w+user_w+date_w))
+		pygame.draw.line(surface, (127,127,127), (su_border, 0), (su_border, self.rect.height))
+		pygame.draw.line(surface, (127,127,127), (ud_border, 0), (ud_border, self.rect.height))
+
+		# Draw header
+		surface.blit(self.font.render("Score", True, self.color), (score_x, 0))
+		surface.blit(self.font.render("Username", True, self.color), (user_x, 0))
+		surface.blit(self.font.render("Date", True, self.color), (date_x, 0))
+
+		self.surface = surface
 
 
 	### BEGIN STATIC COMPONENTS ###
