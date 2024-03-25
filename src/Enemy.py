@@ -3,6 +3,7 @@ import math
 import pygame
 import Player
 import SETTINGS
+import StaticMusicManager
 
 class Enemy(Entity.GroundEntity):
     def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
@@ -16,9 +17,9 @@ class Enemy(Entity.GroundEntity):
     def melee_attack(self, player:Player.Player):
         self.attack_cooldown = max(self.attack_cooldown-1, 0)
         if (self.attack_cooldown == 0):
-            if (self.get_rect().colliderect(player.get_rect())):
+            if (self.get_rect().colliderect(player.get_rect())) and player.alive:
                 player.lower_health(self.attack_damage)
-                
+                StaticMusicManager.play_soundfx(SETTINGS.MELEE_ENEMY_ATTACK_SOUND)
                 self.attack_cooldown = self.attack_cooldown_max
 
 
