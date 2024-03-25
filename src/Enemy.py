@@ -31,7 +31,6 @@ class Enemy(Entity.GroundEntity):
             if player.alive:
                 angle = math.degrees(math.atan((player.y-self.y) / (player.x-self.x)))
                 if (player.xi < self.xi): angle += 180
-                print(angle)
                 newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), self.pos, 1, 1, 20,
                                              angle)
                 self.enemy_projectile_list.append(newp)

@@ -107,7 +107,7 @@ def play():
     l_pressed = False
     p_pressed = False
     k_pressed = False
-    h_pressed = False
+    right_bracket_pressed = False
 
     i = PRINT_RATE
 
@@ -148,12 +148,12 @@ def play():
         else:
             k_pressed = False
         if (pygame.key.get_pressed()[pygame.K_RIGHTBRACKET]):
-            if (h_pressed == False):
+            if (right_bracket_pressed == False):
                 newe = Enemy.RangedEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20, enemy_projectile_list)
                 enemy_list.append(newe)
-            h_pressed = True
+            right_bracket_pressed = True
         else:
-            h_pressed = False
+            right_bracket_pressed = False
 
         # Spawn new lightning bolts
         current_frame += 1
