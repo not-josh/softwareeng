@@ -82,6 +82,8 @@ back_button = Button(280, 400, img_button, "Back", menu_button_font)
 
 buttons = [play_button, options_button, quit_button]
 
+enemy_projectile_list:list[Projectile.Projectile] = []
+
 
 def play():
 
@@ -100,11 +102,12 @@ def play():
 
     lightning_bolt_list:list[Lightning.Lightning] = []
     enemy_list:list[Enemy.Enemy] = []
-    enemy_projectile_list:list[Projectile.Projectile] = []
+    #enemy_projectile_list:list[Projectile.Projectile] = []
 
     l_pressed = False
     p_pressed = False
     k_pressed = False
+    h_pressed = False
 
     i = PRINT_RATE
 
@@ -144,6 +147,13 @@ def play():
             k_pressed = True
         else:
             k_pressed = False
+        if (pygame.key.get_pressed()[pygame.K_RIGHTBRACKET]):
+            if (h_pressed == False):
+                newe = Enemy.RangedEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20, enemy_projectile_list)
+                enemy_list.append(newe)
+            h_pressed = True
+        else:
+            h_pressed = False
 
         # Spawn new lightning bolts
         current_frame += 1
@@ -181,6 +191,7 @@ def play():
             e.update(player)
             if (e.alive):
                 render_group.appendEntity(e)
+                
             else:
                 enemy_list.remove(e)
 

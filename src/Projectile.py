@@ -30,4 +30,4 @@ class Projectile(Entity.Entity):
         self.surface = pygame.transform.rotate(self.starting_image, -self.angle)
         dx = self.speed * math.cos(math.radians(self.angle))
         dy = self.speed * math.sin(math.radians(self.angle))
-        super().move((dx,dy))
+        super().raw_move((dx,dy))

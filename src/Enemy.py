@@ -4,6 +4,8 @@ import pygame
 import Player
 import SETTINGS
 import StaticMusicManager
+import Projectile
+import math
 
 class Enemy(Entity.GroundEntity):
     def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
@@ -13,6 +15,7 @@ class Enemy(Entity.GroundEntity):
         self.attack_cooldown_max:int = SETTINGS.ENEMY_MELEE_COOLDOWN
         self.attack_cooldown:int = 0
         self.tex_offset = [-3,-6]
+        self.enemy_projectile_list:list[Projectile.Projectile] = []
 
     def melee_attack(self, player:Player.Player):
         self.attack_cooldown = max(self.attack_cooldown-1, 0)
@@ -26,10 +29,13 @@ class Enemy(Entity.GroundEntity):
         self.attack_cooldown = max(self.attack_cooldown-1, 0)
         if (self.attack_cooldown == 0):
             if player.alive:
-                pass
-            ##################################################
-            ######################################
-            ####################################
+                angle = math.degrees(math.atan((player.y-self.y) / (player.x-self.x)))
+                if (player.xi < self.xi): angle += 180
+                print(angle)
+                newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), self.pos, 1, 1, 20,
+                                             angle)
+                self.enemy_projectile_list.append(newp)
+                self.attack_cooldown = self.attack_cooldown_max
 
 
     def update(self, player:Player.Player):
@@ -55,3 +61,12 @@ class MeleeEnemy(Enemy):
         if (self.alive):
             self.melee_attack(player)
             self.move(player.get_rect().center)
+
+class RangedEnemy(Enemy):
+    def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, enemy_projectile_list, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
+        super().__init__(folder, map, size, pos, health, attack_damage, speed)
+        self.enemy_projectile_list = enemy_projectile_list
+
+    def update(self, player:Player.Player):
+        if (self.alive):
+            self.ranged_attack(player)
