@@ -6,7 +6,7 @@ import Collision
 from Collision import StaticCollidable
 
 class Entity(Renderable.Renderable):
-    def __init__(self, texture, size, pos, health, speed):
+    def __init__(self, texture, size, pos, health, speed:float):
         super().__init__(   texture,      size,  pos)
         #                   ^ img file                  ^ size      ^start pos
         self.speed = speed
@@ -58,7 +58,7 @@ class Entity(Renderable.Renderable):
 # For entities that walk around on the ground. 
 # They can face is the 4 cardinal direcitons, and need to check collisions with the map. 
 class GroundEntity(Entity):
-    def __init__(self, texture_folder, map, size, pos, health, speed):
+    def __init__(self, texture_folder, map, size, pos, health, speed:float):
         super().__init__(texture_folder+"down.png", size, pos, health, speed)
         self.texture_folder = texture_folder
         self.map:StaticCollidable = map

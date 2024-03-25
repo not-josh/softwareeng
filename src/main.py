@@ -139,7 +139,7 @@ def play():
 
         if (pygame.key.get_pressed()[pygame.K_k]):
             if (k_pressed == False):
-                newe = Enemy.Enemy("assets/sprites/entities/enemies/zombie/", map, (16,16), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 1, 20)
+                newe = Enemy.MeleeEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20)#, 1)
                 enemy_list.append(newe)
             k_pressed = True
         else:

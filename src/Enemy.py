@@ -5,18 +5,20 @@ import Player
 import SETTINGS
 
 class Enemy(Entity.GroundEntity):
-    def __init__(self, folder:str, map, size, pos, health:int, speed:int, attack_damage:int):
+    def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
         super().__init__(folder, map, size, pos, health, speed)
         self.folder = folder
         self.attack_damage:int = attack_damage
         self.attack_cooldown_max:int = SETTINGS.ENEMY_MELEE_COOLDOWN
         self.attack_cooldown:int = 0
+        self.tex_offset = [-3,-6]
 
     def melee_attack(self, player:Player.Player):
         self.attack_cooldown = max(self.attack_cooldown-1, 0)
         if (self.attack_cooldown == 0):
             if (self.get_rect().colliderect(player.get_rect())):
                 player.lower_health(self.attack_damage)
+                
                 self.attack_cooldown = self.attack_cooldown_max
 
 
@@ -34,3 +36,12 @@ class Enemy(Entity.GroundEntity):
             dy/distance * self.speed
         ))
         self.normalizeMove(checked_move)
+
+class MeleeEnemy(Enemy):
+    def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
+        super().__init__(folder, map, size, pos, health, attack_damage, speed)
+
+    def update(self, player:Player.Player):
+        if (self.alive):
+            self.melee_attack(player)
+            self.move(player.get_rect().center)
