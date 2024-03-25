@@ -22,6 +22,15 @@ class Enemy(Entity.GroundEntity):
                 StaticMusicManager.play_soundfx(SETTINGS.MELEE_ENEMY_ATTACK_SOUND)
                 self.attack_cooldown = self.attack_cooldown_max
 
+    def ranged_attack(self, player:Player.Player):
+        self.attack_cooldown = max(self.attack_cooldown-1, 0)
+        if (self.attack_cooldown == 0):
+            if player.alive:
+                pass
+            ##################################################
+            ######################################
+            ####################################
+
 
     def update(self, player:Player.Player):
         if (self.alive):
