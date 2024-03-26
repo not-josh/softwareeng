@@ -105,6 +105,7 @@ def play():
     l_pressed = False
     p_pressed = False
     k_pressed = False
+    left_bracket_pressed = False
     right_bracket_pressed = False
 
     i = PRINT_RATE
@@ -145,9 +146,17 @@ def play():
             k_pressed = True
         else:
             k_pressed = False
+        if (pygame.key.get_pressed()[pygame.K_LEFTBRACKET]):
+            if (left_bracket_pressed == False):
+                newe = Enemy.RangedEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20, enemy_projectile_list)
+                enemy_list.append(newe)
+            left_bracket_pressed = True
+        else:
+            left_bracket_pressed = False
+
         if (pygame.key.get_pressed()[pygame.K_RIGHTBRACKET]):
             if (right_bracket_pressed == False):
-                newe = Enemy.RangedEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20, enemy_projectile_list)
+                newe = Enemy.SummonerEnemy("assets/sprites/entities/enemies/zombie/", map, (10,10), (player.xi + 10, player.top-.25*SETTINGS.WR_HEIGHT), 100, 20, lightning_bolt_list)
                 enemy_list.append(newe)
             right_bracket_pressed = True
         else:

@@ -6,6 +6,7 @@ import SETTINGS
 import StaticMusicManager
 import Projectile
 import math
+import Lightning
 
 class Enemy(Entity.GroundEntity):
     def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
@@ -16,6 +17,7 @@ class Enemy(Entity.GroundEntity):
         self.attack_cooldown:int = 0
         self.tex_offset = [-3,-6]
         self.enemy_projectile_list:list[Projectile.Projectile] = []
+        self.lightning_bolt_list:list[Lightning.Lightning]
 
     def melee_attack(self, player:Player.Player):
         self.attack_cooldown = max(self.attack_cooldown-1, 0)
@@ -34,6 +36,15 @@ class Enemy(Entity.GroundEntity):
                 newp = Projectile.Projectile("assets/sprites/entities/projectiles/bullet.png", (16,16), self.pos, 1, 1, 20,
                                              angle)
                 self.enemy_projectile_list.append(newp)
+                self.attack_cooldown = self.attack_cooldown_max
+
+    def summoner_attack(self, player:Player.Player):
+        self.attack_cooldown = max(self.attack_cooldown-1, 0)
+        if (self.attack_cooldown == 0):
+            if player.alive:
+                newl = Lightning.Lightning("assets/sprites/entities/enemies/lightning/",
+                                (self.xi, self.yi), SETTINGS.FRAMERATE * 5)
+                self.lightning_bolt_list.append(newl)
                 self.attack_cooldown = self.attack_cooldown_max
 
 
@@ -69,3 +80,12 @@ class RangedEnemy(Enemy):
     def update(self, player:Player.Player):
         if (self.alive):
             self.ranged_attack(player)
+
+class SummonerEnemy(Enemy):
+    def __init__(self, folder:str, map, size, pos, health:int, attack_damage:int, lightning_bolt_list, speed:float = SETTINGS.ENEMY_DEFAULT_SPEED):
+        super().__init__(folder, map, size, pos, health, attack_damage, speed)
+        self.lightning_bolt_list = lightning_bolt_list
+
+    def update(self, player:Player.Player):
+        if (self.alive):
+            self.summoner_attack(player)
