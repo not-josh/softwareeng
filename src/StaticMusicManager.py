@@ -11,7 +11,9 @@ standard_volume = 1
 
     # Play song
 def play_song(song, repeat, volume=1):
-    if current_song != song:
+    global music_end, current_song, standard_volume
+    if (current_song == None):
+        # or current_song != song:
         current_song = song
         repeat = repeat
         set_volume(volume)
@@ -36,6 +38,7 @@ def set_volume(volume):
 
     # Volume check
 def volume_check(event):
+    global standard_volume
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_UP:
             standard_volume += .1

@@ -8,11 +8,11 @@ from Camera import Camera
 import Player
 from Rendergroup import Rendergroup
 import Lightning
-from MusicManager import MusicManager
 from ui import UI
 from Button import Button
 import Enemy
 import Projectile
+import StaticMusicManager
 
 FRAME_RATE = SETTINGS.FRAMERATE
 PRINT_RATE = FRAME_RATE if FRAME_RATE else 600 
@@ -49,8 +49,6 @@ clock = pygame.time.Clock()
 # Set up the camera
 camera = Camera(player, SETTINGS.WR_WIDTH, SETTINGS.WR_HEIGHT)
 
-# Set up the music manager
-music_manager = MusicManager()
 # Songs
 maingame = 'assets/music/Maingame.mp3'
 menu = 'assets/music/Menu.mp3'
@@ -87,7 +85,7 @@ enemy_projectile_list:list[Projectile.Projectile] = []
 
 def play():
 
-    music_manager.play_song(maingame, True, .2)
+    StaticMusicManager.play_song(maingame, True, .2)
 
     render_group = Rendergroup()
 
@@ -122,7 +120,7 @@ def play():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            music_manager.volume_check(event)
+            StaticMusicManager.volume_check(event)
 
         if (pygame.key.get_pressed()[pygame.K_l]):
             if (l_pressed == False):
@@ -262,7 +260,7 @@ def options():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Cycle through the buttons that can be clicked -> perform their action
                 if back_button.is_clicked(mouse_pos):
-                    music_manager.play_soundfx(menuclick, .5)
+                    StaticMusicManager.play_soundfx(menuclick, .5)
                     main_menu()
         clock.tick(60)
 
@@ -272,7 +270,7 @@ def quit():
 
 def main_menu():
 
-    music_manager.play_song(menu, True, .2)
+    StaticMusicManager.play_song(menu, True, .2)
 
     # Game loop
     while True:
@@ -300,13 +298,13 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Cycle through the buttons that can be clicked -> perform their action
                 if play_button.is_clicked(mouse_pos):
-                    music_manager.play_soundfx(menuclick, .5)
+                    StaticMusicManager.play_soundfx(menuclick, .5)
                     play()
                 if options_button.is_clicked(mouse_pos):
-                    music_manager.play_soundfx(menuclick, .5)
+                    StaticMusicManager.play_soundfx(menuclick, .5)
                     options()
                 if quit_button.is_clicked(mouse_pos):
-                    music_manager.play_soundfx(menuclick, .5)
+                    StaticMusicManager.play_soundfx(menuclick, .5)
                     quit()
                 
 
