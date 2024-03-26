@@ -235,7 +235,7 @@ class Room(StaticCollidable):
 		self.loot_list:list[Loot.Loot] = []
 
 		i:int = 0
-		while (i < 5):
+		while (i < random.randint(SETTINGS.MIN_LOOT_PER_ROOM, SETTINGS.MAX_LOOT_PER_ROOM)):
 		#for i in range(0, 5):#random.randint(0,SETTINGS.MAX_LOOT_PER_ROOM)):
 			pos:tuple[int,int] = [random.randint(self.get_rect().left, self.get_rect().right), random.randint(self.get_rect().top, self.get_rect().bottom)]
 			long_val = random.randint(1,100)
