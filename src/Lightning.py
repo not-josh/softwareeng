@@ -17,7 +17,7 @@ class Lightning(Entity.Entity):
     #MAP = None
 
     def __init__(self, folder:str, pos:tuple[int,int], time):
-        super().__init__(   folder+"target_cropped.png",    (13,13),  pos,        100,    0.8)
+        super().__init__(   folder+"target.png",    (8,8),  pos,        100,    0.8)
         #                   ^ img file              ^ size      ^start pos  ^health ^speed
         self.surface.set_alpha(196)
         self.folder = folder
