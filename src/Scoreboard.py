@@ -83,12 +83,12 @@ def sortUser(obj:Score): return (obj.username, obj.score, obj.date)
 #		- 
 class Scoreboard(Renderable):
 
-	def __init__(self, size:tuple[int,int], color = (255,255,255), font = -1, row_spacing = 4, min_col_spacing = 8) -> None:
+	def __init__(self, size:tuple[int,int], color = (255,255,255), font = -1, row_spacing = 8, col_padding = 12) -> None:
 		super().__init__()
 		if not Scoreboard.scores_loaded: Scoreboard.loadScores()
 
 		self.color = color
-		self.min_col_spacing = min_col_spacing
+		self.col_padding = col_padding
 		self.row_spacing = row_spacing
 		
 		if font != -1:
@@ -121,6 +121,58 @@ class Scoreboard(Renderable):
 		self.redraw()
 	
 	def redraw(self):
+		char_size = self.font.size('_')
+		char_x = char_size[0]
+		char_y = char_size[1]
+
+		score_header = "Score"
+		user_header = "Username"
+		date_header = "Date"
+
+		score_w = max(char_x*SCORE_DIGIT_COUNT, char_x*len(score_header))
+		user_w = max(char_x*USR_CHAR_COUNT, char_x*len("Username"))
+		date_w = max(char_x*len("YYYY/DD/MM"), char_x*len(date_header))
+
+		tot_content_width = score_w + user_w + date_w + 6 * self.col_padding
+		tot_col_space = self.size[0] - tot_content_width
+		if tot_col_space < 0:
+			self.size = (tot_content_width, self.size[1])
+			print("Assigned width of %d" % tot_content_width)
+			tot_col_space = 6 * self.col_padding
+			left_padding = self.col_padding
+			right_padding = self.col_padding
+		else:
+			left_padding = self.col_padding
+			right_padding = tot_col_space - 3 * left_padding
+
+
+		surface = pygame.Surface(self.size, pygame.SRCALPHA)
+
+		# Define x positions of column contents and dividers
+		div1_x = 0
+		score_x = left_padding
+		div2_x = score_x + user_w + right_padding
+		user_x = div2_x + left_padding
+		div3_x = user_x + user_w + right_padding
+		date_x = div3_x + left_padding
+		div4_x = self.size[0] - 1
+
+		# Draw divider lines
+		pygame.draw.line(surface, (127,127,127), (div1_x, 0), (div1_x, self.rect.height))
+		pygame.draw.line(surface, (127,127,127), (div2_x, 0), (div2_x, self.rect.height))
+		pygame.draw.line(surface, (127,127,127), (div3_x, 0), (div3_x, self.rect.height))
+		pygame.draw.line(surface, (127,127,127), (div4_x, 0), (div4_x, self.rect.height))
+
+		# Draw header
+		surface.blit(self.font.render("Score", True, self.color), (score_x, 0))
+		surface.blit(self.font.render("Username", True, self.color), (user_x, 0))
+		surface.blit(self.font.render("Date", True, self.color), (date_x, 0))
+
+		self.surface = surface
+
+
+	
+	def redrawOld(self):
 		surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 		pygame.draw.line(surface, self.color, (0, 0), (0, self.rect.height))
 		pygame.draw.line(surface, self.color, (self.rect.width-1, 0), (self.rect.width-1, self.rect.height))
