@@ -16,8 +16,8 @@ screen = pygame.display.set_mode((800, 720))
 
 clock = pygame.time.Clock()
 
-font = pygame.font.Font(None, 40)
-sb = Scoreboard((500,500), (255,255,255), font)
+font = pygame.font.Font(None, 32)
+sb = Scoreboard((20,500), (255,255,255), font)
 sb.span = ((100,100), (600,600))
 
 running = True

@@ -55,7 +55,10 @@ class Score():
 			self.valid = False
 			return
 
-
+	def scoreStr(self): return str(self.score)
+	def userStr(self): return self.username
+	def dateStr(self): return self.date.strftime(DT_FORMAT)
+	
 	def __str__(self) -> str:
 		return	self.score.__str__() + \
 				" " + self.username + \
@@ -83,13 +86,13 @@ def sortUser(obj:Score): return (obj.username, obj.score, obj.date)
 #		- 
 class Scoreboard(Renderable):
 
-	def __init__(self, size:tuple[int,int], color = (255,255,255), font = -1, row_spacing = 8, col_padding = 12) -> None:
+	def __init__(self, size:tuple[int,int], color = (255,255,255), font = -1, row_padding = 8, col_padding = 12) -> None:
 		super().__init__()
 		if not Scoreboard.scores_loaded: Scoreboard.loadScores()
 
 		self.color = color
 		self.col_padding = col_padding
-		self.row_spacing = row_spacing
+		self.row_padding = row_padding
 		
 		if font != -1:
 			self.font:pygame.font.Font = font
@@ -131,16 +134,16 @@ class Scoreboard(Renderable):
 
 		score_w = max(char_x*SCORE_DIGIT_COUNT, char_x*len(score_header))
 		user_w = max(char_x*USR_CHAR_COUNT, char_x*len("Username"))
-		date_w = max(char_x*len("YYYY/DD/MM"), char_x*len(date_header))
+		date_w = max(char_x*len(DT_FORMAT), char_x*len(date_header))
 
 		tot_content_width = score_w + user_w + date_w + 6 * self.col_padding
 		tot_col_space = self.size[0] - tot_content_width
+		# If scores go off of scorebaord on right
 		if tot_col_space < 0:
-			self.size = (tot_content_width, self.size[1])
-			print("Assigned width of %d" % tot_content_width)
 			tot_col_space = 6 * self.col_padding
 			left_padding = self.col_padding
 			right_padding = self.col_padding
+		# If scores fit on scoreboard
 		else:
 			left_padding = self.col_padding
 			right_padding = tot_col_space - 3 * left_padding
@@ -148,26 +151,56 @@ class Scoreboard(Renderable):
 
 		surface = pygame.Surface(self.size, pygame.SRCALPHA)
 
+		# Stuff
+		top = 0
+		bottom = self.rect.height-1
+		left = 0
+		right = self.rect.width-1
+
 		# Define x positions of column contents and dividers
-		div1_x = 0
+		div1_x = left
 		score_x = left_padding
 		div2_x = score_x + user_w + right_padding
 		user_x = div2_x + left_padding
 		div3_x = user_x + user_w + right_padding
 		date_x = div3_x + left_padding
-		div4_x = self.size[0] - 1
+		div4_x = right
+
+		header_y = top + self.row_padding
+
 
 		# Draw divider lines
-		pygame.draw.line(surface, (127,127,127), (div1_x, 0), (div1_x, self.rect.height))
-		pygame.draw.line(surface, (127,127,127), (div2_x, 0), (div2_x, self.rect.height))
-		pygame.draw.line(surface, (127,127,127), (div3_x, 0), (div3_x, self.rect.height))
-		pygame.draw.line(surface, (127,127,127), (div4_x, 0), (div4_x, self.rect.height))
+		pygame.draw.line(surface, (127,127,127), (div1_x, top), (div1_x, bottom))
+		pygame.draw.line(surface, (127,127,127), (div2_x, top), (div2_x, bottom))
+		pygame.draw.line(surface, (127,127,127), (div3_x, top), (div3_x, bottom))
+		pygame.draw.line(surface, (127,127,127), (div4_x, top), (div4_x, bottom))
+		pygame.draw.line(surface, (127,127,127), (left, top), (right, top))
+		pygame.draw.line(surface, (127,127,127), (left, bottom), (right, bottom))
 
 		# Draw header
-		surface.blit(self.font.render("Score", True, self.color), (score_x, 0))
-		surface.blit(self.font.render("Username", True, self.color), (user_x, 0))
-		surface.blit(self.font.render("Date", True, self.color), (date_x, 0))
+		surface.blit(self.font.render("Score", True, self.color), (score_x, header_y))
+		surface.blit(self.font.render("Username", True, self.color), (user_x, header_y))
+		surface.blit(self.font.render("Date", True, self.color), (date_x, header_y))
 
+		scores = Scoreboard.scores_by_score
+		y = header_y + char_y + self.row_padding
+		i = 0
+		cnt = len(scores)
+		
+		while y < bottom and i < cnt:
+			pygame.draw.line(surface, (127,127,127), (left, y), (right, y))
+			
+			# Draw contents
+			y += self.row_padding
+			surface.blit(self.font.render(scores[i].scoreStr(), True, self.color), (score_x, y))
+			surface.blit(self.font.render(scores[i].userStr(), True, self.color), (user_x, y))
+			surface.blit(self.font.render(scores[i].dateStr(), True, self.color), (date_x, y))
+			
+			y += self.row_padding + char_y
+			i += 1
+		pygame.draw.line(surface, (127,127,127), (left, y), (right, y))
+
+		# Assign final surface
 		self.surface = surface
 
 
