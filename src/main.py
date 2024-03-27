@@ -50,6 +50,7 @@ menu = 'assets/music/Menu.mp3'
 menuclick = 'assets/sounds/menuselect.mp3'
 testsound = 'assets/sounds/testsound.mp3'
 music_gameover = 'assets/music/GameOver.mp3'
+sound_fadeaway = 'assets/sounds/fadeaway.mp3'
 
 # Button setup
 menu_button_font = pygame.font.Font(None, 48)
@@ -81,6 +82,9 @@ buttons = [play_button, options_button, quit_button, scoreboard_button]
 
 def play():
 
+    gameover_ticks = 0
+    gameover_delay = 200
+    dying = False
     
     # Set up the player
     player = Player.Player("assets/sprites/entities/players/cowboy/")
@@ -117,17 +121,33 @@ def play():
     while running:
 
         # Check for game over
-        if player.health <= 0:
+        if player.health <= 0 and not dying:
+            music_manager.play_soundfx(sound_fadeaway, 0.25)
+            music_manager.set_volume(0)
+            dying = True
+
+        if dying:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
             screen.fill(BLACK)
             render_group.appendTo(player, 3)
             render_group.render(screen, camera)
+
+            # Fading the player via an opacity rect
+            fadescreen = pygame.Surface((screen_width, screen_height))  # the size of your rect
+            fadescreen.set_alpha(gameover_ticks)                # alpha level
+            fadescreen.fill((0,0,0))           # this fills the entire surface
+            screen.blit(fadescreen, (0,0))    # (0,0) are the top-left coordinates
+            
             # Refresh the display
             pygame.display.flip()
             clock.tick(FRAME_RATE)
-            # game_over()
+
+            # To have some time before going to game over screen
+            gameover_ticks += 1
+            if gameover_ticks >= gameover_delay:
+                game_over()
         else:
 
 
@@ -300,35 +320,59 @@ def main_menu():
         clock.tick(FRAME_RATE)
 
 def game_over():
+
+    # Called after the player fades away 
+
+    # Creating both fonts
     gameover_font = pygame.font.SysFont("mvboli", 120)
+    gameover_directions_font = pygame.font.SysFont("mvboli", 50)
+
+    # Setting alpha related variables
     gameover_alpha = 0
     alpha_increase = .75
-    # Game over text
+
+    # Setting up text surfaces
     textsurface_gameover = gameover_font.render("Game Over", True, RED)
+    textsurface_directions = gameover_directions_font.render("Press any key to continue", True, RED)
+
+    # Setting initial alpha (to zero)
     textsurface_gameover.set_alpha(gameover_alpha)
+    textsurface_directions.set_alpha(gameover_alpha)
+
+    # Setting rectangles
     gameover_font_rect = textsurface_gameover.get_rect(center=(screen_width/2, screen_height/4))
+    directions_font_rect = textsurface_gameover.get_rect(center=(screen_width/2, screen_height/1.5))
+
+    # Play the game over music
     music_manager.play_song(music_gameover, False, .5)
     running = True
-    # Game loop for game over screen
+
+    # Game loop
     while running:
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN and gameover_alpha >= 200:
-                # Start decreasing opacity
+                # Start decreasing opacity after keyboard hit
                 alpha_increase *= -1
 
         screen.fill(BLACK)
+
+        # Logic to increase or decrease alpha
         if gameover_alpha <= 200 or alpha_increase < 0:
             gameover_alpha += alpha_increase
             textsurface_gameover.set_alpha(gameover_alpha)
+            textsurface_directions.set_alpha(gameover_alpha)
+
+        # Back to main menu upon fade out
         if gameover_alpha <= 0:
             main_menu()
-            # Go to the main title screen
             
+        # Drawing the text
         screen.blit(textsurface_gameover, gameover_font_rect)
-
+        screen.blit(textsurface_directions, directions_font_rect)
+        
         # Refresh the display
         pygame.display.flip()
 
